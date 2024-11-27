@@ -17,6 +17,7 @@ namespace api.Data
         
      }   
      public DbSet<Auto> Auto{ get; set; }
+     public DbSet<VerhuurVerzoek> verhuurVerzoek { get; set; }
 
      protected override void OnModelCreating(ModelBuilder builder){
         base.OnModelCreating(builder);
