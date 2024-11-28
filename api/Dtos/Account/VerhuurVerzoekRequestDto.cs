@@ -5,14 +5,12 @@ using System.Threading.Tasks;
 
 namespace api.Dtos.Account
 {
-    public class VerhuurVerzoekDto
+    public class VerhuurVerzoekRequestDto
     {
         public DateTime StartDatum { get; set; }   
         public DateTime EindDatum { get; set; }
         public string AardReis  { get; set; }  =string.Empty; 
         public string Bestemming { get; set; } =string.Empty;
         public int VerwachtteKM { get; set; }
-        public DateTime Datum { get; set; }
-        
     }
 }

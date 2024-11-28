@@ -9,5 +9,9 @@ namespace api.Interfaces
     public interface IVerhuurVerzoekService
     {
         Task<List<VerhuurVerzoek>> GetAllAsync();
+
+        Task<VerhuurVerzoek?> GetByIdAsync(int id);
+
+        Task<VerhuurVerzoek> CreateAsync (VerhuurVerzoek verhuurVerzoek);
     }
 }

@@ -21,5 +21,17 @@ namespace api.Repositories
         {
             return  _context.verhuurVerzoek.ToListAsync();
         }
+
+        public async Task<VerhuurVerzoek?> GetByIdAsync(int id)
+        {
+            return await _context.verhuurVerzoek.FindAsync(id);
+        }
+
+         public async Task<VerhuurVerzoek> CreateAsync(VerhuurVerzoek verhuurVerzoekModel)
+        {
+            await _context.verhuurVerzoek.AddAsync(verhuurVerzoekModel);
+            await _context.SaveChangesAsync();
+            return verhuurVerzoekModel;
+        }
     }
 }
