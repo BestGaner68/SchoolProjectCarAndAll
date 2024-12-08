@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using api.Dtos.Account;
 using api.Interfaces;
+using api.Migrations;
 using api.Models;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -18,11 +21,13 @@ namespace api.Controllers
         private readonly UserManager<AppUser> _userManager;
         private readonly ITokenService _tokenService;
         private readonly SignInManager<AppUser> _signInManager;
-        public AccountController(UserManager<AppUser> userManager, ITokenService tokenService, SignInManager<AppUser> signInManager)
+        private readonly IWagenparkService _wagenparkService;
+        public AccountController(UserManager<AppUser> userManager, ITokenService tokenService, SignInManager<AppUser> signInManager, IWagenparkService wagenparkService)
         {
             _userManager = userManager;
             _tokenService = tokenService;
             _signInManager = signInManager;
+            _wagenparkService = wagenparkService;
         }
 
         [HttpPost("Login")]
@@ -51,8 +56,8 @@ namespace api.Controllers
             );
         }
 
-        [HttpPost("register")]
-        public async Task<IActionResult> Register ([FromBody]RegisterDto registerDto){
+        [HttpPost("registerParticulier")]
+        public async Task<IActionResult> RegisterParticulier ([FromBody]RegisterDto registerDto){
             try 
             {
                 if(!ModelState.IsValid)
@@ -95,6 +100,68 @@ namespace api.Controllers
 
             }
 
-        } 
+        }
+        [HttpPost("registerZakelijk")]
+        public async Task<IActionResult> RegisterZakelijk ([FromBody]RegisterDto registerDto){
+            try 
+            {
+                if(!ModelState.IsValid)
+                    return BadRequest (ModelState);
+
+                var bedrijf = await _wagenparkService.GetWagenParkByEmail(registerDto.Email);    
+                if (bedrijf == null){
+                    return BadRequest(new {message = $"Geen wagenpark gevonden met emailstring: {registerDto.Email}"});
+                }
+                
+                var AppUser = new AppUser
+                {
+                    UserName = registerDto.Username,
+                    Email = registerDto.Email,
+                };
+
+                var createdUser = await _userManager.CreateAsync(AppUser, registerDto.Password);
+
+                if(createdUser.Succeeded){
+                    var roleResult = await _userManager.AddToRoleAsync(AppUser, "bedrijfKlant");
+                    if (roleResult.Succeeded){
+                        var result = await _wagenparkService.LinkUserInWagenPark(AppUser.Id, bedrijf.WagenParkId);
+                        if (result)
+                        {
+                            return Ok(
+                            new NewUserDto
+                            {
+                                Username = AppUser.UserName,
+                                Email = AppUser.Email,
+                                Token = _tokenService.CreateToken(AppUser)
+                            }
+                            );
+                        }
+                        else
+                        {
+                            return BadRequest(new { message = "Error linking user to Wagenpark." });
+                        }
+                    }
+                    else{
+                        return StatusCode (500, roleResult.Errors);
+                    }
+                }
+                else
+                {
+                    return StatusCode(500, createdUser.Errors);
+                }
+            }
+            catch(Exception ex)
+            {
+                var errorResponse = new 
+            {
+                Message = ex.Message,  // Include the error message
+                StackTrace = ex.StackTrace // Include the stack trace if needed
+            };
+
+            // Return a generic error response
+            return StatusCode(500, errorResponse);
+            }
+        }
+
     }
 }

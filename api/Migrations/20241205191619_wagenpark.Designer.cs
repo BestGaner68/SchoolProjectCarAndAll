@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using api.Data;
 
@@ -11,9 +12,11 @@ using api.Data;
 namespace api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241205191619_wagenpark")]
+    partial class wagenpark
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -51,31 +54,31 @@ namespace api.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "0bd5e5d8-9d35-48a1-b616-d0fb9817c3ba",
+                            Id = "481cdf0d-3713-48e5-ba44-42aee0785288",
                             Name = "frontendWorker",
                             NormalizedName = "FRONTENDWORKER"
                         },
                         new
                         {
-                            Id = "f7994ad4-4ae1-4a74-b507-11dd1e3e8df8",
+                            Id = "beae6ccd-74b4-4d0a-8174-91e74dac21cb",
                             Name = "backendWorker",
                             NormalizedName = "BACKENDWORKER"
                         },
                         new
                         {
-                            Id = "f82f71cd-373f-4e4f-87be-cdf1db1dbb7d",
+                            Id = "f0ce24c0-ed64-4726-928f-bdb1c95f4082",
                             Name = "particuliereKlant",
                             NormalizedName = "PARTICULIEREKLANT"
                         },
                         new
                         {
-                            Id = "4901d625-2415-4f16-a44f-4c4561c7d8ce",
+                            Id = "d915dd04-b889-4934-a11c-f486f2131dbf",
                             Name = "zakelijkeKlant",
                             NormalizedName = "BEDRIJFKLANT"
                         },
                         new
                         {
-                            Id = "fa104bd1-2f30-4cfc-8d29-dcb00a4eb4cf",
+                            Id = "56c264eb-5fcb-4c62-bbfe-52004588a97a",
                             Name = "wagenparkBeheerder",
                             NormalizedName = "WAGENPARKBEHEERDER"
                         });
@@ -346,21 +349,6 @@ namespace api.Migrations
                     b.ToTable("wagenPark");
                 });
 
-            modelBuilder.Entity("api.Models.WagenparkLinkedUser", b =>
-                {
-                    b.Property<int>("WagenparkId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("AppUserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("WagenparkId", "AppUserId");
-
-                    b.HasIndex("AppUserId");
-
-                    b.ToTable("wagenparkUserLinked");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -421,25 +409,6 @@ namespace api.Migrations
                         .IsRequired();
 
                     b.Navigation("AppUser");
-                });
-
-            modelBuilder.Entity("api.Models.WagenparkLinkedUser", b =>
-                {
-                    b.HasOne("api.Models.AppUser", "AppUser")
-                        .WithMany()
-                        .HasForeignKey("AppUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("api.Models.WagenPark", "Wagenpark")
-                        .WithMany()
-                        .HasForeignKey("WagenparkId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("AppUser");
-
-                    b.Navigation("Wagenpark");
                 });
 #pragma warning restore 612, 618
         }
