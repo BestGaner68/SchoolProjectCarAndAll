@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using api.Data;
 
@@ -11,9 +12,11 @@ using api.Data;
 namespace api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241212122654_wagenparkverzoek")]
+    partial class wagenparkverzoek
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -51,31 +54,31 @@ namespace api.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "36e6f772-6fdb-4d50-80bd-cfa0dab3707a",
+                            Id = "f8af48f4-93b5-4630-be27-3e02f9d4fd6f",
                             Name = "frontendWorker",
                             NormalizedName = "FRONTENDWORKER"
                         },
                         new
                         {
-                            Id = "9c187ed0-8777-4390-b6fe-adffc804256c",
+                            Id = "b1c5589d-4ce9-437c-9eec-20f8125dca72",
                             Name = "backendWorker",
                             NormalizedName = "BACKENDWORKER"
                         },
                         new
                         {
-                            Id = "1f95ce73-c9f8-421c-8b0f-e23a95a6c0d8",
+                            Id = "d205616c-eebf-4425-8dd2-1bac987c0c05",
                             Name = "particuliereKlant",
                             NormalizedName = "PARTICULIEREKLANT"
                         },
                         new
                         {
-                            Id = "f8d3d78f-0d9c-46f4-babc-75336ea71b40",
+                            Id = "0f74965d-5482-4cdf-b940-aa739fef931e",
                             Name = "bedrijfKlant",
                             NormalizedName = "BEDRIJFKLANT"
                         },
                         new
                         {
-                            Id = "ade36858-0055-4f91-aa02-0c8b9d80254e",
+                            Id = "ea32f859-0eb4-4be4-b1f5-e3907edbcb09",
                             Name = "wagenparkBeheerder",
                             NormalizedName = "WAGENPARKBEHEERDER"
                         });
@@ -348,24 +351,15 @@ namespace api.Migrations
 
             modelBuilder.Entity("api.Models.WagenParkVerzoek", b =>
                 {
-                    b.Property<int>("wagenparkverzoekId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("wagenparkverzoekId"));
-
-                    b.Property<string>("AppUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<int>("WagenparkId")
                         .HasColumnType("int");
 
-                    b.HasKey("wagenparkverzoekId");
+                    b.Property<string>("AppUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("WagenparkId", "AppUserId");
 
                     b.HasIndex("AppUserId");
-
-                    b.HasIndex("WagenparkId");
 
                     b.ToTable("wagenparkVerzoeken");
                 });
