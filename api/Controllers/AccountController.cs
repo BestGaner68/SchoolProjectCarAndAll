@@ -109,9 +109,6 @@ namespace api.Controllers
                     return BadRequest (ModelState);
 
                 var bedrijf = await _wagenparkService.GetWagenParkByEmail(registerDto.Email);    
-                if (bedrijf == null){
-                    return BadRequest(new {message = $"Geen wagenpark gevonden met emailstring: {registerDto.Email}"});
-                }
                 
                 var AppUser = new AppUser
                 {

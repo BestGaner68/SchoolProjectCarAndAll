@@ -18,9 +18,9 @@ namespace api.Data
         
      }   
      public DbSet<Auto> Auto{ get; set; }
-     public DbSet<VerhuurVerzoek> VerhuurVerzoek { get; set; }
-     public DbSet<WagenPark> WagenPark { get; set; }
-     public DbSet<WagenparkLinkedUser> WagenparkUserLinked { get; set; }
+     public DbSet<VerhuurVerzoek> verhuurVerzoek { get; set; }
+     public DbSet<WagenPark> wagenPark { get; set; }
+     public DbSet<WagenparkLinkedUser> wagenparkUserLinked { get; set; }
 
      protected override void OnModelCreating(ModelBuilder builder){
         builder.Entity<WagenparkLinkedUser>()
@@ -33,7 +33,7 @@ namespace api.Data
             new IdentityRole { Name = "frontendWorker", NormalizedName = "FRONTENDWORKER" },
             new IdentityRole { Name = "backendWorker", NormalizedName = "BACKENDWORKER" },
             new IdentityRole { Name = "particuliereKlant", NormalizedName = "PARTICULIEREKLANT" },
-            new IdentityRole { Name = "bedrijfKlant", NormalizedName = "BEDRIJFKLANT" },
+            new IdentityRole { Name = "bedrijflant", NormalizedName = "BEDRIJFKLANT" },
             new IdentityRole { Name = "wagenparkBeheerder", NormalizedName = "WAGENPARKBEHEERDER" }
         };
         builder.Entity<IdentityRole>().HasData(roles);
