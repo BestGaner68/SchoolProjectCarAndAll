@@ -22,8 +22,8 @@ namespace api.Controllers
         {
             return NotFound($"No requests found for WagenPark with ID {id}.");
         }
-
-            return Ok(verzoeken);
+        var verzoekenToDto = UserDtoMapper.MapToWagenParkDtos(verzoeken);
+            return Ok(verzoekenToDto);
         }
         
 

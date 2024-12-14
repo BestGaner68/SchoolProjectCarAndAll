@@ -5,8 +5,9 @@ using System.Threading.Tasks;
 
 namespace api.Dtos
 {
-    public class VerhuurVerzoekDto
+    public class WagenParkVerzoekDto
     {
-            
+        public string IdAppuser {get; set;}
+        public int IdWagenPark {get; set;}   
     }
 }

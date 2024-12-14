@@ -78,6 +78,16 @@ builder.Services.AddAuthentication(options => {
     };
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReactApp", policy =>
+    {
+        policy.WithOrigins("http://localhost:5188") // React's dev server URL
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IVerhuurVerzoekService, VerhuurVerzoekRepo>();
 builder.Services.AddScoped<IWagenparkService, WagenparkService>();
@@ -91,6 +101,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.UseCors("AllowReactApp");
 
 app.UseHttpsRedirection();
 
