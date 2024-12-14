@@ -4406,11 +4406,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "c:\\Users\\ayhan\\OneDrive\\Documents\\My Web Sites\\Schoolproj\\api\\api.csproj",
+      "projectUniqueName": "C:\\Users\\ayhan\\OneDrive\\Documents\\My Web Sites\\Schoolproj\\api\\api.csproj",
       "projectName": "api",
-      "projectPath": "c:\\Users\\ayhan\\OneDrive\\Documents\\My Web Sites\\Schoolproj\\api\\api.csproj",
+      "projectPath": "C:\\Users\\ayhan\\OneDrive\\Documents\\My Web Sites\\Schoolproj\\api\\api.csproj",
       "packagesPath": "C:\\Users\\ayhan\\.nuget\\packages\\",
-      "outputPath": "c:\\Users\\ayhan\\OneDrive\\Documents\\My Web Sites\\Schoolproj\\api\\obj\\",
+      "outputPath": "C:\\Users\\ayhan\\OneDrive\\Documents\\My Web Sites\\Schoolproj\\api\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\ayhan\\AppData\\Roaming\\NuGet\\NuGet.Config",

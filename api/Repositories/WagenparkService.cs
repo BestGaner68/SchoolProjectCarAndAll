@@ -47,16 +47,17 @@ namespace api.Repositories
             return gevondenwagenpark == null ? throw new ArgumentException($"geen wagenpark gevonden met emailstring: {email}") : gevondenwagenpark;
         }
 
-        public async Task<bool> LinkUserInWagenPark(string userId, int wagenparkId)
+        
+        public async Task<bool> CreateWagenParkVerzoek(string userId, int wagenparkId)
         {
         try
             {
-            var wagenparkLinkedUser = new WagenparkLinkedUser
+            var wagenparkVerzoek = new WagenParkVerzoek
             {
                 WagenparkId = wagenparkId,
                 AppUserId = userId
             };  
-        await _context.wagenparkUserLinked.AddAsync(wagenparkLinkedUser);
+        await _context.wagenparkVerzoeken.AddAsync(wagenparkVerzoek);
         await _context.SaveChangesAsync();
         return true;
         }

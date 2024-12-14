@@ -81,6 +81,7 @@ builder.Services.AddAuthentication(options => {
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IVerhuurVerzoekService, VerhuurVerzoekRepo>();
 builder.Services.AddScoped<IWagenparkService, WagenparkService>();
+builder.Services.AddScoped<IWagenparkVerzoekService, WagenParkBeheer>();
 
 var app = builder.Build();
 

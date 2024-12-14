@@ -121,7 +121,7 @@ namespace api.Controllers
                 if(createdUser.Succeeded){
                     var roleResult = await _userManager.AddToRoleAsync(AppUser, "bedrijfKlant");
                     if (roleResult.Succeeded){
-                        var result = await _wagenparkService.LinkUserInWagenPark(AppUser.Id, bedrijf.WagenParkId);
+                        var result = await _wagenparkService.CreateWagenParkVerzoek(AppUser.Id, bedrijf.WagenParkId);
                         if (result)
                         {
                             return Ok(
@@ -129,7 +129,7 @@ namespace api.Controllers
                             {
                                 Username = AppUser.UserName,
                                 Email = AppUser.Email,
-                                Token = _tokenService.CreateToken(AppUser)
+                                //Token = _tokenService.CreateToken(AppUser)
                             }
                             );
                         }

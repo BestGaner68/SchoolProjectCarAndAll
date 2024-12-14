@@ -21,12 +21,14 @@ namespace api.Data
      public DbSet<VerhuurVerzoek> verhuurVerzoek { get; set; }
      public DbSet<WagenPark> wagenPark { get; set; }
      public DbSet<WagenparkLinkedUser> wagenparkUserLinked { get; set; }
+     public DbSet<WagenParkVerzoek> wagenparkVerzoeken {get; set;}
 
      protected override void OnModelCreating(ModelBuilder builder){
         builder.Entity<WagenparkLinkedUser>()
             .HasKey(x => new { x.WagenparkId, x.AppUserId });
 
         base.OnModelCreating(builder);
+
 
         var roles = new List<IdentityRole>
         {
