@@ -1,10 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using api.Dtos;
 using api.Dtos.Account;
-using api.Migrations;
 using api.Models;
 
 namespace api.Mapper
@@ -25,14 +20,15 @@ namespace api.Mapper
             return appUsers.Select(x => x.MapToUserDto()).ToList();
         }
 
-        public static WagenParkVerzoekDto MapToWagenParkDto (this WagenParkVerzoek verzoek)
+        public static WagenParkDataDto MapToWagenParkDto (this WagenParkVerzoek verzoek)
         {
-            return new WagenParkVerzoekDto{
-                IdAppuser = verzoek.AppUserId,
-                IdWagenPark = verzoek.WagenparkId,
+            return new WagenParkDataDto{
+                AppUserId = verzoek.AppUserId,
+                WagenparkId = verzoek.WagenparkId,
+                WagenparkVerzoekId = verzoek.wagenparkverzoekId,
             };
         }
-        public static List<WagenParkVerzoekDto> MapToWagenParkDtos (this IEnumerable<WagenParkVerzoek> verzoeken)
+        public static List<WagenParkDataDto> MapToWagenParkDtos (this IEnumerable<WagenParkVerzoek> verzoeken)
         {
             return verzoeken.Select(x => x.MapToWagenParkDto()).ToList();
         }

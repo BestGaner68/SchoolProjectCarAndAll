@@ -12,7 +12,7 @@ namespace api.Models
     {
         [Key]
         public int WagenParkId { get; set; }
-        public AppUser? AppUser { get; set; }
+        public AppUser AppUser { get; set; }
         public string Bedrijfsnaam { get; set; } = string.Empty ;
         public string BedrijfsString { get; set; } = string.Empty;
 

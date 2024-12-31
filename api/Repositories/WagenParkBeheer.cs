@@ -1,7 +1,9 @@
 using api.Data;
+using api.Dtos;
 using api.Interfaces;
 using api.Migrations;
 using api.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace api.Repositories;
@@ -9,47 +11,90 @@ namespace api.Repositories;
 public class WagenParkBeheer : IWagenparkVerzoekService
 {
     private readonly ApplicationDbContext _context;
-        public WagenParkBeheer(ApplicationDbContext context)
+    private readonly UserManager<AppUser> _userManager; 
+        public WagenParkBeheer(ApplicationDbContext context, UserManager<AppUser> usermanger)
         {
             _context = context;
+            _userManager = usermanger;
         }
 
-    public async Task<bool> AddUserToWagenPark(WagenParkVerzoek verzoek)
+    
+    public async Task<bool> AcceptUserRequest(int verzoekId)
     {
-        WagenparkLinkedUser linkedUser = new WagenparkLinkedUser{
-            Wagenpark = verzoek.wagenPark,
-            AppUser = verzoek.appUser,
+        var verzoek = await _context.wagenparkVerzoeken.FindAsync(verzoekId);
+        if (verzoek == null || verzoek.Status != "pending")
+        {
+            return false; 
+        }
+        
+        verzoek.Status = "Accepted";
+        _context.wagenparkVerzoeken.Update(verzoek);
+        var appUser = await _userManager.FindByIdAsync(verzoek.AppUserId.ToString());
+        
+        var currentRoles = await _userManager.GetRolesAsync(appUser);
+        if (currentRoles.Contains("pending"))
+        {
+            var removeRoleResult = await _userManager.RemoveFromRoleAsync(appUser, "pending");
+            if (!removeRoleResult.Succeeded)
+            {
+                return false;  
+            }
+        }
+
+        var addRoleResult = await _userManager.AddToRoleAsync(appUser, "bedrijfsKlant");
+        if (!addRoleResult.Succeeded)
+        {
+            return false;  
+        }
+
+        var WagenParkID = await _context.wagenparkVerzoeken.Where(x => x.wagenparkverzoekId == verzoekId).Select(x => x.WagenparkId).FirstOrDefaultAsync();
+
+        if (WagenParkID == 0) 
+        {
+            return false;
+        }
+
+        WagenparkLinkedUser wagenparklinkeduser = new()
+        {
+            AppUserId = appUser.Id,
+            WagenparkId = WagenParkID
         };
-        await _context.wagenparkUserLinked.AddAsync(linkedUser);
+
+        var succes = await _context.wagenparkUserLinked.AddAsync(wagenparklinkeduser);
         await _context.SaveChangesAsync();
-        await RemoveVerzoek(verzoek);
-        //logger??
         return true;
     }
 
-    public async Task<bool> DeclineUserToWagenPark(WagenParkVerzoek verzoek)
+
+    public async Task<bool> DenyUserRequest(int verzoekId)
     {
-        await RemoveVerzoek(verzoek);
-        //logger?
-        //notifyUser?
+        var verzoek = await _context.wagenparkVerzoeken.FindAsync(verzoekId);
+        if (verzoek == null || verzoek.Status != "Pending")
+        {
+            return false; 
+        }
+        verzoek.Status = "Denied";
+        _context.wagenparkVerzoeken.Update(verzoek);
+        await _context.SaveChangesAsync();
         return true;
     }
+
 
     public async Task<List<AppUser>> GetAllUsers(int Id)
-{
-    WagenPark currentWagenPark = await _context.wagenPark.FindAsync(Id);
-    if (currentWagenPark == null)
     {
-        return [];
-    }
+        WagenPark currentWagenPark = await _context.wagenPark.FindAsync(Id);
+        if (currentWagenPark == null)
+        {
+            return [];
+        }
 
-    var appUsers = await _context.wagenparkUserLinked
-        .Where(w => w.WagenparkId == currentWagenPark.WagenParkId)
-        .Select(w => w.AppUser)
-        .ToListAsync();
+        var appUsers = await _context.wagenparkUserLinked
+            .Where(w => w.WagenparkId == currentWagenPark.WagenParkId)
+            .Select(w => w.AppUser)
+            .ToListAsync();
 
-    return appUsers;
-}
+        return appUsers;
+    }   
 
     public async Task<List<WagenParkVerzoek>> GetAllVerzoeken(int Id)
     {

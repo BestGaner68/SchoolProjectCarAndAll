@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using api.Data;
 
@@ -11,9 +12,11 @@ using api.Data;
 namespace api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241229203914_camperEnCaravan")]
+    partial class camperEnCaravan
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -47,6 +50,38 @@ namespace api.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "93eda2a1-ec68-4b5f-bd11-7d8fbe944653",
+                            Name = "frontendWorker",
+                            NormalizedName = "FRONTENDWORKER"
+                        },
+                        new
+                        {
+                            Id = "bb8d7dc2-fbc1-4731-96d8-cc5a06768bfd",
+                            Name = "backendWorker",
+                            NormalizedName = "BACKENDWORKER"
+                        },
+                        new
+                        {
+                            Id = "3d097945-4c84-457c-93dd-931ac5646c7d",
+                            Name = "particuliereKlant",
+                            NormalizedName = "PARTICULIEREKLANT"
+                        },
+                        new
+                        {
+                            Id = "f1541ea5-c7aa-44f7-8cbe-e30c50c522fa",
+                            Name = "bedrijflant",
+                            NormalizedName = "BEDRIJFKLANT"
+                        },
+                        new
+                        {
+                            Id = "2284a104-f64d-4b63-ba4a-b68d6a05125e",
+                            Name = "wagenparkBeheerder",
+                            NormalizedName = "WAGENPARKBEHEERDER"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -163,9 +198,6 @@ namespace api.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
-                    b.Property<string>("Achternaam")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
@@ -210,9 +242,6 @@ namespace api.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
-                    b.Property<string>("Voornaam")
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("NormalizedEmail")
@@ -236,9 +265,6 @@ namespace api.Migrations
 
                     b.Property<int>("AanschafJaar")
                         .HasColumnType("int");
-
-                    b.Property<bool>("Beschikbaar")
-                        .HasColumnType("bit");
 
                     b.Property<string>("Kenteken")
                         .IsRequired()
@@ -268,9 +294,6 @@ namespace api.Migrations
                     b.Property<int>("AanschafJaar")
                         .HasColumnType("int");
 
-                    b.Property<bool>("Beschikbaar")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Kenteken")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -298,9 +321,6 @@ namespace api.Migrations
 
                     b.Property<int>("AanschafJaar")
                         .HasColumnType("int");
-
-                    b.Property<bool>("Beschikbaar")
-                        .HasColumnType("bit");
 
                     b.Property<string>("Kenteken")
                         .IsRequired()
@@ -396,9 +416,6 @@ namespace api.Migrations
                     b.Property<string>("AppUserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Status")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("WagenparkId")
                         .HasColumnType("int");

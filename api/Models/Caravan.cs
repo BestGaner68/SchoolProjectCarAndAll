@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace api.Models
 {
-    public class Auto : Voertuig
+    public class Caravan : Voertuig
     {
         [Key]
-        public int AutoId { get; set; }
+        public int CaravanId { get; set; }
     }
 }

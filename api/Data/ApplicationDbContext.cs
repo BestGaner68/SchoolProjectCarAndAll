@@ -22,23 +22,14 @@ namespace api.Data
      public DbSet<WagenPark> wagenPark { get; set; }
      public DbSet<WagenparkLinkedUser> wagenparkUserLinked { get; set; }
      public DbSet<WagenParkVerzoek> wagenparkVerzoeken {get; set;}
+     public DbSet<Camper> camper { get; set; }
+     public DbSet<Caravan> caravan { get; set; }
 
      protected override void OnModelCreating(ModelBuilder builder){
         builder.Entity<WagenparkLinkedUser>()
             .HasKey(x => new { x.WagenparkId, x.AppUserId });
 
         base.OnModelCreating(builder);
-
-
-        var roles = new List<IdentityRole>
-        {
-            new IdentityRole { Name = "frontendWorker", NormalizedName = "FRONTENDWORKER" },
-            new IdentityRole { Name = "backendWorker", NormalizedName = "BACKENDWORKER" },
-            new IdentityRole { Name = "particuliereKlant", NormalizedName = "PARTICULIEREKLANT" },
-            new IdentityRole { Name = "bedrijflant", NormalizedName = "BEDRIJFKLANT" },
-            new IdentityRole { Name = "wagenparkBeheerder", NormalizedName = "WAGENPARKBEHEERDER" }
-        };
-        builder.Entity<IdentityRole>().HasData(roles);
     }
 
   

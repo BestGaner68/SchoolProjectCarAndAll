@@ -14,6 +14,8 @@ namespace api.Controllers
         {
             _wagenparkVerzoekService = wagenparkVerzoekService;
         }
+
+
         [HttpGet("GetAllVerzoeken/{id}")]
         public async Task <IActionResult> GetAllVerzoeken([FromRoute]int id)  
         {
@@ -25,20 +27,40 @@ namespace api.Controllers
         var verzoekenToDto = UserDtoMapper.MapToWagenParkDtos(verzoeken);
             return Ok(verzoekenToDto);
         }
-        
-
 
         [HttpPost("AddUserToWagenPark")]
-        public async Task<IActionResult> AdduserToWagenPark([FromBody]WagenParkVerzoek verzoek)
+        public async Task<IActionResult> AdduserToWagenPark([FromBody] int verzoekId)
         {
-            await _wagenparkVerzoekService.AddUserToWagenPark(verzoek);
-            return Ok($"User {verzoek.appUser.UserName} succesvol toegevoegt aan het wagenpark van: {verzoek.wagenPark.Bedrijfsnaam}");
+            try
+            {
+                var succes = await _wagenparkVerzoekService.AcceptUserRequest(verzoekId);
+                if (succes)
+                {
+                    return Ok("User added to Wagenpark successfully.");
+                }
+                return BadRequest("Failed to add user to Wagenpark.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
         [HttpPost("DenyUserToWagenPark")]
-        public async Task<IActionResult> DenyUserToWagenPark([FromBody]WagenParkVerzoek verzoek){
-            await _wagenparkVerzoekService.RemoveVerzoek(verzoek);
-            return Ok($"User {verzoek.appUser.UserName} Niet toegevoegt aan wagenpark");
+        public async Task<IActionResult> DenyUserToWagenPark([FromBody] int verzoekId)
+        {
+            try
+            {
+            var succes = await _wagenparkVerzoekService.DenyUserRequest(verzoekId);
+            if (succes)
+            {
+                return Ok("User request denied.");
+            }
+            return BadRequest("Failed to deny user request.");
+            }
+            catch (Exception ex){
+                return StatusCode(500, $"bruh moment: {ex.Message}");
+            }
         } 
 
         [HttpGet("GetAllWagenParkUsers/{wagenparkid}")]

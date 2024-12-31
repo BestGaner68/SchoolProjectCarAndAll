@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using api.Data;
 
@@ -11,9 +12,11 @@ using api.Data;
 namespace api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241229205452_beschikbaarinvoertuig")]
+    partial class beschikbaarinvoertuig
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -47,6 +50,38 @@ namespace api.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "fda72ad4-45b3-409a-92e5-1ea5266439df",
+                            Name = "frontendWorker",
+                            NormalizedName = "FRONTENDWORKER"
+                        },
+                        new
+                        {
+                            Id = "fab8ddb6-471e-4b88-9ca2-44ae76304ddb",
+                            Name = "backendWorker",
+                            NormalizedName = "BACKENDWORKER"
+                        },
+                        new
+                        {
+                            Id = "9aa9e0ec-9756-46c2-9d30-a11516653b33",
+                            Name = "particuliereKlant",
+                            NormalizedName = "PARTICULIEREKLANT"
+                        },
+                        new
+                        {
+                            Id = "d1cb3be3-9c24-42f3-afa7-7d8cb7cdcf6c",
+                            Name = "bedrijflant",
+                            NormalizedName = "BEDRIJFKLANT"
+                        },
+                        new
+                        {
+                            Id = "bdfa37b4-9185-4f9a-bed2-2c7911cb7d1b",
+                            Name = "wagenparkBeheerder",
+                            NormalizedName = "WAGENPARKBEHEERDER"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -163,9 +198,6 @@ namespace api.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
-                    b.Property<string>("Achternaam")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
@@ -209,9 +241,6 @@ namespace api.Migrations
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("Voornaam")
-                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -396,9 +425,6 @@ namespace api.Migrations
                     b.Property<string>("AppUserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Status")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("WagenparkId")
                         .HasColumnType("int");

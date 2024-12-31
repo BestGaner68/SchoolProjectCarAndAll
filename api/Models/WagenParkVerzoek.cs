@@ -11,5 +11,6 @@ namespace api.Models
         public string AppUserId {get;set;} = string.Empty;
         public WagenPark? wagenPark{get;set;}
         public int WagenparkId {get;set;}
+        public string? Status {get;set;}
     }
 }

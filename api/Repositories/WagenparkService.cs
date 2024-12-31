@@ -55,7 +55,9 @@ namespace api.Repositories
             var wagenparkVerzoek = new WagenParkVerzoek
             {
                 WagenparkId = wagenparkId,
-                AppUserId = userId
+                AppUserId = userId,
+                Status = "pending"
+                
             };  
         await _context.wagenparkVerzoeken.AddAsync(wagenparkVerzoek);
         await _context.SaveChangesAsync();

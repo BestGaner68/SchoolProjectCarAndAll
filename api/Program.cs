@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using api.Data;
 using api.Interfaces;
 using api.Models;
@@ -74,7 +75,8 @@ builder.Services.AddAuthentication(options => {
         ValidateIssuerSigningKey = true,
         IssuerSigningKey= new SymmetricSecurityKey(
             System.Text.Encoding.UTF8.GetBytes(builder.Configuration["JWT:SigningKey"])
-        )
+        ),
+        NameClaimType = JwtRegisteredClaimNames.Name
     };
 });
 
@@ -92,8 +94,17 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IVerhuurVerzoekService, VerhuurVerzoekRepo>();
 builder.Services.AddScoped<IWagenparkService, WagenparkService>();
 builder.Services.AddScoped<IWagenparkVerzoekService, WagenParkBeheer>();
+builder.Services.AddScoped<IVoertuigService, VoertuigRepo>();
+builder.Services.AddScoped<IRoleService, RoleRepo>();
+builder.Services.AddScoped<IDoubleDataCheckerRepo, DoubleDataCheckerRepo>();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    await RoleInitializer.InitializeRolesAsync(roleManager);
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
