@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "MAUecM8iUxA=",
+  "dgSpecHash": "eGb13kS0Sik=",
   "success": true,
-  "projectFilePath": "C:\\Users\\ayhan\\OneDrive\\Documents\\My Web Sites\\Schoolproj\\api\\api.csproj",
+  "projectFilePath": "C:\\Users\\ayhan\\OneDrive\\Documents\\My Web Sites\\New folder\\SchoolProjectCarAndAll\\api\\api.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\ayhan\\.nuget\\packages\\azure.core\\1.25.0\\azure.core.1.25.0.nupkg.sha512",
     "C:\\Users\\ayhan\\.nuget\\packages\\azure.identity\\1.7.0\\azure.identity.1.7.0.nupkg.sha512",
