@@ -38,5 +38,26 @@ namespace api.Repositories
 
         return status == "Beschikbaar";
         }
+
+        public async Task<List<DateTime>> GetUnavailableDates(int voertuigId)
+        {
+            var unavailableDates = await _context.Reservering
+            .Where(v => v.VoertuigId == voertuigId)
+            .Select(v => new { v.StartDatum, v.EindDatum })
+            .ToListAsync();
+
+            var allDates = new List<DateTime>();
+            foreach (var dateRange in unavailableDates)
+            {
+                var currentDate = dateRange.StartDatum;
+                while (currentDate <= dateRange.EindDatum)
+                {
+                    allDates.Add(currentDate);
+                    currentDate = currentDate.AddDays(1);
+                }
+            }
+            return allDates;
+
+        }
     }
 }

@@ -9,5 +9,6 @@ namespace api.Interfaces
     {   
             Task<bool> CheckDatesAsync(int voertuigId, DateTime startDate, DateTime endDate);
             Task<bool> CheckStatusAsync(int voertuigId);
+            Task<List<DateTime>> GetUnavailableDates (int voertuigId);
     }
 }

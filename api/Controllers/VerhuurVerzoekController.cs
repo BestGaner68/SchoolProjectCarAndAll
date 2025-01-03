@@ -1,17 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using api.Dtos.Account;
 using api.Interfaces;
 using api.Mapper;
-using api.Migrations;
-using api.Models;
-using api.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.VisualBasic;
 
 namespace api.Controllers
 {
@@ -63,6 +55,21 @@ namespace api.Controllers
             var verhuurVerzoekModel = verhuurVerzoekDto.ToVerhuurVerzoekFromDto(userId);
             await _verhuurVerzoekRepo.CreateAsync(verhuurVerzoekModel);
             return CreatedAtAction(nameof(GetById), new {id = verhuurVerzoekModel.VerhuurVerzoekId}, verhuurVerzoekModel.ToVerhuurVerzoekDto());
-        }   
+        }
+
+        [HttpGet("GetUnavailableData/{voertuigId}")]
+        public async Task<IActionResult> GetUnavailableData([FromRoute] int voertuigId)
+        {
+            var dates = await _voertuigHelper.GetUnavailableDates(voertuigId);
+            return Ok(dates);
+        }
+        
+        [HttpGet("GetVoertuigStatus/{voertuigId}")]
+        public async Task<IActionResult> GetVoertuigStatus([FromRoute] int voertuigId)
+        {
+            var status = await _voertuigHelper.CheckStatusAsync(voertuigId);
+            return Ok(status);
+        }
+         
     }
 }

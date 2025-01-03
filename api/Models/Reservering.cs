@@ -17,5 +17,6 @@ namespace api.Models
         public string AardReis  { get; set; }  =string.Empty; 
         public string Bestemming { get; set; } =string.Empty;
         public int VerwachtteKM { get; set; }
+        public string Fullname { get; set; } = string.Empty;
     }
 }

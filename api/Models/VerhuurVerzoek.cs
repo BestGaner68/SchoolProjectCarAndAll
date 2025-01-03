@@ -18,5 +18,6 @@ namespace api.Models
         public string Bestemming { get; set; } =string.Empty;
         public int VerwachtteKM { get; set; }
         public DateTime Datum { get; set; } = DateTime.Now;
+        public string Status { get; set; } = string.Empty;
     }
 }

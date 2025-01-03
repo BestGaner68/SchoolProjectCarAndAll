@@ -34,7 +34,21 @@ namespace api.Mapper
                 Bestemming = verhuurVerzoekRequestDto.Bestemming,
                 VerwachtteKM = verhuurVerzoekRequestDto.VerwachtteKM,
                 AardReis = verhuurVerzoekRequestDto.AardReis,
-                Datum = DateTime.Now
+                Datum = DateTime.Now,
+                Status = "Pending"
+            };
+        }
+
+        public static Reservering ToReserveringFromVerhuurVerzoek(VerhuurVerzoek verhuurVerzoek){
+            return new Reservering
+            {    
+                AppUserId = verhuurVerzoek.AppUserId,
+                VoertuigId = verhuurVerzoek.VoertuigId,
+                StartDatum = verhuurVerzoek.StartDatum,
+                EindDatum = verhuurVerzoek.EindDatum,
+                Bestemming = verhuurVerzoek.Bestemming,
+                VerwachtteKM = verhuurVerzoek.VerwachtteKM,
+                AardReis = verhuurVerzoek.AardReis, 
             };
         }
     }
