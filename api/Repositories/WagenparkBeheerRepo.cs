@@ -21,14 +21,14 @@ public class WagenParkBeheer : IWagenparkVerzoekService
     
     public async Task<bool> AcceptUserRequest(int verzoekId)
     {
-        var verzoek = await _context.wagenparkVerzoeken.FindAsync(verzoekId);
+        var verzoek = await _context.WagenparkVerzoeken.FindAsync(verzoekId);
         if (verzoek == null || verzoek.Status != "pending")
         {
             return false; 
         }
         
         verzoek.Status = "Accepted";
-        _context.wagenparkVerzoeken.Update(verzoek);
+        _context.WagenparkVerzoeken.Update(verzoek);
         var appUser = await _userManager.FindByIdAsync(verzoek.AppUserId.ToString());
         
         var currentRoles = await _userManager.GetRolesAsync(appUser);
@@ -47,7 +47,7 @@ public class WagenParkBeheer : IWagenparkVerzoekService
             return false;  
         }
 
-        var WagenParkID = await _context.wagenparkVerzoeken.Where(x => x.wagenparkverzoekId == verzoekId).Select(x => x.WagenparkId).FirstOrDefaultAsync();
+        var WagenParkID = await _context.WagenparkVerzoeken.Where(x => x.wagenparkverzoekId == verzoekId).Select(x => x.WagenparkId).FirstOrDefaultAsync();
 
         if (WagenParkID == 0) 
         {
@@ -60,7 +60,7 @@ public class WagenParkBeheer : IWagenparkVerzoekService
             WagenparkId = WagenParkID
         };
 
-        var succes = await _context.wagenparkUserLinked.AddAsync(wagenparklinkeduser);
+        var succes = await _context.WagenparkUserLinked.AddAsync(wagenparklinkeduser);
         await _context.SaveChangesAsync();
         return true;
     }
@@ -68,13 +68,13 @@ public class WagenParkBeheer : IWagenparkVerzoekService
 
     public async Task<bool> DenyUserRequest(int verzoekId)
     {
-        var verzoek = await _context.wagenparkVerzoeken.FindAsync(verzoekId);
+        var verzoek = await _context.WagenparkVerzoeken.FindAsync(verzoekId);
         if (verzoek == null || verzoek.Status != "Pending")
         {
             return false; 
         }
         verzoek.Status = "Denied";
-        _context.wagenparkVerzoeken.Update(verzoek);
+        _context.WagenparkVerzoeken.Update(verzoek);
         await _context.SaveChangesAsync();
         return true;
     }
@@ -82,13 +82,13 @@ public class WagenParkBeheer : IWagenparkVerzoekService
 
     public async Task<List<AppUser>> GetAllUsers(int Id)
     {
-        WagenPark currentWagenPark = await _context.wagenPark.FindAsync(Id);
+        WagenPark currentWagenPark = await _context.Wagenpark.FindAsync(Id);
         if (currentWagenPark == null)
         {
             return [];
         }
 
-        var appUsers = await _context.wagenparkUserLinked
+        var appUsers = await _context.WagenparkUserLinked
             .Where(w => w.WagenparkId == currentWagenPark.WagenParkId)
             .Select(w => w.AppUser)
             .ToListAsync();
@@ -98,7 +98,7 @@ public class WagenParkBeheer : IWagenparkVerzoekService
 
     public async Task<List<WagenParkVerzoek>> GetAllVerzoeken(int Id)
     {
-        var verzoeken = await _context.wagenparkVerzoeken.Where(w => w.WagenparkId == Id).ToListAsync();
+        var verzoeken = await _context.WagenparkVerzoeken.Where(w => w.WagenparkId == Id).ToListAsync();
         if (verzoeken == null) {
             Console.WriteLine("geen verzoeken al hier");
         }
@@ -107,7 +107,7 @@ public class WagenParkBeheer : IWagenparkVerzoekService
 
     public async Task<bool> RemoveVerzoek(WagenParkVerzoek verzoek)
     {
-        _context.wagenparkVerzoeken.Remove(verzoek);
+        _context.WagenparkVerzoeken.Remove(verzoek);
         await _context.SaveChangesAsync();
         return true;
     }

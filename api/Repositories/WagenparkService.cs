@@ -42,7 +42,7 @@ namespace api.Repositories
             {
                 throw new ArgumentException($"Invalid email format: {email}");
             }
-            var gevondenwagenpark = await _context.wagenPark
+            var gevondenwagenpark = await _context.Wagenpark
                 .SingleOrDefaultAsync(w => w.BedrijfsString.Equals(emailString));
             return gevondenwagenpark == null ? throw new ArgumentException($"geen wagenpark gevonden met emailstring: {email}") : gevondenwagenpark;
         }
@@ -59,7 +59,7 @@ namespace api.Repositories
                 Status = "pending"
                 
             };  
-        await _context.wagenparkVerzoeken.AddAsync(wagenparkVerzoek);
+        await _context.WagenparkVerzoeken.AddAsync(wagenparkVerzoek);
         await _context.SaveChangesAsync();
         return true;
         }

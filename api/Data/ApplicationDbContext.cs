@@ -18,12 +18,14 @@ namespace api.Data
         
      }   
      public DbSet<Auto> Auto{ get; set; }
-     public DbSet<VerhuurVerzoek> verhuurVerzoek { get; set; }
-     public DbSet<WagenPark> wagenPark { get; set; }
-     public DbSet<WagenparkLinkedUser> wagenparkUserLinked { get; set; }
-     public DbSet<WagenParkVerzoek> wagenparkVerzoeken {get; set;}
-     public DbSet<Camper> camper { get; set; }
-     public DbSet<Caravan> caravan { get; set; }
+     public DbSet<VerhuurVerzoek> VerhuurVerzoek { get; set; }
+     public DbSet<WagenPark> Wagenpark { get; set; }
+     public DbSet<WagenparkLinkedUser> WagenparkUserLinked { get; set; }
+     public DbSet<WagenParkVerzoek> WagenparkVerzoeken {get; set;}
+     public DbSet<Camper> Camper { get; set; }
+     public DbSet<Caravan> Caravan { get; set; }
+     public DbSet<Reservering> Reservering { get; set; }
+     public DbSet<VoertuigStatus> VoertuigStatus { get; set; }
 
      protected override void OnModelCreating(ModelBuilder builder){
         builder.Entity<WagenparkLinkedUser>()

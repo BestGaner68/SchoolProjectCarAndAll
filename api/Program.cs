@@ -97,6 +97,7 @@ builder.Services.AddScoped<IWagenparkVerzoekService, WagenParkBeheer>();
 builder.Services.AddScoped<IVoertuigService, VoertuigRepo>();
 builder.Services.AddScoped<IRoleService, RoleRepo>();
 builder.Services.AddScoped<IDoubleDataCheckerRepo, DoubleDataCheckerRepo>();
+builder.Services.AddScoped<IVoertuigHelper, VoertuigHelperRepo>();
 
 var app = builder.Build();
 

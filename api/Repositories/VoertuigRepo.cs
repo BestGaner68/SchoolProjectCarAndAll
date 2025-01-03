@@ -25,12 +25,12 @@ namespace api.Repositories
 
         public async Task<List<Camper>> GetAllCampers()
         {
-            return await _context.camper.ToListAsync();
+            return await _context.Camper.ToListAsync();
         }
 
         public async Task<List<Caravan>> GetAllCaravans()
         {
-            return await _context.caravan.ToListAsync();
+            return await _context.Caravan.ToListAsync();
         }
     }
 }

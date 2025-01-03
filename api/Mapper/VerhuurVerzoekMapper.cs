@@ -23,10 +23,12 @@ namespace api.Mapper
             };
         }
 
-        public static VerhuurVerzoek ToVerhuurVerzoekFromDto(this VerhuurVerzoekRequestDto verhuurVerzoekRequestDto)
+        public static VerhuurVerzoek ToVerhuurVerzoekFromDto(this VerhuurVerzoekRequestDto verhuurVerzoekRequestDto, string appUserId)
         {
             return new VerhuurVerzoek
             {
+                AppUserId = appUserId,
+                VoertuigId = verhuurVerzoekRequestDto.VoertuigId,
                 StartDatum = verhuurVerzoekRequestDto.StartDatum,
                 EindDatum = verhuurVerzoekRequestDto.EindDatum,
                 Bestemming = verhuurVerzoekRequestDto.Bestemming,

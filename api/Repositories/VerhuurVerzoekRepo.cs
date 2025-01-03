@@ -19,17 +19,17 @@ namespace api.Repositories
 
         public Task<List<VerhuurVerzoek>> GetAllAsync()
         {
-            return  _context.verhuurVerzoek.ToListAsync();
+            return  _context.VerhuurVerzoek.ToListAsync();
         }
 
         public async Task<VerhuurVerzoek?> GetByIdAsync(int id)
         {
-            return await _context.verhuurVerzoek.FindAsync(id);
+            return await _context.VerhuurVerzoek.FindAsync(id);
         }
 
          public async Task<VerhuurVerzoek> CreateAsync(VerhuurVerzoek verhuurVerzoekModel)
         {
-            await _context.verhuurVerzoek.AddAsync(verhuurVerzoekModel);
+            await _context.VerhuurVerzoek.AddAsync(verhuurVerzoekModel);
             await _context.SaveChangesAsync();
             return verhuurVerzoekModel;
         }

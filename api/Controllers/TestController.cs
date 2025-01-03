@@ -9,7 +9,7 @@ namespace api.Controllers
 {
     [Route("api/test")]
     [ApiController]
-    [Authorize("backendWorker")]
+    [Authorize()]
     public class TestController : ControllerBase
     {
         [HttpGet]

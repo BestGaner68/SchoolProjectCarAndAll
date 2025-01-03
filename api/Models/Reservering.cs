@@ -6,17 +6,16 @@ using System.Threading.Tasks;
 
 namespace api.Models
 {
-    public class VerhuurVerzoek
+    public class Reservering
     {
         [Key]
-        public int VerhuurVerzoekId { get; set; }
-        public int VoertuigId { get; set; }
+        public int ReserveringId { get; set; }
         public string AppUserId { get; set; }
-        public DateTime StartDatum { get; set; }   
+        public int VoertuigId { get; set; }
+        public DateTime StartDatum { get; set; }
         public DateTime EindDatum { get; set; }
         public string AardReis  { get; set; }  =string.Empty; 
         public string Bestemming { get; set; } =string.Empty;
         public int VerwachtteKM { get; set; }
-        public DateTime Datum { get; set; } = DateTime.Now;
     }
 }

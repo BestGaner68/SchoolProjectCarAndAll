@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using api.Data;
 
@@ -11,9 +12,11 @@ using api.Data;
 namespace api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250102230445_toevoegingnieuwetabellen")]
+    partial class toevoegingnieuwetabellen
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -285,7 +288,7 @@ namespace api.Migrations
 
                     b.HasKey("CamperId");
 
-                    b.ToTable("Camper");
+                    b.ToTable("camper");
                 });
 
             modelBuilder.Entity("api.Models.Caravan", b =>
@@ -316,16 +319,13 @@ namespace api.Migrations
 
                     b.HasKey("CaravanId");
 
-                    b.ToTable("Caravan");
+                    b.ToTable("caravan");
                 });
 
             modelBuilder.Entity("api.Models.Reservering", b =>
                 {
-                    b.Property<int>("ReserveringId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ReserveringId"));
+                    b.Property<string>("ReserveringId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("AardReis")
                         .IsRequired()
@@ -353,7 +353,7 @@ namespace api.Migrations
 
                     b.HasKey("ReserveringId");
 
-                    b.ToTable("Reservering");
+                    b.ToTable("reservering");
                 });
 
             modelBuilder.Entity("api.Models.VerhuurVerzoek", b =>
@@ -368,10 +368,6 @@ namespace api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("AppUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Bestemming")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -381,6 +377,9 @@ namespace api.Migrations
 
                     b.Property<DateTime>("EindDatum")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("KlantId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("StartDatum")
                         .HasColumnType("datetime2");
@@ -393,16 +392,13 @@ namespace api.Migrations
 
                     b.HasKey("VerhuurVerzoekId");
 
-                    b.ToTable("VerhuurVerzoek");
+                    b.ToTable("verhuurVerzoek");
                 });
 
             modelBuilder.Entity("api.Models.VoertuigStatus", b =>
                 {
-                    b.Property<int>("VoertuigId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("VoertuigId"));
+                    b.Property<string>("VoertuigId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("status")
                         .IsRequired()
@@ -410,7 +406,7 @@ namespace api.Migrations
 
                     b.HasKey("VoertuigId");
 
-                    b.ToTable("VoertuigStatus");
+                    b.ToTable("voertuigStatus");
                 });
 
             modelBuilder.Entity("api.Models.WagenPark", b =>
@@ -437,7 +433,7 @@ namespace api.Migrations
 
                     b.HasIndex("AppUserId");
 
-                    b.ToTable("Wagenpark");
+                    b.ToTable("wagenPark");
                 });
 
             modelBuilder.Entity("api.Models.WagenParkVerzoek", b =>
@@ -464,7 +460,7 @@ namespace api.Migrations
 
                     b.HasIndex("WagenparkId");
 
-                    b.ToTable("WagenparkVerzoeken");
+                    b.ToTable("wagenparkVerzoeken");
                 });
 
             modelBuilder.Entity("api.Models.WagenparkLinkedUser", b =>
@@ -479,7 +475,7 @@ namespace api.Migrations
 
                     b.HasIndex("AppUserId");
 
-                    b.ToTable("WagenparkUserLinked");
+                    b.ToTable("wagenparkUserLinked");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
