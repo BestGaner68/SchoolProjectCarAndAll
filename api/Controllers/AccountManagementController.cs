@@ -15,24 +15,25 @@ using Microsoft.AspNetCore.Mvc;
 namespace api.Controllers
 {
     
-    public class AccountManagementController : ControllerBase
+    public class BackOfficeMedewerkerController : ControllerBase
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly ITokenService _tokenService;
         private readonly SignInManager<AppUser> _signInManager;
         private readonly IWagenparkService _wagenparkService;
-        public AccountManagementController(UserManager<AppUser> userManager, ITokenService tokenService, SignInManager<AppUser> signInManager, IWagenparkService wagenparkService)
+        private readonly IVoertuigHelper _voertuigHelper;
+        public BackOfficeMedewerkerController(UserManager<AppUser> userManager, ITokenService tokenService, SignInManager<AppUser> signInManager, IWagenparkService wagenparkService, IVoertuigHelper voertuigHelper)
         {
             _userManager = userManager;
             _tokenService = tokenService;
             _signInManager = signInManager;
             _wagenparkService = wagenparkService;
+            _voertuigHelper = voertuigHelper;
         }
 
         [HttpPost("manualRegister")]
         public async Task<IActionResult> RegisterBackEnd([FromBody] RegisterOfficeWorkerDto registerOfficeDto)
-        {
-            
+        {     
         try
             {
             if (!ModelState.IsValid)
@@ -42,10 +43,7 @@ namespace api.Controllers
             if (!validRoles.Contains(registerOfficeDto.TypeAccount))
             {
                 return BadRequest("Verkeerde Rol, Mogelijkheden: BackendWorker, frontendWorker en Wagenparkbeheerder.");
-            }
-
-            
-        
+            }                
             var appUser = new AppUser
             {
                 UserName = registerOfficeDto.Username,
@@ -78,16 +76,11 @@ namespace api.Controllers
 
                 default:
                     return BadRequest(); //zou nooit moeten triggeren
-            }
-            
-
-        
+            }             
             if (!roleResult.Succeeded)
             {
                 return StatusCode(500, roleResult.Errors);
-            }
-
-        
+            }       
             return Ok(
                 new NewUserDto
                 {
@@ -102,7 +95,15 @@ namespace api.Controllers
             return StatusCode(500, e.Message);
         }
         }
-       
-    }
-    
+
+
+        [HttpPut]
+        public async Task<IActionResult> ChangeVoertuigStatus (int voertuigId, string status){
+            var result = await _voertuigHelper.ChangeStatusVoertuig(voertuigId, status);
+            if (!result){
+                return BadRequest($"Geen voertuig gevonden met id {voertuigId}");
+            }
+            return Ok($"status van het voertuig met id {voertuigId} is veranderd naar {status}");
+        }  
+    }   
 }

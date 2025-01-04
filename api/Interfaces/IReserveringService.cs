@@ -12,5 +12,8 @@ namespace api.Interfaces
         Task<bool> WeigerVerhuurVerzoek(int verhuurVerzoekId);
         Task<List<Reservering>> GetAll();
         Task<Reservering> GetById(int ReserveringId);
+        Task<bool> GeefUit (int ReserveringId);
+        Task <bool> NeemIn (int ReserveringId);
+        Task<bool> MeldSchade (int ReserveringId, string Schade);
     }
 }

@@ -48,7 +48,8 @@ namespace api.Mapper
                 EindDatum = verhuurVerzoek.EindDatum,
                 Bestemming = verhuurVerzoek.Bestemming,
                 VerwachtteKM = verhuurVerzoek.VerwachtteKM,
-                AardReis = verhuurVerzoek.AardReis, 
+                AardReis = verhuurVerzoek.AardReis,
+                Status = "Wachten op Uitgifte" 
             };
         }
     }

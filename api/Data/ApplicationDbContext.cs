@@ -16,7 +16,7 @@ namespace api.Data
      : base(dbContextOptions)
      {
         
-     }   
+     }
      public DbSet<Auto> Auto{ get; set; }
      public DbSet<VerhuurVerzoek> VerhuurVerzoek { get; set; }
      public DbSet<WagenPark> Wagenpark { get; set; }
@@ -26,6 +26,7 @@ namespace api.Data
      public DbSet<Caravan> Caravan { get; set; }
      public DbSet<Reservering> Reservering { get; set; }
      public DbSet<VoertuigStatus> VoertuigStatus { get; set; }
+     public DbSet<SchadeFormulier> SchadeFormulier { get; set; }
 
      protected override void OnModelCreating(ModelBuilder builder){
         builder.Entity<WagenparkLinkedUser>()

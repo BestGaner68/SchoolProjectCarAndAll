@@ -17,7 +17,18 @@ namespace api.Repositories
         {
             _context = context;
         }
-    
+
+        public async Task<bool> ChangeStatusVoertuig(int voertuigId, string status)
+        {
+            var voertuig = await _context.VoertuigStatus.FindAsync(voertuigId);
+            if (voertuig == null){
+                return false;
+            }
+            voertuig.status = status;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
         public async Task<bool> CheckDatesAsync(int voertuigId, DateTime startDate, DateTime endDate)
         {
             var conflictingReservation = await _context.Reservering
