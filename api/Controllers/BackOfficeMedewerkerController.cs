@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace api.Controllers
 {
-    
+    [Route("api/BackOfficeMedewerker")]
     public class BackOfficeMedewerkerController : ControllerBase
     {
         private readonly UserManager<AppUser> _userManager;
@@ -88,36 +88,32 @@ namespace api.Controllers
         }
 
         [HttpPost("registerWagenparkBeheerder")]
-        public async Task<IActionResult> RegisterWagenparkBeheerder([FromBody] RegisterWagenParkBeheerderDto RegisterWagenParkBeheerderDto)
+        public async Task<IActionResult> RegisterWagenparkBeheerder([FromBody]RegisterWagenParkBeheerderDto registerWagenParkBeheerderDto)
         {
             try
             {
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
 
-                if (RegisterWagenParkBeheerderDto.TypeAccount != "WagenparkBeheerder")
-                {
-                    return BadRequest("Verkeerde Rol, alleen 'WagenparkBeheerder' is toegestaan.");
-                }
-
                 var appUser = new AppUser
                 {
-                    UserName = RegisterWagenParkBeheerderDto.Username,
-                    Email = RegisterWagenParkBeheerderDto.Email,
+                    UserName = registerWagenParkBeheerderDto.Username,
+                    Email = registerWagenParkBeheerderDto.Email,
+                    PhoneNumber = registerWagenParkBeheerderDto.PhoneNumber,
+                    Voornaam = registerWagenParkBeheerderDto.Voornaam,
+                    Achternaam =  registerWagenParkBeheerderDto.Achternaam,
                 };
 
-                var createdUser = await _userManager.CreateAsync(appUser, RegisterWagenParkBeheerderDto.Password);
+                var createdUser = await _userManager.CreateAsync(appUser, registerWagenParkBeheerderDto.Password);
 
                 if (!createdUser.Succeeded)
                 {
                     return StatusCode(500, createdUser.Errors);
                 }
 
-                // Create WagenPark for WagenparkBeheerder
-                WagenPark CreateWagenpark = WagenParkMapper.toWagenParkFromRegisterOfficeWorkerDto(RegisterWagenParkBeheerderDto);
-                await _wagenparkService.CreateWagenparkAsync(CreateWagenpark, RegisterWagenParkBeheerderDto.Username);
+                WagenPark CreateWagenpark = WagenParkMapper.toWagenParkFromRegisterOfficeWorkerDto(registerWagenParkBeheerderDto);
+                await _wagenparkService.CreateWagenparkAsync(CreateWagenpark, appUser.Id);
 
-                // Add WagenparkBeheerder role
                 var roleResult = await _userManager.AddToRoleAsync(appUser, "wagenparkBeheerder");
 
                 if (!roleResult.Succeeded)

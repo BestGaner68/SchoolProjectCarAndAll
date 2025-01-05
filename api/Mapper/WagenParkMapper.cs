@@ -12,11 +12,13 @@ namespace api.Mapper
     {
         public static WagenPark toWagenParkFromRegisterOfficeWorkerDto(RegisterWagenParkBeheerderDto WagenparkDto)
         {  
-            WagenPark CurrentWagenpark = new(){
-                Bedrijfsnaam = WagenparkDto.Bedrijfsnaam,
-                BedrijfsString = WagenparkDto.BedrijfsString
+        WagenPark CurrentWagenpark = new()
+            {
+            Bedrijfsnaam = WagenparkDto.Bedrijfsnaam,
+            BedrijfsString = WagenparkDto.BedrijfsString,
+            KvkNummer = WagenparkDto.KvkNummer,
             };
-            return CurrentWagenpark;
+        return CurrentWagenpark;
         }
     }
 }

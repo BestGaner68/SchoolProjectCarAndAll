@@ -31,13 +31,20 @@ namespace api.Repositories
 
         public async Task<bool> CheckDatesAsync(int voertuigId, DateTime startDate, DateTime endDate)
         {
+            Console.WriteLine($"Check: VehicleId = {voertuigId}, StartDate = {startDate}, EndDate = {endDate}");
+        
             var conflictingReservation = await _context.Reservering
                 .Where(r => r.VoertuigId == voertuigId &&
-                            r.StartDatum <= endDate &&
-                            r.EindDatum >= startDate)
+                            r.StartDatum < endDate &&
+                            r.EindDatum > startDate)
                 .FirstOrDefaultAsync();
-    
-            return conflictingReservation == null; 
+        
+            if (conflictingReservation != null)
+            {
+                Console.WriteLine($"Conflict found: {conflictingReservation.StartDatum} - {conflictingReservation.EindDatum}");
+            }
+        
+            return conflictingReservation == null;
         }
 
         public async Task<bool> CheckStatusAsync(int voertuigId)

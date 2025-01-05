@@ -98,6 +98,7 @@ builder.Services.AddScoped<IVoertuigService, VoertuigRepo>();
 builder.Services.AddScoped<IRoleService, RoleRepo>();
 builder.Services.AddScoped<IDoubleDataCheckerRepo, DoubleDataCheckerRepo>();
 builder.Services.AddScoped<IVoertuigHelper, VoertuigHelperRepo>();
+builder.Services.AddScoped<IReserveringService, ReserveringRepo>();
 
 var app = builder.Build();
 

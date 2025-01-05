@@ -8,16 +8,16 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace api.Controllers
 {
-    [Route("api/UitgifteVoertuigen")]
-    public class FrontdeskMedewerkerCarUitgifteController : ControllerBase
+    [Route("api/FrontOfficeMedewerker")]
+    public class FrontOfficeMedewerkerController : ControllerBase
     {
         private readonly IReserveringService _reserveringService;
-        public FrontdeskMedewerkerCarUitgifteController(IReserveringService reserveringService){
+        public FrontOfficeMedewerkerController(IReserveringService reserveringService){
             _reserveringService = reserveringService;
         }
 
-        [HttpPut("GeefUit")]
-        public async Task<IActionResult> GeefUit (int ReserveringId){
+        [HttpPut("GeefVoertuigUit")]
+        public async Task<IActionResult> GeefUit ([FromBody]int ReserveringId){
             var result = await _reserveringService.GeefUit(ReserveringId);
             if (!result)
             {
@@ -27,7 +27,7 @@ namespace api.Controllers
         }
 
         [HttpPut("NeemIn")]
-        public async Task<IActionResult> NeemIn (int ReserveringId, InnameDto innameDto){
+        public async Task<IActionResult> NeemIn ([FromBody] int ReserveringId, InnameDto innameDto){
             if (innameDto.isSchade)
             {
                 if (!ModelState.IsValid){

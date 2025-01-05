@@ -16,10 +16,16 @@ namespace api.Dtos.Account
         [Required]
         public string? Password { get; set; }
         [Required]
-        public string? TypeAccount { get; set; }
+        public string? PhoneNumber { get; set; }
         [Required]
         public string? Bedrijfsnaam { get; set; }
         [Required]
         public string? BedrijfsString { get; set; }
+        [Required]
+        public string? KvkNummer { get; set; }
+        [Required]
+        public string? Voornaam { get; set; }
+        [Required]
+        public string? Achternaam { get; set; }
     }
 }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using api.Data;
 
@@ -11,9 +12,11 @@ using api.Data;
 namespace api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250105212931_refactor")]
+    partial class refactor
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -268,7 +271,7 @@ namespace api.Migrations
 
                     b.HasKey("ReserveringId");
 
-                    b.ToTable("Reservering", (string)null);
+                    b.ToTable("Reservering");
                 });
 
             modelBuilder.Entity("api.Models.SchadeFormulier", b =>
@@ -288,7 +291,7 @@ namespace api.Migrations
 
                     b.HasKey("SchadeFormulierID");
 
-                    b.ToTable("SchadeFormulier", (string)null);
+                    b.ToTable("SchadeFormulier");
                 });
 
             modelBuilder.Entity("api.Models.VerhuurVerzoek", b =>
@@ -332,7 +335,7 @@ namespace api.Migrations
 
                     b.HasKey("VerhuurVerzoekId");
 
-                    b.ToTable("VerhuurVerzoek", (string)null);
+                    b.ToTable("VerhuurVerzoek");
                 });
 
             modelBuilder.Entity("api.Models.Voertuig", b =>
@@ -368,7 +371,7 @@ namespace api.Migrations
 
                     b.HasKey("VoertuigId");
 
-                    b.ToTable("Voertuig", (string)null);
+                    b.ToTable("Voertuig");
                 });
 
             modelBuilder.Entity("api.Models.VoertuigStatus", b =>
@@ -385,7 +388,7 @@ namespace api.Migrations
 
                     b.HasKey("VoertuigId");
 
-                    b.ToTable("VoertuigStatus", (string)null);
+                    b.ToTable("VoertuigStatus");
                 });
 
             modelBuilder.Entity("api.Models.WagenPark", b =>
@@ -416,7 +419,7 @@ namespace api.Migrations
 
                     b.HasIndex("AppUserId");
 
-                    b.ToTable("Wagenpark", (string)null);
+                    b.ToTable("Wagenpark");
                 });
 
             modelBuilder.Entity("api.Models.WagenParkVerzoek", b =>
@@ -443,7 +446,7 @@ namespace api.Migrations
 
                     b.HasIndex("WagenparkId");
 
-                    b.ToTable("WagenparkVerzoeken", (string)null);
+                    b.ToTable("WagenparkVerzoeken");
                 });
 
             modelBuilder.Entity("api.Models.WagenparkLinkedUser", b =>
@@ -458,7 +461,7 @@ namespace api.Migrations
 
                     b.HasIndex("AppUserId");
 
-                    b.ToTable("WagenparkUserLinked", (string)null);
+                    b.ToTable("WagenparkUserLinked");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

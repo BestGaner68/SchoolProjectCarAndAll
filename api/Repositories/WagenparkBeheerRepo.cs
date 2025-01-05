@@ -96,9 +96,11 @@ public class WagenParkBeheer : IWagenparkVerzoekService
         return appUsers;
     }   
 
-    public async Task<List<WagenParkVerzoek>> GetAllVerzoeken(int Id)
+    public async Task<List<WagenParkVerzoek>> GetAllVerzoeken(string UserId)
     {
-        var verzoeken = await _context.WagenparkVerzoeken.Where(w => w.WagenparkId == Id).ToListAsync();
+        var CurrentUser = await _context.Users.FindAsync(UserId);
+        int WagenParkId = await _context.Wagenpark.Where(w => w.AppUser == CurrentUser).Select(w => w.WagenParkId).FirstOrDefaultAsync();
+        var verzoeken = await _context.WagenparkVerzoeken.Where(w => w.WagenparkId == WagenParkId).ToListAsync();
         if (verzoeken == null) {
             Console.WriteLine("geen verzoeken al hier");
         }
