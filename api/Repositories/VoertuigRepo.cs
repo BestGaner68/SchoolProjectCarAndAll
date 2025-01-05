@@ -22,5 +22,15 @@ namespace api.Repositories
         {
             return await _context.Voertuig.ToListAsync();
         }
+
+        public async Task<List<Voertuig>> GetVoertuigenByMerk(string VoertuigMerk)
+        {
+            return await _context.Voertuig.Where(x => x.Merk == VoertuigMerk).ToListAsync();
+        }
+
+        public async Task<List<Voertuig>> GetVoertuigenBySoort(string VoertuigSoort)
+        {
+            return await _context.Voertuig.Where(x => x.Soort == VoertuigSoort).ToListAsync();
+        }
     }
 }

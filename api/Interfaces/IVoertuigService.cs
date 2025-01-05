@@ -9,6 +9,7 @@ namespace api.Interfaces
     public interface IVoertuigService
     {
         Task<List<Voertuig>> GetAllVoertuigen();
-       
+        Task<List<Voertuig>> GetVoertuigenByMerk(String VoertuigMerk);
+        Task<List<Voertuig>> GetVoertuigenBySoort(String VoertuigSoort);
     }
 }
