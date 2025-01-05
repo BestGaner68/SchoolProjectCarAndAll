@@ -10,9 +10,9 @@ namespace api.Mapper
 {
     public class WagenParkMapper
     {
-        public static WagenPark toWagenParkFromRegisterOfficeWorkerDto(RegisterOfficeWorkerDto WagenparkDto)
+        public static WagenPark toWagenParkFromRegisterOfficeWorkerDto(RegisterWagenParkBeheerderDto WagenparkDto)
         {  
-            WagenPark CurrentWagenpark = new WagenPark(){
+            WagenPark CurrentWagenpark = new(){
                 Bedrijfsnaam = WagenparkDto.Bedrijfsnaam,
                 BedrijfsString = WagenparkDto.BedrijfsString
             };

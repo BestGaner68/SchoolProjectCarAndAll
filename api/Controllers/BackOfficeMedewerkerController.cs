@@ -31,69 +31,113 @@ namespace api.Controllers
             _voertuigHelper = voertuigHelper;
         }
 
-        [HttpPost("manualRegister")]
-        public async Task<IActionResult> RegisterBackEnd([FromBody] RegisterOfficeWorkerDto registerOfficeDto)
-        {     
-        try
-            {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var validRoles = new[] { "BackendWorker", "FrontendWorker", "WagenparkBeheerder" };
-            if (!validRoles.Contains(registerOfficeDto.TypeAccount))
-            {
-                return BadRequest("Verkeerde Rol, Mogelijkheden: BackendWorker, frontendWorker en Wagenparkbeheerder.");
-            }                
-            var appUser = new AppUser
-            {
-                UserName = registerOfficeDto.Username,
-                Email = registerOfficeDto.Email,
-            };
-
-            var createdUser = await _userManager.CreateAsync(appUser, registerOfficeDto.Password);
-
-            if (!createdUser.Succeeded)
-            {
-                return StatusCode(500, createdUser.Errors);
-            }
-
-            IdentityResult roleResult;
-            switch (registerOfficeDto.TypeAccount)
-            {
-                case "BackendWorker":
-                    roleResult = await _userManager.AddToRoleAsync(appUser, "backendWorker");
-                    break;
-
-                case "FrontendWorker":
-                    roleResult = await _userManager.AddToRoleAsync(appUser, "frontendWorker");
-                    break;
-
-                case "WagenparkBeheerder":
-                    WagenPark CreateWagenpark = WagenParkMapper.toWagenParkFromRegisterOfficeWorkerDto(registerOfficeDto);
-                    await _wagenparkService.CreateWagenparkAsync(CreateWagenpark, registerOfficeDto.Username);
-                    roleResult = await _userManager.AddToRoleAsync(appUser, "wagenparkBeheerder");
-                    break;
-
-                default:
-                    return BadRequest(); //zou nooit moeten triggeren
-            }             
-            if (!roleResult.Succeeded)
-            {
-                return StatusCode(500, roleResult.Errors);
-            }       
-            return Ok(
-                new NewUserDto
-                {
-                    Username = appUser.UserName,
-                    Email = appUser.Email,
-                    Token = _tokenService.CreateToken(appUser)
-                }
-            );
-        }
-        catch (Exception e)
+        [HttpPost("registerBackendAndFrontend")]
+        public async Task<IActionResult> RegisterBackendAndFrontend([FromBody] RegisterBackOrFrontEndWorkerDto registerOfficeDto)
         {
-            return StatusCode(500, e.Message);
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                var validRoles = new[] { "BackendWorker", "FrontendWorker" };
+                if (!validRoles.Contains(registerOfficeDto.TypeAccount))
+                {
+                    return BadRequest("Verkeerde Rol, Mogelijkheden: BackendWorker, FrontendWorker.");
+                }
+
+                var appUser = new AppUser
+                {
+                    UserName = registerOfficeDto.Username,
+                    Email = registerOfficeDto.Email,
+                };
+
+                var createdUser = await _userManager.CreateAsync(appUser, registerOfficeDto.Password);
+
+                if (!createdUser.Succeeded)
+                {
+                    return StatusCode(500, createdUser.Errors);
+                }
+
+                IdentityResult roleResult;
+                if (registerOfficeDto.TypeAccount == "backendWorker")
+                {
+                    roleResult = await _userManager.AddToRoleAsync(appUser, "backendWorker");
+                }
+                else
+                {
+                    roleResult = await _userManager.AddToRoleAsync(appUser, "frontendWorker");
+                }
+                if (!roleResult.Succeeded)
+                {
+                    return StatusCode(500, roleResult.Errors);
+                }
+
+                return Ok(
+                    new NewUserDto
+                    {
+                        Username = appUser.UserName,
+                        Email = appUser.Email,
+                        Token = _tokenService.CreateToken(appUser)
+                    }
+                );
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
         }
+
+        [HttpPost("registerWagenparkBeheerder")]
+        public async Task<IActionResult> RegisterWagenparkBeheerder([FromBody] RegisterWagenParkBeheerderDto RegisterWagenParkBeheerderDto)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                if (RegisterWagenParkBeheerderDto.TypeAccount != "WagenparkBeheerder")
+                {
+                    return BadRequest("Verkeerde Rol, alleen 'WagenparkBeheerder' is toegestaan.");
+                }
+
+                var appUser = new AppUser
+                {
+                    UserName = RegisterWagenParkBeheerderDto.Username,
+                    Email = RegisterWagenParkBeheerderDto.Email,
+                };
+
+                var createdUser = await _userManager.CreateAsync(appUser, RegisterWagenParkBeheerderDto.Password);
+
+                if (!createdUser.Succeeded)
+                {
+                    return StatusCode(500, createdUser.Errors);
+                }
+
+                // Create WagenPark for WagenparkBeheerder
+                WagenPark CreateWagenpark = WagenParkMapper.toWagenParkFromRegisterOfficeWorkerDto(RegisterWagenParkBeheerderDto);
+                await _wagenparkService.CreateWagenparkAsync(CreateWagenpark, RegisterWagenParkBeheerderDto.Username);
+
+                // Add WagenparkBeheerder role
+                var roleResult = await _userManager.AddToRoleAsync(appUser, "wagenparkBeheerder");
+
+                if (!roleResult.Succeeded)
+                {
+                    return StatusCode(500, roleResult.Errors);
+                }
+
+                return Ok(
+                    new NewUserDto
+                    {
+                        Username = appUser.UserName,
+                        Email = appUser.Email,
+                        Token = _tokenService.CreateToken(appUser)
+                    }
+                );
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
         }
 
 
