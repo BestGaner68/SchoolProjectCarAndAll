@@ -8,8 +8,7 @@ namespace api.Interfaces
 {
     public interface IVoertuigService
     {
-        Task<List<Auto>> GetAllAutos();
-        Task<List<Camper>> GetAllCampers();
-        Task<List<Caravan>> GetAllCaravans();
+        Task<List<Voertuig>> GetAllVoertuigen();
+       
     }
 }

@@ -18,19 +18,9 @@ namespace api.Repositories
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public async Task<List<Auto>> GetAllAutos()
+        public async Task<List<Voertuig>> GetAllVoertuigen()
         {
-            return await _context.Auto.ToListAsync();
-        }
-
-        public async Task<List<Camper>> GetAllCampers()
-        {
-            return await _context.Camper.ToListAsync();
-        }
-
-        public async Task<List<Caravan>> GetAllCaravans()
-        {
-            return await _context.Caravan.ToListAsync();
+            return await _context.Voertuig.ToListAsync();
         }
     }
 }

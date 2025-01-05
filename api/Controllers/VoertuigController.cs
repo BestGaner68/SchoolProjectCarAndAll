@@ -15,9 +15,9 @@ namespace api.Controllers
             _voertuigService = voertuigService;
         }
         
-        [HttpGet("AllAutos")]
-        public async Task<IActionResult> GetAllAutos(){
-            return Ok(await _voertuigService.GetAllAutos());
+        [HttpGet("AllVoertuigen")]
+        public async Task<IActionResult> GetAllVoertuigen(){
+            return Ok(await _voertuigService.GetAllVoertuigen());
         }
     }
 }
