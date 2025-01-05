@@ -17,13 +17,11 @@ namespace api.Data
      {
         
      }
-     public DbSet<Auto> Auto{ get; set; }
+     public DbSet<Voertuig> Voertuig{ get; set; }
      public DbSet<VerhuurVerzoek> VerhuurVerzoek { get; set; }
      public DbSet<WagenPark> Wagenpark { get; set; }
      public DbSet<WagenparkLinkedUser> WagenparkUserLinked { get; set; }
      public DbSet<WagenParkVerzoek> WagenparkVerzoeken {get; set;}
-     public DbSet<Camper> Camper { get; set; }
-     public DbSet<Caravan> Caravan { get; set; }
      public DbSet<Reservering> Reservering { get; set; }
      public DbSet<VoertuigStatus> VoertuigStatus { get; set; }
      public DbSet<SchadeFormulier> SchadeFormulier { get; set; }
