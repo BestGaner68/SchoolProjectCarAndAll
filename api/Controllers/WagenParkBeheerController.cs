@@ -70,7 +70,10 @@ namespace api.Controllers
         public async Task<IActionResult> GetAllUserInWagenPark()
         {
             var CurrentWagenparkBeheerder = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            List<AppUser> UsersInWagenPark = await _wagenparkVerzoekService.GetAllUsers(1);
+            List<AppUser> UsersInWagenPark = await _wagenparkVerzoekService.GetAllUsers(CurrentWagenparkBeheerder);
+            if (!UsersInWagenPark.Any()){
+                return BadRequest(new {message = "Er zijn geen gebruikers gevonden in uw WagenPark"});
+            }
             var ToDto = UserDtoMapper.MapToUserDtos(UsersInWagenPark);
             return Ok(ToDto);
         }

@@ -19,7 +19,7 @@ namespace api.Controllers
         }
 
         [HttpGet("GetAllPendingVerhuurVerzoeken")]
-        public async Task<IActionResult> GetAllPending()
+        public async Task<IActionResult> GetAllPendingVerhuurVerzoeken()
         {
             var Verzoeken = await _verhuurVerzoekRepo.GetAllAsync();
             var filtered = Verzoeken.Where(x => x.Status == "Pending");

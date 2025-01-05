@@ -80,9 +80,10 @@ public class WagenParkBeheer : IWagenparkVerzoekService
     }
 
 
-    public async Task<List<AppUser>> GetAllUsers(int Id)
+    public async Task<List<AppUser>> GetAllUsers(String WagenparkBeheerderId)
     {
-        WagenPark currentWagenPark = await _context.Wagenpark.FindAsync(Id);
+        var CurrentUser = await _context.Users.FindAsync(WagenparkBeheerderId);
+        WagenPark currentWagenPark = await _context.Wagenpark.Where(x => x.AppUser == CurrentUser).FirstOrDefaultAsync();
         if (currentWagenPark == null)
         {
             return [];
