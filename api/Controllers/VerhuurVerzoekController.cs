@@ -18,7 +18,7 @@ namespace api.Controllers
             _voertuigHelper = voertuighelper;
         }
 
-        [HttpGet("GetAllPending")]
+        [HttpGet("GetAllPendingVerhuurVerzoeken")]
         public async Task<IActionResult> GetAllPending()
         {
             var Verzoeken = await _verhuurVerzoekRepo.GetAllAsync();

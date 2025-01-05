@@ -13,6 +13,6 @@ namespace api.Dtos.Account
         public string Bestemming { get; set; } =string.Empty;
         public int VerwachtteKM { get; set; }
         public DateTime Datum { get; set; }
-        
+        public int VerhuurVerzoekId { get; set; }
     }
 }

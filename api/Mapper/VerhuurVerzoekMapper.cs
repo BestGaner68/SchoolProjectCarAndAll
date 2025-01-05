@@ -20,7 +20,9 @@ namespace api.Mapper
                 Bestemming = verhuurVerzoek.Bestemming,
                 VerwachtteKM = verhuurVerzoek.VerwachtteKM,
                 Datum = verhuurVerzoek.Datum,
+                VerhuurVerzoekId = verhuurVerzoek.VerhuurVerzoekId,
             };
+            
         }
 
         public static VerhuurVerzoek ToVerhuurVerzoekFromDto(this VerhuurVerzoekRequestDto verhuurVerzoekRequestDto, string appUserId)
