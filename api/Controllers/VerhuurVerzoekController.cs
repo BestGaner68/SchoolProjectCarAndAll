@@ -18,11 +18,12 @@ namespace api.Controllers
             _voertuigHelper = voertuighelper;
         }
 
-        [HttpGet("GetAll")]
-        public async Task<IActionResult> GetAll()
+        [HttpGet("GetAllPending")]
+        public async Task<IActionResult> GetAllPending()
         {
             var Verzoeken = await _verhuurVerzoekRepo.GetAllAsync();
-            return Ok(Verzoeken.Select(x => x.ToVerhuurVerzoekDto())); 
+            var filtered = Verzoeken.Where(x => x.Status == "Pending");
+            return Ok(filtered.Select(x => x.ToVerhuurVerzoekDto())); 
         }
 
         [HttpGet("GetByID/{id}")]
@@ -44,13 +45,9 @@ namespace api.Controllers
                 return BadRequest(ModelState);
             }
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (await _voertuigHelper.CheckDatesAsync(verhuurVerzoekDto.VoertuigId, verhuurVerzoekDto.StartDatum, verhuurVerzoekDto.EindDatum))
+            if (!await _voertuigHelper.CheckDatesAsync(verhuurVerzoekDto.VoertuigId, verhuurVerzoekDto.StartDatum, verhuurVerzoekDto.EindDatum))
             {
                 return BadRequest("Aangegeven data zijn al in gebruik, het voertuig kan niet worden verhuurd");
-            }
-            if (await _voertuigHelper.CheckStatusAsync(verhuurVerzoekDto.VoertuigId))
-            {
-                return BadRequest("Aangegeven voertuig is momenteel buiten gebruik");
             }
             var verhuurVerzoekModel = verhuurVerzoekDto.ToVerhuurVerzoekFromDto(userId);
             await _verhuurVerzoekRepo.CreateAsync(verhuurVerzoekModel);

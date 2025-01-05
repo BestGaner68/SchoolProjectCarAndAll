@@ -7,6 +7,7 @@ using api.Interfaces;
 using api.Migrations;
 using api.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,14 +16,16 @@ namespace api.Repositories
     public class WagenparkService : IWagenparkService
     {
         private readonly ApplicationDbContext _context;
-        public WagenparkService(ApplicationDbContext context)
+        private readonly UserManager<AppUser> _userManager;  
+        public WagenparkService(ApplicationDbContext context, UserManager<AppUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
-        public async Task<WagenPark> CreateWagenparkAsync(WagenPark wagenPark, string username)
+        public async Task<WagenPark> CreateWagenparkAsync(WagenPark wagenPark, string userId)
         {
-            var user = await GetUserId(username);
+            var user = await _context.Users.FindAsync(userId);
             wagenPark.AppUser = user;
             await _context.AddAsync(wagenPark);
             await _context.SaveChangesAsync();
@@ -44,7 +47,7 @@ namespace api.Repositories
             }
             var gevondenwagenpark = await _context.Wagenpark
                 .SingleOrDefaultAsync(w => w.BedrijfsString.Equals(emailString));
-            return gevondenwagenpark == null ? throw new ArgumentException($"geen wagenpark gevonden met emailstring: {email}") : gevondenwagenpark;
+            return gevondenwagenpark ?? throw new ArgumentException($"geen wagenpark gevonden met emailstring: {email}");
         }
 
         

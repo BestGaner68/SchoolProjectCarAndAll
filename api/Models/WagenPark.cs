@@ -15,6 +15,6 @@ namespace api.Models
         public AppUser AppUser { get; set; }
         public string Bedrijfsnaam { get; set; } = string.Empty ;
         public string BedrijfsString { get; set; } = string.Empty;
-
+        public string KvkNummer {get; set; } = string.Empty;
     }
 }

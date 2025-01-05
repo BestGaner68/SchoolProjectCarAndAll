@@ -1,7 +1,9 @@
+using System.Security.Claims;
 using api.Interfaces;
 using api.Mapper;
 using api.Migrations;
 using api.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api.Controllers
@@ -15,17 +17,18 @@ namespace api.Controllers
             _wagenparkVerzoekService = wagenparkVerzoekService;
         }
 
-
-        [HttpGet("GetAllVerzoeken/{id}")]
-        public async Task <IActionResult> GetAllVerzoeken([FromRoute]int id)  
+        [Authorize]
+        [HttpGet("GetAllVerzoeken")]
+        public async Task <IActionResult> GetAllVerzoeken()  
         {
-        var verzoeken = await _wagenparkVerzoekService.GetAllVerzoeken(id);
-        if (verzoeken == null || !verzoeken.Any())
-        {
-            return NotFound($"No requests found for WagenPark with ID {id}.");
-        }
-        var verzoekenToDto = UserDtoMapper.MapToWagenParkDtos(verzoeken);
-            return Ok(verzoekenToDto);
+            var CurrentWagenparkBeheerder = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var verzoeken = await _wagenparkVerzoekService.GetAllVerzoeken(CurrentWagenparkBeheerder);
+            if (verzoeken == null || !verzoeken.Any())
+            {
+                return NotFound($"No requests found for WagenPark with ID .");
+            }
+            var verzoekenToDto = UserDtoMapper.MapToWagenParkDtos(verzoeken);
+                return Ok(verzoekenToDto);
         }
 
         [HttpPost("AddUserToWagenPark")]
