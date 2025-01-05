@@ -66,10 +66,11 @@ namespace api.Controllers
             }
         } 
 
-        [HttpGet("GetAllWagenParkUsers/{wagenparkid}")]
-        public async Task<IActionResult> GetAllUserInWagenPark([FromRoute] int wagenparkid)
+        [HttpGet("GetAllWagenParkUsers/")]
+        public async Task<IActionResult> GetAllUserInWagenPark()
         {
-            List<AppUser> UsersInWagenPark = await _wagenparkVerzoekService.GetAllUsers(wagenparkid);
+            var CurrentWagenparkBeheerder = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            List<AppUser> UsersInWagenPark = await _wagenparkVerzoekService.GetAllUsers(1);
             var ToDto = UserDtoMapper.MapToUserDtos(UsersInWagenPark);
             return Ok(ToDto);
         }

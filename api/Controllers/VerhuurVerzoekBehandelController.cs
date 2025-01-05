@@ -32,10 +32,10 @@ namespace api.Controllers
             }
             return Ok("VerhuurVerzoek is afgekeurt");
         }
-        [HttpGet("GetAll")]
+        [HttpGet("GetAllReserveringen")]
         public async Task<IActionResult> GetAllReserveringen (){
             var Reserveringen = await _reserveringService.GetAll();
-            if (Reserveringen == null){
+            if (!Reserveringen.Any()){
                 return NotFound("Er zijn momenteel geen Reserveringen");
             }
             return Ok(Reserveringen);
