@@ -177,23 +177,19 @@ namespace api.Controllers
         {
             try
             {    
-                
-                var username = User.Claims.FirstOrDefault(c => c.Type == "name")?.Value;
-                Console.WriteLine("Username from token: " + username);
+                var AppUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-                if (string.IsNullOrEmpty(username))
+                if (string.IsNullOrEmpty(AppUserId))
                 {
-                    return Unauthorized("No username found in token.");
+                    return Unauthorized("No userID found in token.");
                 }
-
                 
-                var appUser = await _userManager.FindByNameAsync(username);
+                var appUser = await _userManager.FindByIdAsync(AppUserId);
 
                 if (appUser == null)
                 {
                     return NotFound("User not found");
                 }
-
             
                 var dto = new UserDataDto
                 {
@@ -219,14 +215,13 @@ namespace api.Controllers
         {
             try
             {
-                var username = User.Claims.FirstOrDefault(c => c.Type == "name")?.Value;
-
-                if (string.IsNullOrEmpty(username))
+                var AppUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (string.IsNullOrEmpty(AppUserId))
                 {
-                    return Unauthorized("No username found in token.");
+                    return Unauthorized("No userID found in token.");
                 }
 
-                var appUser = await _userManager.FindByNameAsync(username);
+                var appUser = await _userManager.FindByIdAsync(AppUserId);
                 if (appUser == null)
                 {
                     return NotFound("User not found");
