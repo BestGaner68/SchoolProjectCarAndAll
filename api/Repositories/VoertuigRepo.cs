@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using api.Data;
+using api.Dtos.Voertuig;
 using api.Interfaces;
+using api.Migrations;
 using api.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,6 +18,19 @@ namespace api.Repositories
         public VoertuigRepo(ApplicationDbContext context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
+        }
+
+        public async Task<VoertuigDto> GetAllVoertuigDataById(int voertuigId)
+        {
+            var voertuig = await _context.Voertuig.FindAsync(voertuigId);
+            if (voertuig == null){
+                return null;
+            }
+            return new VoertuigDto{
+                Soort = voertuig.Soort,
+                type = voertuig.Type,
+                Merk = voertuig.Merk,
+            };
         }
 
         public async Task<List<Voertuig>> GetAllVoertuigen()
@@ -32,5 +47,7 @@ namespace api.Repositories
         {
             return await _context.Voertuig.Where(x => x.Soort == VoertuigSoort).ToListAsync();
         }
+
+        
     }
 }

@@ -3,8 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using api.Data;
+using api.Dtos.Verhuur;
+using api.Dtos.Voertuig;
 using api.Interfaces;
+using api.Mapper;
+using api.Migrations;
+using api.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 
 
 namespace api.Repositories
@@ -12,10 +18,12 @@ namespace api.Repositories
     public class VoertuigHelperRepo : IVoertuigHelper
     {
         private readonly ApplicationDbContext _context;
+        private readonly IVoertuigService _voertuigHelper;
     
-        public VoertuigHelperRepo(ApplicationDbContext context)
+        public VoertuigHelperRepo(ApplicationDbContext context, IVoertuigService voertuigHelper)
         {
             _context = context;
+            _voertuigHelper = voertuigHelper;
         }
 
         public async Task<bool> ChangeStatusVoertuig(int voertuigId, string status)
@@ -76,6 +84,15 @@ namespace api.Repositories
             }
             return allDates;
 
+        }
+
+        public async Task<VolledigeDataDto> GetVolledigeDataDto(VerhuurVerzoek verhuurVerzoek)
+        {
+            AppUser user = await _context.Users.FindAsync(verhuurVerzoek.AppUserId);
+            string fullName = $"{user.Voornaam} {user.Achternaam}";
+            VoertuigDto voertuigDto = await _voertuigHelper.GetAllVoertuigDataById(verhuurVerzoek.VoertuigId);
+            VolledigeDataDto volledigeDataDto = VerhuurVerzoekMapper.ToVolledigeDataDto(verhuurVerzoek, fullName, voertuigDto);
+            return volledigeDataDto;
         }
     }
 }

@@ -13,5 +13,6 @@ namespace api.Interfaces
         Task<VerhuurVerzoek?> GetByIdAsync(int id);
 
         Task<VerhuurVerzoek> CreateAsync (VerhuurVerzoek verhuurVerzoek);
+        Task<List<VerhuurVerzoek>> GetPendingAsync();
     }
 }
