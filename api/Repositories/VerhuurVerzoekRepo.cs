@@ -33,5 +33,12 @@ namespace api.Repositories
             await _context.SaveChangesAsync();
             return verhuurVerzoekModel;
         }
+
+        public async Task<List<VerhuurVerzoek>> GetPendingAsync()
+        {
+            return await _context.VerhuurVerzoek
+                .Where(v => v.Status == "Pending")
+                .ToListAsync();
+        }
     }
 }

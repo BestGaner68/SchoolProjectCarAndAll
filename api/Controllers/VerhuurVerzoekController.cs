@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using api.Dtos.Account;
+using api.Dtos.Verhuur;
 using api.Interfaces;
 using api.Mapper;
 using Microsoft.AspNetCore.Authorization;
@@ -19,11 +20,22 @@ namespace api.Controllers
         }
 
         [HttpGet("GetAllPendingVerhuurVerzoeken")]
-        public async Task<IActionResult> GetAllPending()
+        public async Task<IActionResult> GetAllPendingVerhuurVerzoeken()
         {
-            var Verzoeken = await _verhuurVerzoekRepo.GetAllAsync();
-            var filtered = Verzoeken.Where(x => x.Status == "Pending");
-            return Ok(filtered.Select(x => x.ToVerhuurVerzoekDto())); 
+            var pendingVerzoeken = await _verhuurVerzoekRepo.GetPendingAsync();
+
+            if (!pendingVerzoeken.Any())
+            {
+                return NotFound(new { message = "Geen openstaande verhuurverzoeken gevonden." });
+            }
+            var mappedData = new List<VolledigeDataDto>();
+            foreach (var verzoek in pendingVerzoeken)
+            {
+                var volledigeData = await _voertuigHelper.GetVolledigeDataDto(verzoek);
+                mappedData.Add(volledigeData);
+            }
+
+            return Ok(mappedData);
         }
 
         [HttpGet("GetByID/{id}")]

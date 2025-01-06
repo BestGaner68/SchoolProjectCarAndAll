@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using api.Dtos.Account;
+using api.Dtos.Verhuur;
+using api.Dtos.Voertuig;
 using api.Migrations;
 using api.Models;
 
@@ -52,6 +54,20 @@ namespace api.Mapper
                 VerwachtteKM = verhuurVerzoek.VerwachtteKM,
                 AardReis = verhuurVerzoek.AardReis,
                 Status = "Wachten op Uitgifte" 
+            };
+        }
+        public static VolledigeDataDto ToVolledigeDataDto(VerhuurVerzoek verhuurVerzoek, string Fullname, VoertuigDto voertuigDto){
+            return new VolledigeDataDto
+            {
+                StartDatum = verhuurVerzoek.StartDatum,
+                EindDatum = verhuurVerzoek.EindDatum,
+                AardReis = verhuurVerzoek.AardReis,
+                Bestemming = verhuurVerzoek.Bestemming,
+                VerwachtteKM = verhuurVerzoek.VerwachtteKM,
+                VolledigeNaam = Fullname,
+                VoertuigMerk = voertuigDto.Merk,
+                VoertuigSoort = voertuigDto.Soort,
+                VoertuigType = voertuigDto.type,
             };
         }
     }
