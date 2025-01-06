@@ -12,6 +12,6 @@ namespace api.Interfaces
         Task<List<Voertuig>> GetAllVoertuigen();
         Task<List<Voertuig>> GetVoertuigenByMerk(String VoertuigMerk);
         Task<List<Voertuig>> GetVoertuigenBySoort(String VoertuigSoort);
-        Task <VoertuigDto> GetAllVoertuigDataById (int voertuigId); 
+        Task<VoertuigDto> GetAllVoertuigDataById(int voertuigId);
     }
 }
