@@ -68,6 +68,7 @@ namespace api.Mapper
                 VoertuigMerk = voertuigDto.Merk,
                 VoertuigSoort = voertuigDto.Soort,
                 VoertuigType = voertuigDto.type,
+                VerhuurverzoekId = verhuurVerzoek.VerhuurVerzoekId
             };
         }
     }

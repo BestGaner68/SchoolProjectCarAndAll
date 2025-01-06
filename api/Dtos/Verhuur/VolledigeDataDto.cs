@@ -16,5 +16,6 @@ namespace api.Dtos.Verhuur
         public string VoertuigType { get; set; } =string.Empty;
         public string VoertuigSoort { get; set; } =string.Empty;
         public string VolledigeNaam { get; set; } =string.Empty;
+        public int VerhuurverzoekId { get; set; }
     }
 }
