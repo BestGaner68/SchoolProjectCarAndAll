@@ -12,11 +12,11 @@ namespace api.Controllers
     public class VerhuurVerzoekController : ControllerBase
     {
         private readonly IVerhuurVerzoekService _verhuurVerzoekRepo;
-        private readonly IVoertuigHelper _voertuigHelper;
-        public VerhuurVerzoekController(IVerhuurVerzoekService verhuurVerzoekRepo, IVoertuigHelper voertuighelper)
+        private readonly IVoertuigService _voertuigService;
+        public VerhuurVerzoekController(IVerhuurVerzoekService verhuurVerzoekRepo, IVoertuigService voertuigService)
         {
             _verhuurVerzoekRepo = verhuurVerzoekRepo;
-            _voertuigHelper = voertuighelper;
+            _voertuigService = voertuigService;
         }
 
         [HttpGet("GetAllPendingVerhuurVerzoeken")]
@@ -31,7 +31,7 @@ namespace api.Controllers
             var mappedData = new List<VolledigeDataDto>();
             foreach (var verzoek in pendingVerzoeken)
             {
-                var volledigeData = await _voertuigHelper.GetVolledigeDataDto(verzoek);
+                var volledigeData = await _verhuurVerzoekRepo.GetVolledigeDataDto(verzoek);
                 mappedData.Add(volledigeData);
             }
 
@@ -57,7 +57,7 @@ namespace api.Controllers
                 return BadRequest(ModelState);
             }
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (!await _voertuigHelper.CheckDatesAsync(verhuurVerzoekDto.VoertuigId, verhuurVerzoekDto.StartDatum, verhuurVerzoekDto.EindDatum))
+            if (!await _voertuigService.CheckDatesAsync(verhuurVerzoekDto.VoertuigId, verhuurVerzoekDto.StartDatum, verhuurVerzoekDto.EindDatum))
             {
                 return BadRequest("Aangegeven data zijn al in gebruik, het voertuig kan niet worden verhuurd");
             }
@@ -69,16 +69,36 @@ namespace api.Controllers
         [HttpGet("GetUnavailableData/{voertuigId}")]
         public async Task<IActionResult> GetUnavailableData([FromRoute] int voertuigId)
         {
-            var dates = await _voertuigHelper.GetUnavailableDates(voertuigId);
+            var dates = await _voertuigService.GetUnavailableDates(voertuigId);
             return Ok(dates);
         }
         
         [HttpGet("GetVoertuigStatus/{voertuigId}")]
         public async Task<IActionResult> GetVoertuigStatus([FromRoute] int voertuigId)
         {
-            var status = await _voertuigHelper.CheckStatusAsync(voertuigId);
+            var status = await _voertuigService.CheckStatusAsync(voertuigId);
             return Ok(status);
         }
-         
+
+        [HttpGet("GetMyVerzoeken")]
+        public async Task<IActionResult> GetMyVerzoeken(){
+            var AppUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var UserVerzoeken = await _verhuurVerzoekRepo.GetMyVerhuurVerzoeken(AppUserId);
+            if (!UserVerzoeken.Any()){
+                return NotFound( new {message = "Er zijn geen verhuurverzoeken gevonden."});
+            }
+            return Ok (UserVerzoeken);
+        }
+
+        [HttpPut("DeclineMyVerzoek/{VerhuurVerzoekId}")]
+        public async Task<IActionResult> DeclineMyVerzoek ([FromRoute]int VerhuurVerzoekId){
+            var AppUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var Succes = await _verhuurVerzoekRepo.DeclineMyVerzoek(VerhuurVerzoekId, AppUserId);
+            if (Succes)
+            {
+                return Ok();
+            }
+            return BadRequest(new { message = "De operatie kon niet worden uitgevoerd." });
+        } 
     }
 }

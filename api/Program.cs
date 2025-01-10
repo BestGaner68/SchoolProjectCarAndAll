@@ -94,10 +94,9 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IVerhuurVerzoekService, VerhuurVerzoekRepo>();
 builder.Services.AddScoped<IWagenparkService, WagenparkService>();
 builder.Services.AddScoped<IWagenparkVerzoekService, WagenParkBeheer>();
-builder.Services.AddScoped<IVoertuigService, VoertuigRepo>();
+builder.Services.AddScoped<IVoertuigService, VoertuigServiceRepo>();
 builder.Services.AddScoped<IRoleService, RoleRepo>();
 builder.Services.AddScoped<IDoubleDataCheckerRepo, DoubleDataCheckerRepo>();
-builder.Services.AddScoped<IVoertuigHelper, VoertuigHelperRepo>();
 builder.Services.AddScoped<IReserveringService, ReserveringRepo>();
 
 var app = builder.Build();

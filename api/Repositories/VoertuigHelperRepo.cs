@@ -15,15 +15,13 @@ using Microsoft.EntityFrameworkCore.Internal;
 
 namespace api.Repositories
 {
-    public class VoertuigHelperRepo : IVoertuigHelper
+    public class VoertuigServiceRepo : IVoertuigService
     {
         private readonly ApplicationDbContext _context;
-        private readonly IVoertuigService _voertuigHelper;
     
-        public VoertuigHelperRepo(ApplicationDbContext context, IVoertuigService voertuigHelper)
+        public VoertuigServiceRepo(ApplicationDbContext context)
         {
             _context = context;
-            _voertuigHelper = voertuigHelper;
         }
 
         public async Task<bool> ChangeStatusVoertuig(int voertuigId, string status)
@@ -65,6 +63,7 @@ namespace api.Repositories
         return status == "Beschikbaar";
         }
 
+
         public async Task<List<DateTime>> GetUnavailableDates(int voertuigId)
         {
             var unavailableDates = await _context.Reservering
@@ -86,13 +85,32 @@ namespace api.Repositories
 
         }
 
-        public async Task<VolledigeDataDto> GetVolledigeDataDto(VerhuurVerzoek verhuurVerzoek)
+        public async Task<VoertuigDto> GetAllVoertuigDataById(int voertuigId)
         {
-            AppUser user = await _context.Users.FindAsync(verhuurVerzoek.AppUserId);
-            string fullName = $"{user.Voornaam} {user.Achternaam}";
-            VoertuigDto voertuigDto = await _voertuigHelper.GetAllVoertuigDataById(verhuurVerzoek.VoertuigId);
-            VolledigeDataDto volledigeDataDto = VerhuurVerzoekMapper.ToVolledigeDataDto(verhuurVerzoek, fullName, voertuigDto);
-            return volledigeDataDto;
+            var voertuig = await _context.Voertuig.FindAsync(voertuigId);
+            if (voertuig == null){
+                return null;
+            }
+            return new VoertuigDto{
+                Soort = voertuig.Soort,
+                type = voertuig.Type,
+                Merk = voertuig.Merk,
+            };
+        }
+
+        public async Task<List<Voertuig>> GetAllVoertuigen()
+        {
+            return await _context.Voertuig.ToListAsync();
+        }
+
+        public async Task<List<Voertuig>> GetVoertuigenByMerk(string VoertuigMerk)
+        {
+            return await _context.Voertuig.Where(x => x.Merk == VoertuigMerk).ToListAsync();
+        }
+
+        public async Task<List<Voertuig>> GetVoertuigenBySoort(string VoertuigSoort)
+        {
+            return await _context.Voertuig.Where(x => x.Soort == VoertuigSoort).ToListAsync();
         }
     }
 }

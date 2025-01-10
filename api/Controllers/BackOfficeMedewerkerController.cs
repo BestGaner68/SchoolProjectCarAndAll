@@ -21,14 +21,14 @@ namespace api.Controllers
         private readonly ITokenService _tokenService;
         private readonly SignInManager<AppUser> _signInManager;
         private readonly IWagenparkService _wagenparkService;
-        private readonly IVoertuigHelper _voertuigHelper;
-        public BackOfficeMedewerkerController(UserManager<AppUser> userManager, ITokenService tokenService, SignInManager<AppUser> signInManager, IWagenparkService wagenparkService, IVoertuigHelper voertuigHelper)
+        private readonly IVoertuigService _voertuigService;
+        public BackOfficeMedewerkerController(UserManager<AppUser> userManager, ITokenService tokenService, SignInManager<AppUser> signInManager, IWagenparkService wagenparkService, IVoertuigService voertuigService)
         {
             _userManager = userManager;
             _tokenService = tokenService;
             _signInManager = signInManager;
             _wagenparkService = wagenparkService;
-            _voertuigHelper = voertuigHelper;
+            _voertuigService = voertuigService;
         }
 
         [HttpPost("registerBackendAndFrontend")]
@@ -139,7 +139,7 @@ namespace api.Controllers
 
         [HttpPut]
         public async Task<IActionResult> ChangeVoertuigStatus (int voertuigId, string status){
-            var result = await _voertuigHelper.ChangeStatusVoertuig(voertuigId, status);
+            var result = await _voertuigService.ChangeStatusVoertuig(voertuigId, status);
             if (!result){
                 return BadRequest($"Geen voertuig gevonden met id {voertuigId}");
             }

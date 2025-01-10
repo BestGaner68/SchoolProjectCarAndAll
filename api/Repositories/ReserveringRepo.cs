@@ -1,21 +1,19 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using api.Data;
 using api.Interfaces;
 using api.Mapper;
 using api.Models;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
+using api.Dtos.ReserveringenEnSchade;
 
 namespace api.Repositories
 {
     public class ReserveringRepo : IReserveringService
     {
         private readonly ApplicationDbContext _context;
-        public ReserveringRepo (ApplicationDbContext context){
+        private readonly IVoertuigService _voertuigService;
+        public ReserveringRepo (ApplicationDbContext context, IVoertuigService voertuigService){
             _context = context;
+            _voertuigService = voertuigService;
         }
         
         public async Task<bool> AcceptVerhuurVerzoek(int verhuurVerzoekId)
@@ -49,7 +47,7 @@ namespace api.Repositories
                 {
                     return false;
                 }
-                CurrentVerhuurVerzoek.Status = "Afgekeurt";
+                CurrentVerhuurVerzoek.Status = "Geweigerd";
                 await _context.SaveChangesAsync();
                 return true;
             }
@@ -104,8 +102,8 @@ namespace api.Repositories
             if (voertuig == null){
                 return false;
             }
-            voertuig.status = "Ready";
-            CurrentReservering.Status = "Compleet";
+            voertuig.status = "Klaar voor gebruik";
+            CurrentReservering.Status = "Afgerond";
             await _context.SaveChangesAsync();
             return true;
         }
@@ -124,9 +122,21 @@ namespace api.Repositories
             if (voertuig == null){
                 return false;
             }
-            voertuig.status = "Beschadigt en onder onderhoud";
+            voertuig.status = "Onder onderhoudt";
             await _context.SchadeFormulier.AddAsync(schadeformulier);
             return true;
+        }
+
+        public async Task<List<Reservering>> GetMyReserveringen(string AppUserId){
+            return await _context.Reservering
+                .Where(r => r.AppUserId == AppUserId)
+                .ToListAsync();    
+        }
+
+        public async Task<HuurGeschiedenisDto> GetHuurGeschiedenis(Reservering reservering)
+        {
+            var voertuigData = await _voertuigService.GetAllVoertuigDataById(reservering.VoertuigId);
+            return ReserveringMapper.ToHuurGeschiedenisDto(reservering, voertuigData);
         }
     }
 }
