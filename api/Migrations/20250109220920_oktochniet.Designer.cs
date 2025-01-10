@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using api.Data;
 
@@ -11,9 +12,11 @@ using api.Data;
 namespace api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250109220920_oktochniet")]
+    partial class oktochniet
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -153,50 +156,6 @@ namespace api.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
-                });
-
-            modelBuilder.Entity("api.Models.Abonnement", b =>
-                {
-                    b.Property<int>("AbonnementId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AbonnementId"));
-
-                    b.Property<int>("AbonnementPrijs")
-                        .HasColumnType("int");
-
-                    b.Property<string>("AbonnementType")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("AbonnementId");
-
-                    b.ToTable("Abonnementen");
-                });
-
-            modelBuilder.Entity("api.Models.AbonnementUserLinked", b =>
-                {
-                    b.Property<int>("AbonnementUserLinkedId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AbonnementUserLinkedId"));
-
-                    b.Property<int>("AbonnementId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("AppUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("AbonnementUserLinkedId");
-
-                    b.HasIndex("AbonnementId");
-
-                    b.HasIndex("AppUserId");
-
-                    b.ToTable("AbonnementUserLinkeds");
                 });
 
             modelBuilder.Entity("api.Models.AppUser", b =>
@@ -554,25 +513,6 @@ namespace api.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("api.Models.AbonnementUserLinked", b =>
-                {
-                    b.HasOne("api.Models.Abonnement", "Abonnement")
-                        .WithMany()
-                        .HasForeignKey("AbonnementId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("api.Models.AppUser", "WagenParkEigenaar")
-                        .WithMany()
-                        .HasForeignKey("AppUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Abonnement");
-
-                    b.Navigation("WagenParkEigenaar");
                 });
 
             modelBuilder.Entity("api.Models.WagenPark", b =>

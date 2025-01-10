@@ -1,24 +1,20 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-
-namespace api.Models
+namespace api.Dtos.ReserveringenEnSchade
 {
-    public class VerhuurVerzoek
+    public class HuurGeschiedenisDto
     {
-        [Key]
-        public int VerhuurVerzoekId { get; set; }
-        public int VoertuigId { get; set; }
-        public string AppUserId { get; set; }
         public DateTime StartDatum { get; set; }   
         public DateTime EindDatum { get; set; }
         public string AardReis  { get; set; }  =string.Empty; 
         public string Bestemming { get; set; } =string.Empty;
         public int VerwachtteKM { get; set; }
-        public DateTime Datum { get; set; } = DateTime.Now;
-        public String Status {get; set;} =string.Empty;
+        public string VoertuigMerk { get; set; } =string.Empty;
+        public string VoertuigType { get; set; } =string.Empty;
+        public string VoertuigSoort { get; set; } =string.Empty;
+        public string VolledigeNaam { get; set; } =string.Empty;
     }
 }

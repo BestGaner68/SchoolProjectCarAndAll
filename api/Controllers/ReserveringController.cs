@@ -2,17 +2,23 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using api.Dtos.ReserveringenEnSchade;
 using api.Interfaces;
+using api.Mapper;
+using api.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api.Controllers
 {   
-    [Route("api/VerhuurVerzoekBehandelen")]
-    public class VerhuurVerzoekBehandelController : ControllerBase
+    [Route("api/Reserveringen")]
+    public class ReserveringController : ControllerBase
     {
         private readonly IReserveringService _reserveringService;
-        public VerhuurVerzoekBehandelController(IReserveringService reserveringService){
+        public ReserveringController(IReserveringService reserveringService){
             _reserveringService = reserveringService;
         }
 
@@ -49,5 +55,31 @@ namespace api.Controllers
             }
             return Ok(Reservering);
         }
+        [Authorize]
+        [HttpGet("ViewHuurGeschiedenis")]
+        public async Task<IActionResult> ViewMyGeschiedenis()
+        {
+            try
+            {
+                var AppUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var Reserveringen = await _reserveringService.GetMyReserveringen(AppUserId);
+                if (!Reserveringen.Any())
+                {
+                    return NotFound(new { message = "Geen reserveringen gevonden voor deze gebruiker." });
+                }
+                var huurgeschiedenis = new List<HuurGeschiedenisDto>();
+                foreach (var Reservering in Reserveringen)
+                {
+                    
+                    var ToevoegenHuurGeschiedenis = await _reserveringService.GetHuurGeschiedenis(Reservering);
+                    huurgeschiedenis.Add(ToevoegenHuurGeschiedenis);
+                }
+            return Ok(huurgeschiedenis);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Er is een interne fout opgetreden." });
+        }
     }
+        }
 }

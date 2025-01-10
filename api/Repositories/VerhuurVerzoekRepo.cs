@@ -3,18 +3,24 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using api.Data;
+using api.Dtos.Verhuur;
+using api.Dtos.Voertuig;
 using api.Interfaces;
+using api.Mapper;
 using api.Models;
 using Microsoft.EntityFrameworkCore;
+
 
 namespace api.Repositories
 {
     public class VerhuurVerzoekRepo : IVerhuurVerzoekService
     {
         private readonly ApplicationDbContext _context;
-        public VerhuurVerzoekRepo(ApplicationDbContext context)
+        private readonly IVoertuigService _voertuigService;
+        public VerhuurVerzoekRepo(ApplicationDbContext context, IVoertuigService voertuigService)
         {
             _context = context;
+            _voertuigService = voertuigService;
         }
 
         public Task<List<VerhuurVerzoek>> GetAllAsync()
@@ -39,6 +45,46 @@ namespace api.Repositories
             return await _context.VerhuurVerzoek
                 .Where(v => v.Status == "Pending")
                 .ToListAsync();
+        }
+
+        public async Task<VolledigeDataDto> GetVolledigeDataDto(VerhuurVerzoek verhuurVerzoek)
+        {
+            AppUser user = await _context.Users.FindAsync(verhuurVerzoek.AppUserId);
+            string fullName = $"{user.Voornaam} {user.Achternaam}";
+            VoertuigDto voertuigDto = await _voertuigService.GetAllVoertuigDataById(verhuurVerzoek.VoertuigId);
+            VolledigeDataDto volledigeDataDto = VerhuurVerzoekMapper.ToVolledigeDataDto(verhuurVerzoek, fullName, voertuigDto);
+            return volledigeDataDto;
+        }
+
+        public async Task<bool> DeclineMyVerzoek(int verhuurVerzoekId, string AppUserId)
+            {
+            var currentVerhuurVerzoek = await _context.VerhuurVerzoek.FindAsync(verhuurVerzoekId);
+            if (currentVerhuurVerzoek == null)
+            {
+                return false;
+            }
+            if (string.IsNullOrEmpty(AppUserId) || !currentVerhuurVerzoek.AppUserId.Equals(AppUserId))
+            {
+                return false;
+            }
+            currentVerhuurVerzoek.Status = "Door gebruiker verwijderd"; 
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<List<VerhuurVerzoek>> GetMyVerhuurVerzoeken(string AppUserId)
+        {
+            return await _context.VerhuurVerzoek
+            .Where(v => v.AppUserId == AppUserId)
+            .ToListAsync();
+        }
+
+        public async Task<List<Reservering>> ViewHuurGeschiedenis(string AppUserId)
+        {
+            var Verzoeken = await _context.Reservering
+                .Where(v => v.AppUserId == AppUserId && v.Status == "Afgerond")
+                .ToListAsync();
+            return Verzoeken;
         }
     }
 }

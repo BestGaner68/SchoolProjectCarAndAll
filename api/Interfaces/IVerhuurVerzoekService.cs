@@ -2,17 +2,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using api.Dtos.Verhuur;
 using api.Models;
 
 namespace api.Interfaces
 {
     public interface IVerhuurVerzoekService
     {
-        Task<List<VerhuurVerzoek>> GetAllAsync();
-
-        Task<VerhuurVerzoek?> GetByIdAsync(int id);
-
-        Task<VerhuurVerzoek> CreateAsync (VerhuurVerzoek verhuurVerzoek);
-        Task<List<VerhuurVerzoek>> GetPendingAsync();
+        Task<List<VerhuurVerzoek>> GetAllAsync(); //Methode om alle verhuurverzoeken uit de Db te halen
+        Task<VerhuurVerzoek?> GetByIdAsync(int id); //Methode die een verhuurverzoek op id ophaalt uit de Db
+        Task<VerhuurVerzoek> CreateAsync (VerhuurVerzoek verhuurVerzoek); //Methode om verhuurverzoeken te schrijven naar de Db
+        Task<List<VerhuurVerzoek>> GetPendingAsync(); //Methode haalt alle verhuurverzoeken op die momenteel op Pending status staan in de Db
+        Task <VolledigeDataDto> GetVolledigeDataDto (VerhuurVerzoek verhuurVerzoek); //Methode die extra benodigde data van een verhuurverzoek ophaalt uit de db
+        Task<List<VerhuurVerzoek>> GetMyVerhuurVerzoeken(string AppUserId); //Methode om de verhuurverzoeken van een gebruiker uit de Db te vragen
+        Task <bool>DeclineMyVerzoek(int verhuurVerzoekId, string AppUserId); //Methode om de status van het verhuurverzoek aan te passen in de database, checked of de UserIds Overeenkomen
+        Task<List<Reservering>> ViewHuurGeschiedenis (string AppUserId); //Methode om huurgeschiedenis van een gebruiker uit de Db
     }
 }

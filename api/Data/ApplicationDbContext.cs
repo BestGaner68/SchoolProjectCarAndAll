@@ -25,6 +25,8 @@ namespace api.Data
      public DbSet<Reservering> Reservering { get; set; }
      public DbSet<VoertuigStatus> VoertuigStatus { get; set; }
      public DbSet<SchadeFormulier> SchadeFormulier { get; set; }
+     public DbSet<Abonnement> Abonnementen { get; set; }
+     public DbSet<AbonnementUserLinked> AbonnementUserLinkeds{ get; set; }
 
      protected override void OnModelCreating(ModelBuilder builder){
         builder.Entity<WagenparkLinkedUser>()
