@@ -76,7 +76,7 @@ namespace api.Controllers
         [HttpGet("GetVoertuigStatus/{voertuigId}")]
         public async Task<IActionResult> GetVoertuigStatus([FromRoute] int voertuigId)
         {
-            var status = await _voertuigService.CheckStatusAsync(voertuigId);
+            var status = await _voertuigService.GetStatus(voertuigId);
             return Ok(status);
         }
 

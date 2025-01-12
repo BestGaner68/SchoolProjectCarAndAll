@@ -1,9 +1,13 @@
 using System.Security.Claims;
+using api.Dtos;
+using api.Dtos.Account;
+using api.Dtos.Verhuur;
 using api.Interfaces;
 using api.Mapper;
 using api.Migrations;
 using api.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api.Controllers
@@ -12,9 +16,11 @@ namespace api.Controllers
     public class WagenParkBeheerController : ControllerBase
     {
         private readonly IWagenparkVerzoekService _wagenparkVerzoekService;
-        public WagenParkBeheerController(IWagenparkVerzoekService wagenparkVerzoekService)
+        private readonly UserManager<AppUser> _userManager;
+        public WagenParkBeheerController(IWagenparkVerzoekService wagenparkVerzoekService, UserManager<AppUser> userManager)
         {
             _wagenparkVerzoekService = wagenparkVerzoekService;
+            _userManager = userManager;
         }
 
         [Authorize]
@@ -27,16 +33,24 @@ namespace api.Controllers
             {
                 return NotFound($"No requests found for WagenPark with ID .");
             }
-            var verzoekenToDto = UserDtoMapper.MapToWagenParkDtos(verzoeken);
-                return Ok(verzoekenToDto);
+            var VerzoekenLijst = new List<WagenParkDataDto>();
+            foreach (WagenParkVerzoek currentVerzoek in verzoeken)
+            {
+                var AppUser = await _userManager.FindByIdAsync(currentVerzoek.AppUserId);
+                var Dto = UserDtoMapper.MapToWagenParkDto(currentVerzoek, AppUser);
+                VerzoekenLijst.Add(Dto);
+            }
+            return Ok(VerzoekenLijst);           
         }
 
+        [Authorize]
         [HttpPost("AddUserToWagenPark")]
-        public async Task<IActionResult> AdduserToWagenPark([FromBody] int verzoekId)
+        public async Task<IActionResult> AdduserToWagenPark([FromBody] IdDto verzoekId)
         {
             try
             {
-                var succes = await _wagenparkVerzoekService.AcceptUserRequest(verzoekId);
+                var CurrentWagenparkBeheerder = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var succes = await _wagenparkVerzoekService.AcceptUserRequest(verzoekId.Id, CurrentWagenparkBeheerder);
                 if (succes)
                 {
                     return Ok("User added to Wagenpark successfully.");
@@ -49,12 +63,14 @@ namespace api.Controllers
             }
         }
 
+        [Authorize]
         [HttpPost("DenyUserToWagenPark")]
-        public async Task<IActionResult> DenyUserToWagenPark([FromBody] int verzoekId)
+        public async Task<IActionResult> DenyUserToWagenPark([FromBody] IdDto verzoekId)
         {
             try
             {
-            var succes = await _wagenparkVerzoekService.DenyUserRequest(verzoekId);
+            var CurrentWagenparkBeheerder = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var succes = await _wagenparkVerzoekService.DenyUserRequest(verzoekId.Id, CurrentWagenparkBeheerder);
             if (succes)
             {
                 return Ok("User request denied.");
@@ -66,7 +82,8 @@ namespace api.Controllers
             }
         } 
 
-        [HttpGet("GetAllWagenParkUsers/")]
+        [Authorize]
+        [HttpGet("GetAllWagenParkUsers")]
         public async Task<IActionResult> GetAllUserInWagenPark()
         {
             var CurrentWagenparkBeheerder = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -78,5 +95,31 @@ namespace api.Controllers
             return Ok(ToDto);
         }
 
+
+        [Authorize]
+        [HttpDelete("RemoveUserFromWagenPark")]
+        public async Task<IActionResult> RemoveUserFromWagenPark([FromBody] string AppUserId)
+        {
+            var UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var Result = await _wagenparkVerzoekService.RemoveUser(AppUserId, UserId);
+            if (!Result)
+            {
+                return BadRequest("Er is iets misgegaan");
+            }
+            return Ok("De gebruiker is verwijderd uit uw wagenPark");
+        }
+
+        [Authorize]
+        [HttpGet("GetOverzicht")]
+        public async Task<IActionResult> GetOverzicht()
+        {
+            var CurrentWagenparkBeheerder = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var overzicht = await _wagenparkVerzoekService.GetOverzicht(CurrentWagenparkBeheerder);
+            if (!overzicht.Any())
+            {
+                return BadRequest("Geen Reserveringen gevonden binnen uw WagenPark");
+            }
+            return Ok(overzicht);
+        }
     }
 }

@@ -18,14 +18,16 @@ namespace api.Controllers
         }
 
         [HttpGet("GetAllAbonnementen")]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAllAbonnementen()
         {
-            return Ok("AddAbonnement endpoint hit, but logic not implemented.");
+            var AllAbonnementen = await _abonnementService.getAllAbonnementen();
+            return Ok(AllAbonnementen);
         }
 
-        [HttpPut("AddAbonnement")]
-        public async Task<IActionResult> AddUserAbonnement(int AbonnementId)
+        [HttpPut("ChangeAbonnement")]
+        public async Task<IActionResult> ChangeAbonnement(int AbonnementId)
         {
+            var succes = await _abonnementService.ChangeAbonnement(AbonnementId);
             return Ok("AddAbonnement endpoint hit, but logic not implemented.");
         }
 

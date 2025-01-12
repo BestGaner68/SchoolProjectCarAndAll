@@ -13,5 +13,6 @@ namespace api.Interfaces
         Task<WagenPark> CreateWagenparkAsync(WagenPark wagenpark, string username);
         Task<WagenPark> GetWagenParkByEmail(string email);
         Task<bool> CreateWagenParkVerzoek(string userId, int wagenparkId);
+        Task<WagenPark?> GetUsersWagenPark (string AppUserId);
     }
 }

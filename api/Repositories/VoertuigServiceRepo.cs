@@ -53,14 +53,17 @@ namespace api.Repositories
             return conflictingReservation == null;
         }
 
-        public async Task<bool> CheckStatusAsync(int voertuigId)
+        public async Task<string> GetStatus(int voertuigId)
         {
         var status = await _context.VoertuigStatus
             .Where(v => v.VoertuigId == voertuigId)
             .Select(v => v.status)
             .FirstOrDefaultAsync();
-
-        return status == "Beschikbaar";
+        if (status == null)
+        {
+            throw new Exception($"Geen voertuig gevonden met id: {voertuigId}");
+        }
+        return status;
         }
 
 
