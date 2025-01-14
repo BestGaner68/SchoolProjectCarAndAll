@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using api.Dtos.ReserveringenEnSchade;
+using api.Dtos.Verhuur;
 using api.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,9 +18,9 @@ namespace api.Controllers
         }
 
         [HttpPut("GeefVoertuigUit")]
-        public async Task<IActionResult> GeefUit ([FromBody]int ReserveringId){
-            var result = await _reserveringService.GeefUit(ReserveringId);
-            if (!result)
+        public async Task<IActionResult> GeefUit ([FromBody]IdDto reserveringDto){
+            var result = await _reserveringService.GeefUit(reserveringDto.Id);
+            if (result == false)
             {
                 return BadRequest("Er is iets mis gegaan");
             }
@@ -27,20 +28,20 @@ namespace api.Controllers
         }
 
         [HttpPut("NeemIn")]
-        public async Task<IActionResult> NeemIn ([FromBody] int ReserveringId, InnameDto innameDto){
+        public async Task<IActionResult> NeemIn ([FromBody]IdDto reserveringDto, InnameDto innameDto){
             if (innameDto.isSchade)
             {
                 if (!ModelState.IsValid){
                     return BadRequest("Graag beschrijven wat de voertuigschade betreft.");
                 }
-                var currentresult = await _reserveringService.MeldSchade(ReserveringId, innameDto.Schade);
+                var currentresult = await _reserveringService.MeldSchade(reserveringDto.Id, innameDto.Schade);
                 if (!currentresult)    
                 {
                     return BadRequest("Er is iets mis gegaan");
                 }
                 return Ok("Schade succesvol gemeld");
             }
-            var result = await _reserveringService.NeemIn(ReserveringId);
+            var result = await _reserveringService.NeemIn(reserveringDto.Id);
             if (!result)
             {
                 return BadRequest("Er is iets mis gegaan");

@@ -76,15 +76,19 @@ namespace api.Repositories
 
         public async Task<bool> GeefUit(int ReserveringId)
         {
+            Console.WriteLine($"Ontvangen ReserveringId: {ReserveringId}");
             var CurrentReservering = await _context.Reservering.FindAsync(ReserveringId);
             if (CurrentReservering==null)
             {
+                Console.WriteLine(CurrentReservering);
                 return false;
             }
             var voertuig = await _context.VoertuigStatus.FindAsync(CurrentReservering.VoertuigId);
             if (voertuig == null){
+                Console.WriteLine($"{CurrentReservering}  {voertuig}");
                 return false;
             }
+            Console.WriteLine("Alles ok");
             voertuig.status = "Uitgegeven";
             CurrentReservering.Status = "Uitgegeven";
             await _context.SaveChangesAsync();

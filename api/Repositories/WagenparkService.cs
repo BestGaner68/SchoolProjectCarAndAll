@@ -71,5 +71,20 @@ namespace api.Repositories
             return false;
         }
 }
+
+        public async Task<WagenPark?> GetUsersWagenPark(string appUserId)
+        {
+            var currentAppUser = await _context.Users.FindAsync(appUserId);
+            if (currentAppUser == null)
+            {
+                return null;
+            }
+
+            var foundWagenPark = await _context.Wagenpark
+                .Where(w => w.AppUser == currentAppUser)
+                .FirstOrDefaultAsync();
+
+            return foundWagenPark;
+        }
     }
 }
