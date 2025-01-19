@@ -1,8 +1,10 @@
 using System.Security.Claims;
+using api.DataStructureClasses;
 using api.Dtos.Account;
 using api.Dtos.Verhuur;
 using api.Interfaces;
 using api.Mapper;
+using api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -24,7 +26,7 @@ namespace api.Controllers
         {
             var pendingVerzoeken = await _verhuurVerzoekRepo.GetPendingAsync();
 
-            if (!pendingVerzoeken.Any())
+            if (pendingVerzoeken.Count == 0)
             {
                 return NotFound(new { message = "Geen openstaande verhuurverzoeken gevonden." });
             }
@@ -57,10 +59,21 @@ namespace api.Controllers
                 return BadRequest(ModelState);
             }
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized(new {message = "JWT Token is niet meer in gebruik"});
+            }
             if (!await _voertuigService.CheckDatesAsync(verhuurVerzoekDto.VoertuigId, verhuurVerzoekDto.StartDatum, verhuurVerzoekDto.EindDatum))
             {
-                return BadRequest("Aangegeven data zijn al in gebruik, het voertuig kan niet worden verhuurd");
+                return BadRequest(new {message = "Aangegeven data zijn al in gebruik, het voertuig kan dan niet worden verhuurd"});
             }
+            if (!await _voertuigService.IsAvailable(verhuurVerzoekDto.VoertuigId))
+            {
+                return BadRequest(new {message = "Voertuig is momenteel niet in gebruik, controllleer de status of kies een ander voertuig"});
+            }
+
+            //var succes = _voertuigService.CheckMaxVoertuigenWagenpark(userId);
+
             var verhuurVerzoekModel = verhuurVerzoekDto.ToVerhuurVerzoekFromDto(userId);
             await _verhuurVerzoekRepo.CreateAsync(verhuurVerzoekModel);
             return CreatedAtAction(nameof(GetById), new {id = verhuurVerzoekModel.VerhuurVerzoekId}, verhuurVerzoekModel.ToVerhuurVerzoekDto());
@@ -73,16 +86,14 @@ namespace api.Controllers
             return Ok(dates);
         }
         
-        [HttpGet("GetVoertuigStatus/{voertuigId}")]
-        public async Task<IActionResult> GetVoertuigStatus([FromRoute] int voertuigId)
-        {
-            var status = await _voertuigService.GetStatus(voertuigId);
-            return Ok(status);
-        }
 
         [HttpGet("GetMyVerzoeken")]
         public async Task<IActionResult> GetMyVerzoeken(){
             var AppUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(AppUserId))
+            {
+                return Unauthorized(new {message = "JWT Token is niet meer in gebruik"});
+            }
             var UserVerzoeken = await _verhuurVerzoekRepo.GetMyVerhuurVerzoeken(AppUserId);
             if (!UserVerzoeken.Any()){
                 return NotFound( new {message = "Er zijn geen verhuurverzoeken gevonden."});
@@ -93,6 +104,10 @@ namespace api.Controllers
         [HttpPut("DeclineMyVerzoek/{VerhuurVerzoekId}")]
         public async Task<IActionResult> DeclineMyVerzoek ([FromRoute]int VerhuurVerzoekId){
             var AppUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(AppUserId))
+            {
+                return Unauthorized(new {message = "JWT Token is niet meer in gebruik"});
+            }
             var Succes = await _verhuurVerzoekRepo.DeclineMyVerzoek(VerhuurVerzoekId, AppUserId);
             if (Succes)
             {

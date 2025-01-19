@@ -18,7 +18,7 @@ namespace api.Controllers
     public class ReserveringController : ControllerBase
     {
         private readonly IReserveringService _reserveringService;
-        public ReserveringController(IReserveringService reserveringService){
+        public ReserveringController(IReserveringService reserveringService, IWagenparkService wagenparkService){
             _reserveringService = reserveringService;
         }
 
@@ -29,6 +29,7 @@ namespace api.Controllers
                 return NotFound("Er is geen verhuurverzoek gevonden of een andere fout opgetreden");
             }
             return Ok("VerhuurVerzoek is goedgekeurt en toegevoegt aan de reserveringen tabel");
+
         }
         [HttpPost("keurVerzoekAf/{verzoekId}")]
         public async Task<IActionResult> KeurVerzoekAf ([FromRoute]int verzoekId){
@@ -62,8 +63,12 @@ namespace api.Controllers
             try
             {
                 var AppUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (string.IsNullOrEmpty(AppUserId))
+                {
+                    return Unauthorized(new {message = "JWT Token is niet meer in gebruik"});
+                }
                 var Reserveringen = await _reserveringService.GetMyReserveringen(AppUserId);
-                if (!Reserveringen.Any())
+                if (Reserveringen.Count == 0)
                 {
                     return NotFound(new { message = "Geen reserveringen gevonden voor deze gebruiker." });
                 }

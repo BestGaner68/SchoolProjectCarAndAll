@@ -4,6 +4,7 @@ using api.Mapper;
 using api.Models;
 using Microsoft.EntityFrameworkCore;
 using api.Dtos.ReserveringenEnSchade;
+using api.DataStructureClasses;
 
 namespace api.Repositories
 {
@@ -11,9 +12,11 @@ namespace api.Repositories
     {
         private readonly ApplicationDbContext _context;
         private readonly IVoertuigService _voertuigService;
-        public ReserveringRepo (ApplicationDbContext context, IVoertuigService voertuigService){
+        private readonly IWagenparkService _wagenparkService;
+        public ReserveringRepo (ApplicationDbContext context, IVoertuigService voertuigService, IWagenparkService wagenparkService){
             _context = context;
             _voertuigService = voertuigService;
+            _wagenparkService = wagenparkService;
         }
         
         public async Task<bool> AcceptVerhuurVerzoek(int verhuurVerzoekId)
@@ -26,6 +29,15 @@ namespace api.Repositories
                 }
                 CurrentVerhuurVerzoek.Status = "Geaccpeteerd";
                 var CurrentReservering = VerhuurVerzoekMapper.ToReserveringFromVerhuurVerzoek(CurrentVerhuurVerzoek);
+                var UserWagenPark = await _wagenparkService.GetAppUsersWagenpark(CurrentReservering.AppUserId);
+                if (!(UserWagenPark == null))
+                {
+                    CurrentReservering.Type = "Zakelijk";
+                }
+                else
+                {
+                    CurrentReservering.Type = "Particulier";
+                }
                 var User = await _context.Users.FindAsync(CurrentReservering.AppUserId);
                 CurrentReservering.Fullname = $"{User.Voornaam} {User.Achternaam}";
                 await _context.Reservering.AddAsync(CurrentReservering);
@@ -89,7 +101,7 @@ namespace api.Repositories
                 return false;
             }
             Console.WriteLine("Alles ok");
-            voertuig.status = "Uitgegeven";
+            voertuig.Status = VoertuigStatussen.Uitgegeven;
             CurrentReservering.Status = "Uitgegeven";
             await _context.SaveChangesAsync();
             return true;
@@ -106,13 +118,13 @@ namespace api.Repositories
             if (voertuig == null){
                 return false;
             }
-            voertuig.status = "Klaar voor gebruik";
+            voertuig.Status = VoertuigStatussen.KlaarVoorGebruik;
             CurrentReservering.Status = "Afgerond";
             await _context.SaveChangesAsync();
             return true;
         }
 
-        public async Task<bool> MeldSchade(int ReserveringId, string Schade)
+        public async Task<bool> MeldSchadeVanuitReservering(int ReserveringId, string Schade, IFormFile? schadeFoto)
         {
             var CurrentReservering = await _context.Reservering.FindAsync(ReserveringId);
             if (CurrentReservering == null){
@@ -120,14 +132,24 @@ namespace api.Repositories
             }
             var schadeformulier = new SchadeFormulier{
                 VoertuigId = CurrentReservering.VoertuigId,
-                Schade = Schade
+                Schade = Schade,
+                SchadeDatum = DateTime.Now
             };
+
+            if (schadeFoto != null)
+            {
+                using var memoryStream = new MemoryStream();
+                await schadeFoto.CopyToAsync(memoryStream);
+                schadeformulier.SchadeFoto = memoryStream.ToArray(); 
+            }
+            
             var voertuig = await _context.VoertuigStatus.FindAsync(CurrentReservering.VoertuigId);
             if (voertuig == null){
                 return false;
             }
-            voertuig.status = "Onder onderhoudt";
+            voertuig.Status = VoertuigStatussen.SchadeGemeld;
             await _context.SchadeFormulier.AddAsync(schadeformulier);
+            await _context.SaveChangesAsync();
             return true;
         }
 
@@ -141,6 +163,31 @@ namespace api.Repositories
         {
             var voertuigData = await _voertuigService.GetAllVoertuigDataById(reservering.VoertuigId);
             return ReserveringMapper.ToHuurGeschiedenisDto(reservering, voertuigData);
+        }
+        public async Task<bool> MeldSchadeVanuitVoertuigId(int VoertuigId, string Schade, IFormFile? Foto)
+        {
+            var huidigeVoertuig = await _context.Voertuig.FindAsync(VoertuigId);
+            if (huidigeVoertuig == null)
+            {
+                return false; 
+            }
+            var schadeformulier = new SchadeFormulier
+            {
+                VoertuigId = VoertuigId,
+                Schade = Schade,
+                SchadeDatum = DateTime.Now,
+                Status = SchadeStatus.Ingediend 
+            };
+            if (Foto != null)
+            {
+                using var memoryStream = new MemoryStream();
+                await Foto.CopyToAsync(memoryStream);
+                schadeformulier.SchadeFoto = memoryStream.ToArray();
+            }
+            _context.SchadeFormulier.Add(schadeformulier);
+            await _context.SaveChangesAsync();
+
+            return true; 
         }
     }
 }

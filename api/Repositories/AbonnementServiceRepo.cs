@@ -19,14 +19,35 @@ namespace api.Repositories
             _wagenparkService = wagenparkService;
         }
 
-        public async Task<bool> ChangeAbonnement(int AbonnementId)
+       public async Task<bool> KiesAbonnement(int AbonnementId, string WagenParkEigenaar, DateTime StartDatum, DateTime EindDatum)
         {
+            WagenPark? currentWagenPark = await _wagenparkService.GetBeheerdersWagenPark(WagenParkEigenaar);
+
+            if (currentWagenPark == null)
+            {
+                return false;
+            }
+
+            var currentLine = await _context.AbonnementWagenparkLinked
+                .FirstOrDefaultAsync(x => x.WagenParkId == currentWagenPark.WagenParkId);
+
+            if (currentLine == null)
+            {
+                return false;
+            }
+
+            currentLine.AbonnementId = AbonnementId;
+            currentLine.StartDatum = StartDatum;
+            currentLine.EindDatum = EindDatum;
+
+            await _context.SaveChangesAsync();
             return true;
         }
-
         public async Task<List<Abonnement>> getAllAbonnementen()
         {
             return await _context.Abonnementen.ToListAsync();
         }
+
+        
     }
 }

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using api.Dtos.Account;
 using api.Dtos.ReserveringenEnSchade;
 using api.Dtos.Voertuig;
-using api.Migrations;
+
 using api.Models;
 
 namespace api.Mapper

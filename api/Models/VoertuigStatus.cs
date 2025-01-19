@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using api.DataStructureClasses;
 
 namespace api.Models
 {
@@ -10,6 +11,7 @@ namespace api.Models
     {
         [Key]
         public int VoertuigId { get; set; }
-        public string status { get; set; }
+        public string Status { get; set; } = VoertuigStatussen.KlaarVoorGebruik;
+        public string? Opmerking { get; set; }
     }
 }

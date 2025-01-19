@@ -26,12 +26,9 @@ namespace api.Data
      public DbSet<VoertuigStatus> VoertuigStatus { get; set; }
      public DbSet<SchadeFormulier> SchadeFormulier { get; set; }
      public DbSet<Abonnement> Abonnementen { get; set; }
-     public DbSet<AbonnementUserLinked> AbonnementUserLinked{ get; set; }
+     public DbSet<AbonnementWagenparkLinked> AbonnementWagenparkLinked{ get; set; }
 
      protected override void OnModelCreating(ModelBuilder builder){
-        builder.Entity<WagenparkLinkedUser>()
-            .HasKey(x => new { x.WagenparkId, x.AppUserId });
-
         base.OnModelCreating(builder);
     }
 
