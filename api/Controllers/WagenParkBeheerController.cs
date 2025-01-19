@@ -4,7 +4,6 @@ using api.Dtos.Account;
 using api.Dtos.Verhuur;
 using api.Interfaces;
 using api.Mapper;
-using api.Migrations;
 using api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -16,11 +15,13 @@ namespace api.Controllers
     public class WagenParkBeheerController : ControllerBase
     {
         private readonly IWagenparkVerzoekService _wagenparkVerzoekService;
+        private readonly IWagenparkService _wagenparkService;
         private readonly UserManager<AppUser> _userManager;
-        public WagenParkBeheerController(IWagenparkVerzoekService wagenparkVerzoekService, UserManager<AppUser> userManager)
+        public WagenParkBeheerController(IWagenparkVerzoekService wagenparkVerzoekService, UserManager<AppUser> userManager, IWagenparkService wagenparkService)
         {
             _wagenparkVerzoekService = wagenparkVerzoekService;
             _userManager = userManager;
+            _wagenparkService = wagenparkService;
         }
 
         [Authorize]
@@ -28,10 +29,14 @@ namespace api.Controllers
         public async Task <IActionResult> GetAllVerzoeken()  
         {
             var CurrentWagenparkBeheerder = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var verzoeken = await _wagenparkVerzoekService.GetAllVerzoeken(CurrentWagenparkBeheerder);
-            if (verzoeken == null || !verzoeken.Any())
+            if (string.IsNullOrEmpty(CurrentWagenparkBeheerder))
             {
-                return NotFound($"No requests found for WagenPark with ID .");
+                return Unauthorized(new {message = "JWT Token is niet meer in gebruik"});
+            }
+            var verzoeken = await _wagenparkVerzoekService.GetAllVerzoeken(CurrentWagenparkBeheerder);
+            if (verzoeken.Count == 0)
+            {
+                return NotFound($"Geen wagenparkVerzoeken gevonden");
             }
             var VerzoekenLijst = new List<WagenParkDataDto>();
             foreach (WagenParkVerzoek currentVerzoek in verzoeken)
@@ -70,6 +75,10 @@ namespace api.Controllers
             try
             {
             var CurrentWagenparkBeheerder = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(CurrentWagenparkBeheerder))
+            {
+                return Unauthorized(new {message = "JWT Token is niet meer in gebruik"});
+            }
             var succes = await _wagenparkVerzoekService.DenyUserRequest(verzoekId.Id, CurrentWagenparkBeheerder);
             if (succes)
             {
@@ -87,7 +96,11 @@ namespace api.Controllers
         public async Task<IActionResult> GetAllUserInWagenPark()
         {
             var CurrentWagenparkBeheerder = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            List<AppUser> UsersInWagenPark = await _wagenparkVerzoekService.GetAllUsers(CurrentWagenparkBeheerder);
+            if (string.IsNullOrEmpty(CurrentWagenparkBeheerder))
+            {
+                return Unauthorized(new {message = "JWT Token is niet meer in gebruik"});
+            }
+            List<AppUser> UsersInWagenPark = await _wagenparkService.GetAllUsers(CurrentWagenparkBeheerder);
             if (!UsersInWagenPark.Any()){
                 return BadRequest(new {message = "Er zijn geen gebruikers gevonden in uw WagenPark"});
             }
@@ -101,6 +114,10 @@ namespace api.Controllers
         public async Task<IActionResult> RemoveUserFromWagenPark([FromBody] string AppUserId)
         {
             var UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(UserId))
+            {
+                return Unauthorized(new {message = "JWT Token is niet meer in gebruik"});
+            }
             var Result = await _wagenparkVerzoekService.RemoveUser(AppUserId, UserId);
             if (!Result)
             {
@@ -114,6 +131,10 @@ namespace api.Controllers
         public async Task<IActionResult> GetOverzicht()
         {
             var CurrentWagenparkBeheerder = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(CurrentWagenparkBeheerder))
+            {
+                return Unauthorized(new {message = "JWT Token is niet meer in gebruik"});
+            }
             var overzicht = await _wagenparkVerzoekService.GetOverzicht(CurrentWagenparkBeheerder);
             if (!overzicht.Any())
             {

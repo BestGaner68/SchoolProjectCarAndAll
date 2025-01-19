@@ -4,7 +4,7 @@ using api.Dtos;
 using api.Dtos.ReserveringenEnSchade;
 using api.Interfaces;
 using api.Mapper;
-using api.Migrations;
+
 using api.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -29,20 +29,23 @@ public class WagenParkBeheer : IWagenparkVerzoekService
     public async Task<bool> AcceptUserRequest(int verzoekId, string AppUserId)
     {
         var verzoek = await _context.WagenparkVerzoeken.FindAsync(verzoekId);
-        if (verzoek == null || verzoek.Status != "pending")
+        if (verzoek == null || verzoek.Status != "pending" || string.IsNullOrEmpty(verzoek.AppUserId))
         {
             return false; 
         }
+
         var WagenPark = await _context.Wagenpark.FindAsync(verzoek.WagenparkId);
-        if (!(WagenPark.AppUser.Id == AppUserId))
+        if (WagenPark == null || WagenPark.AppUser == null || WagenPark.AppUser.Id != AppUserId)
         {
             return false;
         }
-
         verzoek.Status = "Accepted";
         _context.WagenparkVerzoeken.Update(verzoek);
-        var appUser = await _userManager.FindByIdAsync(verzoek.AppUserId.ToString());
-        
+        var appUser = await _userManager.FindByIdAsync(verzoek.AppUserId);
+        if (appUser == null)
+        {
+            return false;
+        }
         var currentRoles = await _userManager.GetRolesAsync(appUser);
         if (currentRoles.Contains("pending"))
         {
@@ -52,27 +55,23 @@ public class WagenParkBeheer : IWagenparkVerzoekService
                 return false;  
             }
         }
-
         var addRoleResult = await _userManager.AddToRoleAsync(appUser, "bedrijfsKlant");
         if (!addRoleResult.Succeeded)
         {
             return false;  
         }
-
         var WagenParkID = await _context.WagenparkVerzoeken.Where(x => x.wagenparkverzoekId == verzoekId).Select(x => x.WagenparkId).FirstOrDefaultAsync();
 
         if (WagenParkID == 0) 
         {
             return false;
         }
-
         WagenparkLinkedUser wagenparklinkeduser = new()
         {
             AppUserId = appUser.Id,
             WagenparkId = WagenParkID
         };
-
-        var succes = await _context.WagenparkUserLinked.AddAsync(wagenparklinkeduser);
+        await _context.WagenparkUserLinked.AddAsync(wagenparklinkeduser);
         await _context.SaveChangesAsync();
         return true;
     }
@@ -97,25 +96,9 @@ public class WagenParkBeheer : IWagenparkVerzoekService
     }
 
 
-    public async Task<List<AppUser>> GetAllUsers(string WagenparkBeheerderId)
-    {
-        var CurrentWagenPark = await _wagenParkService.GetUsersWagenPark(WagenparkBeheerderId);
-        if (CurrentWagenPark == null)
-        {
-            return [];
-        }
-
-        var appUsers = await _context.WagenparkUserLinked
-            .Where(w => w.WagenparkId == CurrentWagenPark.WagenParkId)
-            .Select(w => w.AppUser)
-            .ToListAsync();
-
-        return appUsers;
-    }   
-
     public async Task<List<WagenParkVerzoek>> GetAllVerzoeken(string UserId)
     {
-        var CurrentWagenPark = await _wagenParkService.GetUsersWagenPark(UserId);
+        var CurrentWagenPark = await _wagenParkService.GetBeheerdersWagenPark(UserId);
         if (CurrentWagenPark == null)
         {
             return [];
@@ -127,7 +110,7 @@ public class WagenParkBeheer : IWagenparkVerzoekService
 
     public async Task<List<WagenParkOverzichtDto>> GetOverzicht(string wagenparkbeheerderId)
     {
-        var usersInWagenPark = await GetAllUsers(wagenparkbeheerderId);
+        var usersInWagenPark = await _wagenParkService.GetAllUsers(wagenparkbeheerderId);
         var userIds = usersInWagenPark.Select(user => user.Id).ToList();
         var reserveringenBinnenWagenPark = await _context.Reservering
             .Where(r => userIds.Contains(r.AppUserId))

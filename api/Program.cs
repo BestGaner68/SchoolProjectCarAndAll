@@ -7,6 +7,7 @@ using api.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
@@ -106,6 +107,9 @@ using (var scope = app.Services.CreateScope())
 {
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
     await RoleInitializer.InitializeRolesAsync(roleManager);
+
+    var voertuigService = scope.ServiceProvider.GetRequiredService<IVoertuigService>();
+    await VoertuigInitializer.InitializeVoertuigenAsync(voertuigService);
 }
 
 // Configure the HTTP request pipeline.

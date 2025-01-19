@@ -25,18 +25,14 @@ namespace api.Controllers
         }
 
         [HttpPut("ChangeAbonnement")]
-        public async Task<IActionResult> ChangeAbonnement(int AbonnementId)
+        public async Task<IActionResult> ChangeAbonnement(int abonnementId, string appUserId)
         {
-            var succes = await _abonnementService.ChangeAbonnement(AbonnementId);
-            return Ok("AddAbonnement endpoint hit, but logic not implemented.");
+            var success = true;//await _abonnementService.KiesAbonnement(abonnementId, appUserId);
+            if (!success)
+            {
+                return BadRequest(new { message = "Er is een probleem opgetreden met het wijzigen van het abonnement." });
+            }
+            return Ok(new { message = "Abonnement succesvol gewijzigd." });
         }
-
-        [HttpPut("UpdateAbonnement")]
-        public async Task<IActionResult> updateUserAbonnement(int AbonnementId)
-        {
-            return Ok("UpdateAbonnement endpoint hit, but logic not implemented.");
-        }
-
-
     }
 }

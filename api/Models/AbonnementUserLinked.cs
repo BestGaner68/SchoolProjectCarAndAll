@@ -6,13 +6,16 @@ using System.Threading.Tasks;
 
 namespace api.Models
 {
-    public class AbonnementUserLinked
+    public class AbonnementWagenparkLinked
     {
         [Key]
-        public int AbonnementUserLinkedId { get; set; }
+        public int AbonnementWagenparkLinkedId { get; set; }
         public Abonnement Abonnement { get; set; }
         public int AbonnementId { get; set; }
-        public AppUser WagenParkEigenaar {get; set; }
-        public string AppUserId { get; set; }
+        public WagenPark wagenPark{ get; set; }
+        public int WagenParkId { get; set;}
+        public DateTime StartDatum { get; set; }
+        public DateTime EindDatum { get; set; }
+        public int GeredenKilometers {get; set;}
     }
 }

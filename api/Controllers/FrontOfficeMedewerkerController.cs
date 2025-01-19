@@ -28,20 +28,22 @@ namespace api.Controllers
         }
 
         [HttpPut("NeemIn")]
-        public async Task<IActionResult> NeemIn ([FromBody]IdDto reserveringDto, InnameDto innameDto){
-            if (innameDto.isSchade)
+        public async Task<IActionResult> NeemIn ([FromBody]InnameDto innameDto){
+            if (!ModelState.IsValid)
             {
-                if (!ModelState.IsValid){
-                    return BadRequest("Graag beschrijven wat de voertuigschade betreft.");
-                }
-                var currentresult = await _reserveringService.MeldSchade(reserveringDto.Id, innameDto.Schade);
+                return BadRequest("Vul alle verplichte velden in.");
+            }
+            
+            if (innameDto.IsSchade)
+            {
+                var currentresult = await _reserveringService.MeldSchadeVanuitReservering(innameDto.ReserveringId, innameDto.Schade, innameDto.BeschrijvingFoto);
                 if (!currentresult)    
                 {
                     return BadRequest("Er is iets mis gegaan");
                 }
                 return Ok("Schade succesvol gemeld");
             }
-            var result = await _reserveringService.NeemIn(reserveringDto.Id);
+            var result = await _reserveringService.NeemIn(innameDto.ReserveringId);
             if (!result)
             {
                 return BadRequest("Er is iets mis gegaan");

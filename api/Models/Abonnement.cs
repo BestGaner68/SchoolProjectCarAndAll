@@ -11,6 +11,6 @@ namespace api.Models
         [Key]
         public int AbonnementId { get; set; }
         public string AbonnementType { get; set; } = string.Empty;
-        public int AbonnementPrijs {get; set;}
+        public int AbonnementMaandPrijs {get; set;}
     }
 }

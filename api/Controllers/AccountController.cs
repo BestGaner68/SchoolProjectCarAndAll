@@ -6,7 +6,6 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using api.Dtos.Account;
 using api.Interfaces;
-using api.Migrations;
 using api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -125,6 +124,9 @@ namespace api.Controllers
                 {
                     UserName = registerDto.Username,
                     Email = registerDto.Email,
+                    PhoneNumber = registerDto.PhoneNumber,
+                    Voornaam = registerDto.Voornaam,
+                    Achternaam = registerDto.Achternaam,
                 };
 
                 var createdUser = await _userManager.CreateAsync(AppUser, registerDto.Password);
@@ -178,6 +180,10 @@ namespace api.Controllers
             try
             {    
                 var AppUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (string.IsNullOrEmpty(AppUserId))
+                {
+                    return Unauthorized(new {message = "JWT Token is niet meer in gebruik"});
+                }
 
                 if (string.IsNullOrEmpty(AppUserId))
                 {

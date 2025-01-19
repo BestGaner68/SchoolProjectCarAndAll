@@ -9,6 +9,6 @@ namespace api.Interfaces
     public interface IAbonnementService
     {
         public Task<List<Abonnement>> getAllAbonnementen (); //methode returned alle abonnementen uit de abonnementen Db tabel
-        public Task<bool> ChangeAbonnement (int AbonnementId);//Methode wordt door WagenParkbeheerder gebruikt om hun abbonement aan te passen
+        public Task<bool> KiesAbonnement (int AbonnementId, string appUserId, DateTime StartDatum, DateTime EindDatum);//Methode wordt door WagenParkbeheerder gebruikt om hun abbonement aan te passen
     }
 }

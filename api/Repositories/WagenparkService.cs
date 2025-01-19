@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using api.Data;
 using api.Interfaces;
-using api.Migrations;
 using api.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
@@ -28,6 +27,13 @@ namespace api.Repositories
             var user = await _context.Users.FindAsync(userId);
             wagenPark.AppUser = user;
             await _context.AddAsync(wagenPark);
+            await _context.SaveChangesAsync();
+            var abonnementWagenparkLinked = new AbonnementWagenparkLinked
+            {
+                WagenParkId = wagenPark.WagenParkId,
+                AbonnementId = 1,
+            };
+            await _context.AddAsync(abonnementWagenparkLinked);
             await _context.SaveChangesAsync();
             return wagenPark;
         }
@@ -72,19 +78,51 @@ namespace api.Repositories
         }
 }
 
-        public async Task<WagenPark?> GetUsersWagenPark(string appUserId)
+        public async Task<WagenPark?> GetBeheerdersWagenPark(string appUserId)
         {
-            var currentAppUser = await _context.Users.FindAsync(appUserId);
+            AppUser? currentAppUser = await _context.Users.FindAsync(appUserId);
             if (currentAppUser == null)
             {
                 return null;
             }
-
             var foundWagenPark = await _context.Wagenpark
                 .Where(w => w.AppUser == currentAppUser)
                 .FirstOrDefaultAsync();
 
+            if (foundWagenPark == null)
+            {
+                return null;
+            }
+
             return foundWagenPark;
         }
+
+        public async Task<WagenPark?> GetAppUsersWagenpark(string AppUserId)
+        {
+            var UserWagenpark = await _context.WagenparkUserLinked
+                .Where(x => x.AppUserId == AppUserId)
+                .Select(w => w.WagenparkId)
+                .FirstOrDefaultAsync();
+
+            var ThisWagenpark = await _context.Wagenpark.FindAsync(UserWagenpark); 
+
+            return ThisWagenpark;  
+        }
+
+        public async Task<List<AppUser>> GetAllUsers(string WagenparkBeheerderId)
+        {
+            var CurrentWagenPark = await GetBeheerdersWagenPark(WagenparkBeheerderId);
+            if (CurrentWagenPark == null)
+            {
+                return [];
+            }
+
+            var appUsers = await _context.WagenparkUserLinked
+                .Where(w => w.WagenparkId == CurrentWagenPark.WagenParkId)
+                .Select(w => w.AppUser)
+                .ToListAsync();
+
+            return appUsers;
+        }  
     }
 }
