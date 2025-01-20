@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using api.DataStructureClasses;
 using api.Dtos.Account;
 using api.Dtos.WagenParkDtos;
 using api.Interfaces;
@@ -24,10 +25,12 @@ namespace api.Controllers
         private readonly ITokenService _tokenService;
         private readonly SignInManager<AppUser> _signInManager;
         private readonly IWagenparkService _wagenparkService;
+        private readonly IWagenParkUserListService _wagenparkUserListService;
         private readonly IRoleService _roleService;
         private readonly IDoubleDataCheckerRepo _doubleDataCheckerRepo;
         public AccountController(UserManager<AppUser> userManager, ITokenService tokenService,
         SignInManager<AppUser> signInManager, IWagenparkService wagenparkService, IRoleService roleService,
+        IWagenParkUserListService wagenParkUserListService,
         IDoubleDataCheckerRepo doubleDataCheckerRepo)
         {
             _userManager = userManager;
@@ -36,6 +39,7 @@ namespace api.Controllers
             _wagenparkService = wagenparkService;
             _roleService = roleService;
             _doubleDataCheckerRepo = doubleDataCheckerRepo;
+            _wagenparkUserListService = wagenParkUserListService;
         }
 
         [HttpPost("Login")]
@@ -112,67 +116,62 @@ namespace api.Controllers
             }
 
         }
-        // [HttpPost("registerZakelijk")]
-        // public async Task<IActionResult> RegisterZakelijk ([FromBody]RegisterDto registerDto){
-        //     try 
-        //     {
-        //         if(!ModelState.IsValid)
-        //             return BadRequest (ModelState);
 
-        //         var bedrijf = await _wagenparkService.GetWagenParkById(registerDto.PhoneNumber);    
-                
-        //         var AppUser = new AppUser
-        //         {
-        //             UserName = registerDto.Username,
-        //             Email = registerDto.Email,
-        //             PhoneNumber = registerDto.PhoneNumber,
-        //             Voornaam = registerDto.Voornaam,
-        //             Achternaam = registerDto.Achternaam,
-        //         };
+        [HttpPost("registerZakelijk")]
+        public async Task<IActionResult> RegisterZakelijk([FromBody] RegisterDto registerDto)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
 
-        //         var createdUser = await _userManager.CreateAsync(AppUser, registerDto.Password);
+                var TempWagenPark = await _wagenparkUserListService.GetWagenParkByAppUserEmail(registerDto.Email);
+                if (TempWagenPark== null)
+                {
+                    return NotFound(new { message = "E-mailadres is niet geregistreerd in de WagenParkUserList tabel." });
+                }
 
-        //         if(createdUser.Succeeded){
-        //             var roleResult = await _userManager.AddToRoleAsync(AppUser, "pending");
-        //             if (roleResult.Succeeded){
-        //                 var result = await _wagenparkService.CreateWagenParkVerzoek(AppUser.Id, bedrijf.WagenParkId);
-        //                 if (result)
-        //                 {
-        //                     return Ok(
-        //                     new NewUserDto
-        //                     {
-        //                         Username = AppUser.UserName,
-        //                         Email = AppUser.Email,
-        //                         Token = _tokenService.CreateToken(AppUser)
-        //                     }
-        //                     );
-        //                 }
-        //                 else
-        //                 {
-        //                     return BadRequest(new { message = "Error linking user to Wagenpark." });
-        //                 }
-        //             }
-        //             else{
-        //                 return StatusCode (500, roleResult.Errors);
-        //             }
-        //         }
-        //         else
-        //         {
-        //             return StatusCode(500, createdUser.Errors);
-        //         }
-        //     }
-        //     catch(Exception ex)
-        //     {
-        //         var errorResponse = new 
-        //     {
-        //         Message = ex.Message,  // Include the error message
-        //         StackTrace = ex.StackTrace // Include the stack trace if needed
-        //     };
+                var appUser = new AppUser
+                {
+                    UserName = registerDto.Username,
+                    Email = registerDto.Email,
+                    PhoneNumber = registerDto.PhoneNumber,
+                    Voornaam = registerDto.Voornaam,
+                    Achternaam = registerDto.Achternaam,
+                };
 
-        //     // Return a generic error response
-        //     return StatusCode(500, errorResponse);
-        //     }
-        // }
+                var createdUserResult = await _userManager.CreateAsync(appUser, registerDto.Password);
+                if (!createdUserResult.Succeeded)
+                    return StatusCode(500, createdUserResult.Errors);
+
+                var roleResult = await _userManager.AddToRoleAsync(appUser, Rollen.BedrijfsKlant);
+                if (!roleResult.Succeeded)
+                    return StatusCode(500, roleResult.Errors);
+
+                var linked = await _wagenparkUserListService.UpdateUserStatus(appUser.Id, WagenParkUserListStatussen.Toegevoegt);
+                if (!linked)
+                {
+                    return BadRequest(new { message = "gebruiker niet toegevoegt aan wagenpark" });
+                }
+
+                return Ok(new NewUserDto
+                {
+                    Username = appUser.UserName,
+                    Email = appUser.Email,
+                    Token = _tokenService.CreateToken(appUser)
+                });
+            }
+            catch (Exception ex)
+            {
+                var errorResponse = new
+                {
+                    Message = ex.Message,
+                    StackTrace = ex.StackTrace
+                };
+
+                return StatusCode(500, errorResponse);
+            }
+        }
 
         [HttpGet("getUserData")]
         [Authorize]  // Zorg ervoor dat alleen geauthenticeerde gebruikers deze route kunnen aanroepen

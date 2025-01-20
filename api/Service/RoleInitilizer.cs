@@ -10,7 +10,7 @@ namespace api.Service
     {
         public static async Task InitializeRolesAsync(RoleManager<IdentityRole> roleManager)
         {
-            string[] roleNames = { "backendWorker", "wagenparkBeheerder", "particuliereKlant", "frontendWorker", "bedrijfsKlant", "pending" };
+            string[] roleNames = { "backendWorker", "wagenparkBeheerder", "particuliereKlant", "frontendWorker", "bedrijfsKlant"};
         
             foreach (var roleName in roleNames)
             {

@@ -13,10 +13,12 @@ namespace api.Repositories
         private readonly ApplicationDbContext _context;
         private readonly IVoertuigService _voertuigService;
         private readonly IWagenparkService _wagenparkService;
-        public ReserveringRepo (ApplicationDbContext context, IVoertuigService voertuigService, IWagenparkService wagenparkService){
+        private readonly IWagenParkUserListService _wagenparkUserListService;
+        public ReserveringRepo (ApplicationDbContext context, IVoertuigService voertuigService, IWagenparkService wagenparkService, IWagenParkUserListService wagenParkUserListService){
             _context = context;
             _voertuigService = voertuigService;
             _wagenparkService = wagenparkService;
+            _wagenparkUserListService = wagenParkUserListService;
         }
         
         public async Task<bool> AcceptVerhuurVerzoek(int verhuurVerzoekId)
@@ -29,7 +31,7 @@ namespace api.Repositories
                 }
                 CurrentVerhuurVerzoek.Status = "Geaccpeteerd";
                 var CurrentReservering = VerhuurVerzoekMapper.ToReserveringFromVerhuurVerzoek(CurrentVerhuurVerzoek);
-                var UserWagenPark = await _wagenparkService.GetAppUsersWagenpark(CurrentReservering.AppUserId);
+                var UserWagenPark = await _wagenparkUserListService.GetWagenParkByAppUserId(CurrentReservering.AppUserId);
                 if (!(UserWagenPark == null))
                 {
                     CurrentReservering.Type = "Zakelijk";
