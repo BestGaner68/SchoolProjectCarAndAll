@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using api.Dtos.Account;
 using api.Dtos.ReserveringenEnSchade;
 using api.Dtos.Voertuig;
-
+using api.Dtos.WagenParkDtos;
 using api.Models;
 
 namespace api.Mapper
@@ -17,7 +17,6 @@ namespace api.Mapper
         WagenPark CurrentWagenpark = new()
             {
             Bedrijfsnaam = WagenparkDto.Bedrijfsnaam,
-            BedrijfsString = WagenparkDto.BedrijfsString,
             KvkNummer = WagenparkDto.KvkNummer,
             };
         return CurrentWagenpark;
@@ -39,6 +38,20 @@ namespace api.Mapper
                 VoertuigStatus = status,
                 ReserveringStatus = reservering.Status,
             };
+        }
+
+        public static NieuwWagenParkVerzoek ToNieuwWagenParkVerzoekVanNieuwWagenParkDto (NieuwWagenParkVerzoekDto nieuwWagenParkVerzoekDto)
+        {
+            return new NieuwWagenParkVerzoek
+            {
+                Voornaam = nieuwWagenParkVerzoekDto.Voornaam,
+                Achternaam = nieuwWagenParkVerzoekDto.Achternaam,
+                GewensdeUsername = nieuwWagenParkVerzoekDto.GewensdeUsername,
+                Email = nieuwWagenParkVerzoekDto.Email,
+                Bedrijfsnaam = nieuwWagenParkVerzoekDto.Bedrijfsnaam,
+                KvkNummer = nieuwWagenParkVerzoekDto.KvkNummer
+            };
+
         }
     }
 

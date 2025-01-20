@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using api.Dtos.Account;
+using api.Dtos.WagenParkDtos;
 using api.Interfaces;
 using api.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -111,67 +112,67 @@ namespace api.Controllers
             }
 
         }
-        [HttpPost("registerZakelijk")]
-        public async Task<IActionResult> RegisterZakelijk ([FromBody]RegisterDto registerDto){
-            try 
-            {
-                if(!ModelState.IsValid)
-                    return BadRequest (ModelState);
+        // [HttpPost("registerZakelijk")]
+        // public async Task<IActionResult> RegisterZakelijk ([FromBody]RegisterDto registerDto){
+        //     try 
+        //     {
+        //         if(!ModelState.IsValid)
+        //             return BadRequest (ModelState);
 
-                var bedrijf = await _wagenparkService.GetWagenParkByEmail(registerDto.Email);    
+        //         var bedrijf = await _wagenparkService.GetWagenParkById(registerDto.PhoneNumber);    
                 
-                var AppUser = new AppUser
-                {
-                    UserName = registerDto.Username,
-                    Email = registerDto.Email,
-                    PhoneNumber = registerDto.PhoneNumber,
-                    Voornaam = registerDto.Voornaam,
-                    Achternaam = registerDto.Achternaam,
-                };
+        //         var AppUser = new AppUser
+        //         {
+        //             UserName = registerDto.Username,
+        //             Email = registerDto.Email,
+        //             PhoneNumber = registerDto.PhoneNumber,
+        //             Voornaam = registerDto.Voornaam,
+        //             Achternaam = registerDto.Achternaam,
+        //         };
 
-                var createdUser = await _userManager.CreateAsync(AppUser, registerDto.Password);
+        //         var createdUser = await _userManager.CreateAsync(AppUser, registerDto.Password);
 
-                if(createdUser.Succeeded){
-                    var roleResult = await _userManager.AddToRoleAsync(AppUser, "pending");
-                    if (roleResult.Succeeded){
-                        var result = await _wagenparkService.CreateWagenParkVerzoek(AppUser.Id, bedrijf.WagenParkId);
-                        if (result)
-                        {
-                            return Ok(
-                            new NewUserDto
-                            {
-                                Username = AppUser.UserName,
-                                Email = AppUser.Email,
-                                Token = _tokenService.CreateToken(AppUser)
-                            }
-                            );
-                        }
-                        else
-                        {
-                            return BadRequest(new { message = "Error linking user to Wagenpark." });
-                        }
-                    }
-                    else{
-                        return StatusCode (500, roleResult.Errors);
-                    }
-                }
-                else
-                {
-                    return StatusCode(500, createdUser.Errors);
-                }
-            }
-            catch(Exception ex)
-            {
-                var errorResponse = new 
-            {
-                Message = ex.Message,  // Include the error message
-                StackTrace = ex.StackTrace // Include the stack trace if needed
-            };
+        //         if(createdUser.Succeeded){
+        //             var roleResult = await _userManager.AddToRoleAsync(AppUser, "pending");
+        //             if (roleResult.Succeeded){
+        //                 var result = await _wagenparkService.CreateWagenParkVerzoek(AppUser.Id, bedrijf.WagenParkId);
+        //                 if (result)
+        //                 {
+        //                     return Ok(
+        //                     new NewUserDto
+        //                     {
+        //                         Username = AppUser.UserName,
+        //                         Email = AppUser.Email,
+        //                         Token = _tokenService.CreateToken(AppUser)
+        //                     }
+        //                     );
+        //                 }
+        //                 else
+        //                 {
+        //                     return BadRequest(new { message = "Error linking user to Wagenpark." });
+        //                 }
+        //             }
+        //             else{
+        //                 return StatusCode (500, roleResult.Errors);
+        //             }
+        //         }
+        //         else
+        //         {
+        //             return StatusCode(500, createdUser.Errors);
+        //         }
+        //     }
+        //     catch(Exception ex)
+        //     {
+        //         var errorResponse = new 
+        //     {
+        //         Message = ex.Message,  // Include the error message
+        //         StackTrace = ex.StackTrace // Include the stack trace if needed
+        //     };
 
-            // Return a generic error response
-            return StatusCode(500, errorResponse);
-            }
-        }
+        //     // Return a generic error response
+        //     return StatusCode(500, errorResponse);
+        //     }
+        // }
 
         [HttpGet("getUserData")]
         [Authorize]  // Zorg ervoor dat alleen geauthenticeerde gebruikers deze route kunnen aanroepen
@@ -265,6 +266,17 @@ namespace api.Controllers
             {
                 return StatusCode(500, e.Message);
             }
+        }
+
+        [HttpPut("NieuwWagenParkVerzoek")]
+        public async Task<IActionResult> NieuwWagenParkVerzoek(NieuwWagenParkVerzoekDto wagenParkVerzoekDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            await _wagenparkService.NieuwWagenParkVerzoek(wagenParkVerzoekDto);
+            return Ok("Verzoek is verzonden");
         }
     }
 }

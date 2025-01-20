@@ -19,9 +19,11 @@ namespace api.Interfaces
         Task<List<SchadeFormulier>> GetAllIngediendeFormulieren(); //Methode haalt alle schadeformulieren op die nog een ingediende status hebben en dus naar gekeken moet worden
         Task<bool> BehandelSchadeMelding(int schadeformulierId, string ReparatieOpmerking); //Methode om schade te behandelen
         Task<List<Voertuig>> GetAllAvailableVoertuigen(); // Methode returned alle voertuigen die klaar voor gebruik zijn
-        Task<bool> CreeerNieuwVoertuig(NieuwVoertuigDto nieuwVoertuigDto);
-        Task <bool> WeizigVoertuig (WeizigVoertuigDto weizigVoertuigDto);
-        Task <bool> VerwijderVoertuig (int voertuigId);
-        Task AddVoertuig(Voertuig voertuig);
+        Task<bool> CreeerNieuwVoertuig(NieuwVoertuigDto nieuwVoertuigDto); //Methode voor aanmaken nieuwe voertuigen, De datastructuur is erg belangrijk zodat de afhankelijke voertuigstatus tabel wordt bijgewerkt bij het aanmaken en verwijderen van voertuigen
+        Task <bool> WeizigVoertuig (WeizigVoertuigDto weizigVoertuigDto); // Methode voor weizigen bestaande voertuigen
+        Task <bool> VerwijderVoertuig (int voertuigId); //Methode voor verwijderen voertuigen
+        Task AddVoertuig(Voertuig voertuig); // Methode wordt gebruik in de voertuigInializer class om de Db te seeden
+        Task <bool> AreAnyVoertuigStatus(); // Methode wordt gebruik in de voertuigInializer class om de Db te seeden
+        Task AddVoertuigStatus(VoertuigStatus voertuigStatus); // Methode wordt gebruik in de voertuigInializer class om de Db te seeden
     }
 }

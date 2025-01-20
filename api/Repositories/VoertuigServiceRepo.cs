@@ -196,6 +196,9 @@ namespace api.Repositories
         public async Task<bool> CreeerNieuwVoertuig(NieuwVoertuigDto nieuwVoertuigDto)
         {
             var TempVoertuig = VoertuigMapper.FromNieuweVoertuigDtoToVoertuig(nieuwVoertuigDto);
+            TempVoertuig.voertuigStatus = new VoertuigStatus{
+                Status = VoertuigStatussen.KlaarVoorGebruik,
+            };
             await _context.Voertuig.AddAsync(TempVoertuig);
             await _context.SaveChangesAsync();
             return true;
@@ -231,6 +234,22 @@ namespace api.Repositories
         public async Task AddVoertuig(Voertuig voertuig)
         {
             await _context.Voertuig.AddAsync(voertuig);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<bool> AreAnyVoertuigStatus()
+        {
+            var anyVoertuigStatus = await _context.VoertuigStatus.ToListAsync();
+            if (anyVoertuigStatus.Count != 0)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public async Task AddVoertuigStatus(VoertuigStatus voertuigStatus)
+        {
+            await _context.VoertuigStatus.AddAsync(voertuigStatus);
             await _context.SaveChangesAsync();
         }
     }

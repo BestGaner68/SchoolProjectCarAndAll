@@ -10,7 +10,8 @@ namespace api.Models
     public class Voertuig
     {
         [Key]
-        public int VoertuigId { get; set; }  
+        public int VoertuigId { get; set; } 
+        public VoertuigStatus voertuigStatus {get; set;} 
         public string Merk { get; set; } = string.Empty;
         public string Kenteken { get; set; } =string.Empty;
         public string Kleur { get; set; }  =string.Empty;
