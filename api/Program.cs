@@ -1,5 +1,8 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
+using System.Net.Mail;
 using api.Data;
+using api.DataStructureClasses;
 using api.Interfaces;
 using api.Models;
 using api.Repositories;
@@ -85,21 +88,31 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp", policy =>
     {
-        policy.WithOrigins("http://localhost:5173") // React's dev server URL
+        policy.WithOrigins("http://localhost:5173") 
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
 });
 
+var emailSettings = builder.Configuration.GetSection("EmailSettings").Get<EmailSettings>();
+
+builder.Services.AddScoped<SmtpClient>(sp => new SmtpClient(emailSettings.SmtpServer)
+{
+    Port = emailSettings.SmtpPort, 
+    Credentials = new NetworkCredential(emailSettings.EmailUsername, emailSettings.EmailPassword), 
+    EnableSsl = emailSettings.EnableSsl, 
+});
+
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IVerhuurVerzoekService, VerhuurVerzoekRepo>();
-builder.Services.AddScoped<IWagenparkService, WagenparkService>();
+builder.Services.AddScoped<IWagenparkService, WagenparkRepo>();
 builder.Services.AddScoped<IWagenparkVerzoekService, WagenParkBeheer>();
 builder.Services.AddScoped<IVoertuigService, VoertuigServiceRepo>();
 builder.Services.AddScoped<IRoleService, RoleRepo>();
 builder.Services.AddScoped<IDoubleDataCheckerRepo, DoubleDataCheckerRepo>();
 builder.Services.AddScoped<IReserveringService, ReserveringRepo>();
 builder.Services.AddScoped<IAbonnementService, AbonnementServiceRepo>();
+builder.Services.AddScoped<IEmailService, EmailRepo>();
 
 var app = builder.Build();
 
@@ -110,9 +123,9 @@ using (var scope = app.Services.CreateScope())
 
     var voertuigService = scope.ServiceProvider.GetRequiredService<IVoertuigService>();
     await VoertuigInitializer.InitializeVoertuigenAsync(voertuigService);
+    await VoertuigInitializer.InitializeVoertuigStatusAsync(voertuigService);
 }
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

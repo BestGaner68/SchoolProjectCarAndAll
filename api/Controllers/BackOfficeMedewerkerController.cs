@@ -7,18 +7,17 @@ using api.Dtos.Account;
 using api.Dtos.ReserveringenEnSchade;
 using api.Dtos.Verhuur;
 using api.Dtos.Voertuig;
+using api.Dtos.WagenParkDtos;
 using api.Interfaces;
 using api.Mapper;
-
 using api.Models;
-using api.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api.Controllers
 {
-    [Authorize, Route("api/BackOfficeMedewerker")]
+    [Route("api/BackOfficeMedewerker")]
     public class BackOfficeMedewerkerController : ControllerBase
     {
         private readonly UserManager<AppUser> _userManager;
@@ -236,5 +235,45 @@ namespace api.Controllers
             }
             return Ok(new {message = $"Voertuig met id {weizigVoertuigDto.VoertuigId} is succesvol geweizigd."});
         }
+
+        [HttpGet("GetAllNieuwWagenParkVerzoeken")]
+        public async Task<IActionResult> GetAllNieuwWagenParkVerzoeken()
+        {
+            var verzoeken = await _wagenparkService.GetAllAsync();
+            if (verzoeken == null || verzoeken.Count == 0)
+            {
+                return NotFound("Er zijn geen nieuwe verzoeken.");
+            }
+    
+            return Ok(verzoeken);
+        }
+    
+        
+        [HttpPut("AcceptVerzoek")]
+        public async Task<IActionResult> AcceptVerzoek([FromBody] IdDto idDto)
+        {
+            try
+            {
+                var wagenPark = await _wagenparkService.AcceptNieuwWagenParkVerzoek(idDto.Id);
+                return CreatedAtAction(nameof(_wagenparkService.GetWagenParkById), new { id = wagenPark.WagenParkId }, wagenPark);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Er is iets misgegaan: {ex.Message}");
+            } 
+        }
+    
+        [HttpPut("WeigerVerzoek")]
+        public async Task<IActionResult> WeigerVerzoek([FromBody]WeigerNieuwWagenParkVerzoekDto Dto)
+        {
+            var result = await _wagenparkService.WeigerNieuwWagenParkVerzoek(Dto);
+            if (!result)
+            {
+                return BadRequest("Er is een fout opgetreden bij het weigeren van het verzoek.");
+            }
+    
+            return NoContent(); 
+        }
+
     }   
 }

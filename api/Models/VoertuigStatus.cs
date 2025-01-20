@@ -11,6 +11,7 @@ namespace api.Models
     {
         [Key]
         public int VoertuigId { get; set; }
+        public Voertuig Voertuig { get; set; }
         public string Status { get; set; } = VoertuigStatussen.KlaarVoorGebruik;
         public string? Opmerking { get; set; }
     }

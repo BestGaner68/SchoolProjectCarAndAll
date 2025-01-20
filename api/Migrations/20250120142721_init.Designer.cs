@@ -12,7 +12,7 @@ using api.Data;
 namespace api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250119193247_init")]
+    [Migration("20250120142721_init")]
     partial class init
     {
         /// <inheritdoc />
@@ -281,6 +281,19 @@ namespace api.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("api.Models.NieuwWagenParkVerzoek", b =>
+                {
+                    b.Property<int>("NieuwWagenParkVerzoekId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("NieuwWagenParkVerzoekId"));
+
+                    b.HasKey("NieuwWagenParkVerzoekId");
+
+                    b.ToTable("NieuwWagenParkVerzoek");
+                });
+
             modelBuilder.Entity("api.Models.Reservering", b =>
                 {
                     b.Property<int>("ReserveringId")
@@ -450,10 +463,7 @@ namespace api.Migrations
             modelBuilder.Entity("api.Models.VoertuigStatus", b =>
                 {
                     b.Property<int>("VoertuigId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("VoertuigId"));
 
                     b.Property<string>("Opmerking")
                         .HasColumnType("nvarchar(max)");
@@ -624,6 +634,17 @@ namespace api.Migrations
                     b.Navigation("wagenPark");
                 });
 
+            modelBuilder.Entity("api.Models.VoertuigStatus", b =>
+                {
+                    b.HasOne("api.Models.Voertuig", "Voertuig")
+                        .WithOne("voertuigStatus")
+                        .HasForeignKey("api.Models.VoertuigStatus", "VoertuigId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Voertuig");
+                });
+
             modelBuilder.Entity("api.Models.WagenPark", b =>
                 {
                     b.HasOne("api.Models.AppUser", "AppUser")
@@ -669,6 +690,12 @@ namespace api.Migrations
                     b.Navigation("AppUser");
 
                     b.Navigation("Wagenpark");
+                });
+
+            modelBuilder.Entity("api.Models.Voertuig", b =>
+                {
+                    b.Navigation("voertuigStatus")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using api.Data;
+using api.DataStructureClasses;
 using api.Interfaces;
 using api.Models;
 
@@ -16,8 +17,7 @@ namespace api.Service
             if (bestaandeVoertuigen.Count != 0)
             {
                 return;
-            }    
-            
+            }     
 
             var voertuigen = new List<Voertuig>
             {
@@ -198,6 +198,31 @@ namespace api.Service
 
             foreach (Voertuig TempVoertuig in voertuigen){
                 await voertuigService.AddVoertuig(TempVoertuig);
+
+
+
+            }
+        }
+        public static async Task InitializeVoertuigStatusAsync(IVoertuigService voertuigService)
+        {
+            if (await voertuigService.AreAnyVoertuigStatus())
+            {
+                return;
+            }
+            var voertuigen = await voertuigService.GetAllVoertuigen();
+
+            for (int i = 0; i < voertuigen.Count; i++)
+            {
+                var voertuig = voertuigen[i];
+
+                var voertuigStatus = new VoertuigStatus
+                {
+                    Status = VoertuigStatussen.KlaarVoorGebruik,
+                    Opmerking = null,
+                    VoertuigId = voertuig.VoertuigId  
+                };
+
+                await voertuigService.AddVoertuigStatus(voertuigStatus);
             }
         }
     }
