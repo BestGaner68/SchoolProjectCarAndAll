@@ -106,7 +106,7 @@ builder.Services.AddScoped<SmtpClient>(sp => new SmtpClient(emailSettings.SmtpSe
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IVerhuurVerzoekService, VerhuurVerzoekRepo>();
 builder.Services.AddScoped<IWagenparkService, WagenparkRepo>();
-builder.Services.AddScoped<IWagenparkVerzoekService, WagenParkBeheer>();
+builder.Services.AddScoped<IWagenParkUserListService, WagenParkUserListRepo>();
 builder.Services.AddScoped<IVoertuigService, VoertuigServiceRepo>();
 builder.Services.AddScoped<IRoleService, RoleRepo>();
 builder.Services.AddScoped<IDoubleDataCheckerRepo, DoubleDataCheckerRepo>();

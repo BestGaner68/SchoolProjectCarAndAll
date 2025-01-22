@@ -20,16 +20,5 @@ namespace api.Mapper
         {
             return appUsers.Select(x => x.MapToUserDto()).ToList();
         }
-
-        public static WagenParkDataDto MapToWagenParkDto (this WagenParkVerzoek verzoek, AppUser appUser)
-        {
-            return new WagenParkDataDto{
-                AppUserId = verzoek.AppUserId,
-                WagenparkId = verzoek.WagenparkId,
-                WagenparkVerzoekId = verzoek.wagenparkverzoekId,
-                VolledigeNaam = $"{appUser.Voornaam} {appUser.Achternaam}",
-                Email = appUser.Email,
-            };
-        }
     }
 }

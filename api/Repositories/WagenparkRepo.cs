@@ -50,26 +50,6 @@ namespace api.Repositories
             return user == null ? throw new ArgumentException($"User with username {username} does not exist.") : user;
         }
      
-        public async Task<bool> CreateWagenParkVerzoek(string userId, int wagenparkId)
-        {
-        try
-            {
-            var wagenparkVerzoek = new WagenParkVerzoek
-            {
-                WagenparkId = wagenparkId,
-                AppUserId = userId,
-                Status = "pending"
-                
-            };  
-        await _context.WagenparkVerzoeken.AddAsync(wagenparkVerzoek);
-        await _context.SaveChangesAsync();
-        return true;
-        }
-        catch 
-        {
-            return false;
-        }
-}
 
         public async Task<WagenPark?> GetBeheerdersWagenPark(string appUserId)
         {
@@ -90,33 +70,6 @@ namespace api.Repositories
             return foundWagenPark;
         }
 
-        public async Task<WagenPark?> GetAppUsersWagenpark(string AppUserId)
-        {
-            var UserWagenpark = await _context.WagenparkUserLinked
-                .Where(x => x.AppUserId == AppUserId)
-                .Select(w => w.WagenparkId)
-                .FirstOrDefaultAsync();
-
-            var ThisWagenpark = await _context.Wagenpark.FindAsync(UserWagenpark); 
-
-            return ThisWagenpark;  
-        }
-
-        public async Task<List<AppUser>> GetAllUsers(string WagenparkBeheerderId)
-        {
-            var CurrentWagenPark = await GetBeheerdersWagenPark(WagenparkBeheerderId);
-            if (CurrentWagenPark == null)
-            {
-                return [];
-            }
-
-            var appUsers = await _context.WagenparkUserLinked
-                .Where(w => w.WagenparkId == CurrentWagenPark.WagenParkId)
-                .Select(w => w.AppUser)
-                .ToListAsync();
-
-            return appUsers;
-        }
 
         public async Task NieuwWagenParkVerzoek(NieuwWagenParkVerzoekDto wagenParkVerzoekDto)
         {
@@ -159,20 +112,22 @@ namespace api.Repositories
             };
     
             wagenpark = await CreateWagenparkAsync(wagenpark, newUser.Id);
+            _context.NieuwWagenParkVerzoek.Remove(verzoek);
+            await _context.SaveChangesAsync();
     
             return wagenpark;
         }
 
         public async Task<bool> WeigerNieuwWagenParkVerzoek(WeigerNieuwWagenParkVerzoekDto weigerNieuwWagenParkVerzoekDto)
         {
-            var nieuwWagenParkVerzoek = await _context.NieuwWagenParkVerzoek.FindAsync(weigerNieuwWagenParkVerzoekDto.WagenParkId);
-            if (nieuwWagenParkVerzoek == null)
+            var verzoek = await _context.NieuwWagenParkVerzoek.FindAsync(weigerNieuwWagenParkVerzoekDto.WagenParkId);
+            if (verzoek == null)
             {
                 return false;
             }
-            _context.NieuwWagenParkVerzoek.Remove(nieuwWagenParkVerzoek);
+            _context.NieuwWagenParkVerzoek.Remove(verzoek);
             await _context.SaveChangesAsync();
-            await _emailService.SendWagenParkBeheerWeigerEmail(nieuwWagenParkVerzoek.Email, weigerNieuwWagenParkVerzoekDto.Reden, nieuwWagenParkVerzoek.Voornaam);
+            await _emailService.SendWagenParkBeheerWeigerEmail(verzoek.Email, weigerNieuwWagenParkVerzoekDto.Reden, verzoek.Voornaam);
             return true;
         }
 
