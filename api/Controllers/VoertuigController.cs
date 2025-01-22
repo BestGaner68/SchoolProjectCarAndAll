@@ -39,5 +39,15 @@ namespace api.Controllers
             }
             return Ok(voertuigen);
         }
+        [HttpGet("GetVoertuigByDate")]
+        public async Task<IActionResult> GetVoertuigenByDate( DateTime Voertuigstartdate, DateTime Voertuigenddate)
+        {
+            var voertuigen = await _voertuigService.GetVoertuigenByDate( Voertuigstartdate, Voertuigenddate);
+            if (!voertuigen.Any())
+            {
+                return NotFound(new { Message = $"Geen voertuigen gevonden met datum: {Voertuigstartdate} {Voertuigenddate}" });
+            }
+            return Ok(voertuigen);
+        }
     }
 }
