@@ -258,5 +258,30 @@ namespace api.Repositories
             await _context.Voertuig.AddRangeAsync(voertuigen); 
             await _context.SaveChangesAsync();
         }
+
+        public async Task<List<Voertuig>> GetVoertuigenByDate(Dtos.ReserveringenEnSchade.DatumDto datumDto)
+        {
+            var startDate = datumDto.StartDate;
+            var endDate = datumDto.EndDate;
+
+            var conflicterendeVoertuigIds = await _context.Reservering
+                .Where(r => r.StartDatum < endDate && r.EindDatum > startDate) // Zoek overlappende reserveringen
+                .Select(r => r.VoertuigId) // Haal alleen de VoertuigId's op
+                .Distinct() // Zorg ervoor dat je unieke voertuig-IDs hebt
+                .ToListAsync();
+
+            var conflicterendeVoertuigIds2 = await _context.VerhuurVerzoek
+                .Where(r => r.StartDatum < endDate && r.EindDatum > startDate) // Zoek overlappende reserveringen
+                .Select(r => r.VoertuigId) // Haal alleen de VoertuigId's op
+                .Distinct() // Zorg ervoor dat je unieke voertuig-IDs hebt
+                .ToListAsync();
+
+            // Retourneer alle voertuigen behalve de conflicterende
+            return await _context.Voertuig
+                .Where(v => !conflicterendeVoertuigIds.Contains(v.VoertuigId) && !conflicterendeVoertuigIds2.Contains(v.VoertuigId)) // Voertuigen die NIET in de conflicterende lijst zitten
+                .ToListAsync();
+        }
+
     }
 }
+

@@ -39,5 +39,17 @@ namespace api.Controllers
             }
             return Ok(voertuigen);
         }
+        [HttpGet("GetVoertuigByDate")]
+        public async Task<IActionResult> GetVoertuigenByDate([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
+        {
+            var dateRangeRequest = new Dtos.ReserveringenEnSchade.DatumDto
+            {
+                StartDate = startDate,
+                EndDate = endDate
+            };
+
+            var beschikbareVoertuigen = await _voertuigService.GetVoertuigenByDate(dateRangeRequest);
+            return Ok(beschikbareVoertuigen);
+        }
     }
 }
