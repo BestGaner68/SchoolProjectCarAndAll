@@ -239,7 +239,7 @@ namespace api.Controllers
         [HttpGet("GetAllNieuwWagenParkVerzoeken")]
         public async Task<IActionResult> GetAllNieuwWagenParkVerzoeken()
         {
-            var verzoeken = await _wagenparkService.GetAllAsync();
+            var verzoeken = await _wagenparkService.GetAllWagenparkVerzoekenAsync();
             if (verzoeken == null || verzoeken.Count == 0)
             {
                 return NotFound("Er zijn geen nieuwe verzoeken.");

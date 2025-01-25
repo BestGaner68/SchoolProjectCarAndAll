@@ -94,7 +94,7 @@ public class WagenParkUserListRepo : IWagenParkUserListService
     public async Task VerwijderGebruiker(string AppUserId)
     {
         await UpdateUserStatus(AppUserId, WagenParkUserListStatussen.Verwijderd);
-        
+        //doe hier nog iets mee bij het maken van een verzoek
     }
 
     public async Task<bool>UpdateUserStatus(string AppUserId, string NieuwStatus)

@@ -24,8 +24,8 @@ namespace api.Interfaces
         Task<bool> CreeerNieuwVoertuig(NieuwVoertuigDto nieuwVoertuigDto); //Methode voor aanmaken nieuwe voertuigen, De datastructuur is erg belangrijk zodat de afhankelijke voertuigstatus tabel wordt bijgewerkt bij het aanmaken en verwijderen van voertuigen
         Task <bool> WeizigVoertuig (WeizigVoertuigDto weizigVoertuigDto); // Methode voor weizigen bestaande voertuigen
         Task <bool> VerwijderVoertuig (int voertuigId); //Methode voor verwijderen voertuigen
-        Task AddVoertuig(Voertuig voertuig); // Methode wordt gebruik in de voertuigInializer class om de Db te seeden
         Task <bool> AreAnyVoertuigStatus(); // Methode wordt gebruik in de voertuigInializer class om de Db te seeden
-        Task AddVoertuigStatus(VoertuigStatus voertuigStatus); // Methode wordt gebruik in de voertuigInializer class om de Db te seeden
+        Task AddVoertuigen(List<Voertuig> voertuigen);// Methode wordt gebruik in de voertuigInializer class om de Db te seeden
+        Task AddVoertuigStatuses(List<VoertuigData> voertuigData); // Methode wordt gebruik in de voertuigInializer class om de Db te seeden
     }
 }

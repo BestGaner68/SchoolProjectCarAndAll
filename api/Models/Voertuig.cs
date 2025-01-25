@@ -11,13 +11,12 @@ namespace api.Models
     {
         [Key]
         public int VoertuigId { get; set; } 
-        public VoertuigStatus voertuigStatus {get; set;} 
+        public VoertuigData VoertuigData {get; set;} 
         public string Merk { get; set; } = string.Empty;
         public string Kenteken { get; set; } =string.Empty;
         public string Kleur { get; set; }  =string.Empty;
         public string Type {  get; set; } =string.Empty;
         public int AanschafJaar { get; set; }
-        public string Soort {get; set;} = string.Empty;
-        public int KilometerPrijs {get; set;}   
+        public string Soort {get; set;} = string.Empty; 
     }
 }

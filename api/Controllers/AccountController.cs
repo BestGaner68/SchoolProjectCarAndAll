@@ -28,10 +28,11 @@ namespace api.Controllers
         private readonly IWagenParkUserListService _wagenparkUserListService;
         private readonly IRoleService _roleService;
         private readonly IDoubleDataCheckerRepo _doubleDataCheckerRepo;
+        private readonly IAbonnementService _abonnementService;
         public AccountController(UserManager<AppUser> userManager, ITokenService tokenService,
         SignInManager<AppUser> signInManager, IWagenparkService wagenparkService, IRoleService roleService,
         IWagenParkUserListService wagenParkUserListService,
-        IDoubleDataCheckerRepo doubleDataCheckerRepo)
+        IDoubleDataCheckerRepo doubleDataCheckerRepo, IAbonnementService abonnementService)
         {
             _userManager = userManager;
             _tokenService = tokenService;
@@ -40,6 +41,7 @@ namespace api.Controllers
             _roleService = roleService;
             _doubleDataCheckerRepo = doubleDataCheckerRepo;
             _wagenparkUserListService = wagenParkUserListService;
+            _abonnementService = abonnementService; 
         }
 
         [HttpPost("Login")]
@@ -89,6 +91,11 @@ namespace api.Controllers
                 if(createdUser.Succeeded){
                     var roleResult = await _userManager.AddToRoleAsync(AppUser, "particuliereKlant");
                     if (roleResult.Succeeded){
+                        var succes = await _abonnementService.GeefStandaardAbonnement(AppUser);
+                        if (!succes)
+                        {
+                            return BadRequest (new {message = "er is iets misgegaan"});
+                        }
                         return Ok(
                             new NewUserDto
                             {

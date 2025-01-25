@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using api.Data;
 using api.DataStructureClasses;
+using api.Dtos.Voertuig;
 using api.Interfaces;
 using api.Models;
 
@@ -14,12 +15,13 @@ namespace api.Service
         public static async Task InitializeVoertuigenAsync(IVoertuigService voertuigService)
         {
             var bestaandeVoertuigen = await voertuigService.GetAllVoertuigen();
-            if (bestaandeVoertuigen.Count != 0)
+            var bestaandeVoertuigData = await voertuigService.AreAnyVoertuigStatus();
+            if (bestaandeVoertuigen.Count != 0 && !bestaandeVoertuigData)
             {
                 return;
             }     
 
-            var voertuigen = new List<Voertuig>
+            var voertuigDtos = new List<InitializeVoertuigDto>
             {
             new() { Merk = "Toyota", Soort = "auto", Kenteken = "AB-123-CD", Kleur = "Rood", AanschafJaar = 2018, Type = "Corolla" },
             new() { Merk = "Ford", Soort = "auto", Kenteken = "EF-456-GH", Kleur = "Blauw", AanschafJaar = 2019, Type = "Focus" },
@@ -196,34 +198,31 @@ namespace api.Service
             new() { Merk = "Burstner", Soort = "caravan", Kenteken = "KL-789-MN", Kleur = "Rood", AanschafJaar = 2017, Type = "Premio Life" }
             };
 
-            foreach (Voertuig TempVoertuig in voertuigen){
-                await voertuigService.AddVoertuig(TempVoertuig);
-
-
-
-            }
-        }
-        public static async Task InitializeVoertuigStatusAsync(IVoertuigService voertuigService)
-        {
-            if (await voertuigService.AreAnyVoertuigStatus())
+            var voertuigen = voertuigDtos.Select(dto => new Voertuig
             {
-                return;
-            }
-            var voertuigen = await voertuigService.GetAllVoertuigen();
+                Merk = dto.Merk,
+                Kenteken = dto.Kenteken,
+                Kleur = dto.Kleur,
+                Type = dto.Type,
+                AanschafJaar = dto.AanschafJaar,
+                Soort = dto.Soort,
+            }).ToList();
 
-            for (int i = 0; i < voertuigen.Count; i++)
+            Random random = new();
+            decimal basisKilometerPrijs = 0.25m;
+            foreach (Voertuig voertuig in voertuigen)
             {
-                var voertuig = voertuigen[i];
-
-                var voertuigStatus = new VoertuigStatus
-                {
+                decimal kilometerPrijsVariatie = (decimal)(random.NextDouble() * 0.10 - 0.05); 
+                decimal kilometerPrijs = basisKilometerPrijs + kilometerPrijsVariatie;
+                voertuig.VoertuigData = new VoertuigData   
+                {   
+                    VoertuigId = voertuig.VoertuigId,
                     Status = VoertuigStatussen.KlaarVoorGebruik,
-                    Opmerking = null,
-                    VoertuigId = voertuig.VoertuigId  
+                    KilometerPrijs = Math.Round(kilometerPrijs, 2)
                 };
-
-                await voertuigService.AddVoertuigStatus(voertuigStatus);
             }
+            await voertuigService.AddVoertuigen(voertuigen);
         }
+        
     }
 }
