@@ -16,7 +16,7 @@ namespace api.Service
         {
             var bestaandeVoertuigen = await voertuigService.GetAllVoertuigen();
             var bestaandeVoertuigData = await voertuigService.AreAnyVoertuigStatus();
-            if (bestaandeVoertuigen.Count != 0 && !bestaandeVoertuigData)
+            if (bestaandeVoertuigen.Count != 0 || bestaandeVoertuigData)
             {
                 return;
             }     

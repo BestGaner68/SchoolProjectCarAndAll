@@ -63,17 +63,12 @@ namespace api.Service
 
                 if (!string.IsNullOrEmpty(userEmail))
                 {
-                    var emailBody = $"Uw abonnement '{abonnement.Abonnement.Naam}' verloopt op {abonnement.EindDatum:dd-MM-yyyy}. " +
-                                    "U kunt het nu verlengen of wijzigen via onze portal.";
-
                     var emailMetaData = new EmailMetaData
                     {
                         ToAddress = userEmail,
                         Subject = "Abonnement bijna verlopen",
                         Body = EmailTemplates.GetAbonnementBijnaVerlopenBody(abonnement.Abonnement.Naam, abonnement.EindDatum)
                     };
-
-                    // Send the email using the new method
                     await _emailService.SendEmail(emailMetaData);
 
                     _logger.LogInformation($"Expiry notification sent to {userEmail} for abonnement {abonnement.Abonnement.Naam}.");
@@ -105,7 +100,7 @@ namespace api.Service
                 if (queuedAbonnement != null)
                 {
                     queuedAbonnement.IsActief = true;
-
+                    context.WagenparkAbonnementen.Remove(abonnement);
                     _logger.LogInformation($"Switched to queued abonnement '{queuedAbonnement.Abonnement.Naam}' for WagenPark {queuedAbonnement.WagenParkId}.");
                 }
                 else
@@ -123,12 +118,13 @@ namespace api.Service
                             EindDatum = DateTime.MaxValue,
                             IsActief = true
                         });
-
+                    
                         _logger.LogInformation($"Reverted to default abonnement 'Pay As You Go' for WagenPark {abonnement.WagenParkId}.");
                     }
                 }
+                context.WagenparkAbonnementen.Remove(abonnement);
             }
-
+            
             await context.SaveChangesAsync(stoppingToken);
         }
     }

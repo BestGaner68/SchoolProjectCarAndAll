@@ -132,6 +132,7 @@ namespace api.Repositories
                     EindDatum = DateTime.UtcNow.AddDays(90), 
                     IsActief = true
                 });
+                _context.Remove(huidigAbonnement);
                 var emailMetaData = new EmailMetaData
                 {
                     ToAddress = wagenPark.AppUser.Email,
@@ -202,6 +203,8 @@ namespace api.Repositories
                     EndDate = DateTime.UtcNow.AddMonths(1),
                     IsActive = true
                 });
+                _context.UserAbonnementen.Remove(huidigAbonnement);
+
                 var emailMetaData = new EmailMetaData
                 {
                     ToAddress = appUser.Email,
