@@ -53,36 +53,32 @@ namespace api.Repositories
         public async Task<decimal> BerekenVoorschotPrijsZakelijk(int reserveringId, Abonnement abonnement)
         {
             var reservering = await _context.Reservering
-                .FirstOrDefaultAsync(r => r.ReserveringId == reserveringId) 
+                .FirstOrDefaultAsync(r => r.ReserveringId == reserveringId)
                 ?? throw new InvalidOperationException("Reservering not found");
 
             var voertuigData = await _context.VoertuigData
-                .FirstOrDefaultAsync(vs => vs.VoertuigId == reservering.VoertuigId) 
+                .FirstOrDefaultAsync(vs => vs.VoertuigId == reservering.VoertuigId)
                 ?? throw new InvalidOperationException("VoertuigData not found");
 
             var rentalDuration = (reservering.EindDatum - reservering.StartDatum).Days;
             var additionalKilometerCharge = reservering.VerwachtteKM * voertuigData.KilometerPrijs;
-            var estimatedPrice = (PrijsPerDag * rentalDuration) + SchadePrijs + additionalKilometerCharge;
-            return estimatedPrice;
+            return GetPrijsOpBasisVanAbonnementZakelijk(abonnement, reservering.VerwachtteKM, rentalDuration, voertuigData.KilometerPrijs, false);
         }
 
         public async Task<decimal> BerekenDaadwerkelijkePrijsZakelijk(int reserveringId, decimal kilometersDriven, bool isSchade, Abonnement abonnement)
         {
             var reservering = await _context.Reservering
-                .FirstOrDefaultAsync(r => r.ReserveringId == reserveringId) 
+                .FirstOrDefaultAsync(r => r.ReserveringId == reserveringId)
                 ?? throw new InvalidOperationException("Reservering not found");
 
             var voertuigStatus = await _context.VoertuigData
-                .FirstOrDefaultAsync(vs => vs.VoertuigId == reservering.VoertuigId) 
+                .FirstOrDefaultAsync(vs => vs.VoertuigId == reservering.VoertuigId)
                 ?? throw new InvalidOperationException("VoertuigData not found");
 
             var rentalDuration = (reservering.EindDatum - reservering.StartDatum).Days;
             var additionalKilometerCharge = kilometersDriven * voertuigStatus.KilometerPrijs;
-            var actualPrice = (PrijsPerDag * rentalDuration) + additionalKilometerCharge;
-            if (isSchade)
-            {
-                actualPrice += SchadePrijs;
-            }
+            decimal actualPrice = GetPrijsOpBasisVanAbonnementZakelijk(abonnement, kilometersDriven, rentalDuration, voertuigStatus.KilometerPrijs, isSchade);
+
             return actualPrice;
         }
 
@@ -139,7 +135,7 @@ namespace api.Repositories
             return ApplyPayAsYouGoPricing(CurrentReservering.VerwachtteKM, rentalDuration, voertuigData.KilometerPrijs, IsSchade);
         }
 
-        private decimal GetPrijsOpBasisVanAbonnementParticulier(Abonnement abonnement, decimal kilometersDriven, int rentalDuration, decimal kilometerPrijs, bool isSchade)
+        private static decimal GetPrijsOpBasisVanAbonnementParticulier(Abonnement abonnement, decimal kilometersDriven, int rentalDuration, decimal kilometerPrijs, bool isSchade)
         {
             return abonnement.Naam switch
             {
@@ -206,7 +202,7 @@ namespace api.Repositories
             return basePrice;
         }
 
-        private decimal ApplyPremiumPricing(decimal kilometersDriven, int rentalDuration, decimal kilometerPrijs, bool isSchade)
+        private static decimal ApplyPremiumPricing(decimal kilometersDriven, int rentalDuration, decimal kilometerPrijs, bool isSchade)
         {
             decimal maxDailyKm = 150;
             decimal surchargePerKm = 0.10m;
@@ -222,6 +218,53 @@ namespace api.Repositories
             if (isSchade)
             {
                 basePrice += 0m;
+            }
+            return basePrice;
+        }
+
+        private static decimal GetPrijsOpBasisVanAbonnementZakelijk(Abonnement abonnement, decimal kilometersDriven, int rentalDuration, decimal kilometerPrijs, bool isSchade)
+        {
+            return abonnement.Naam switch
+            {
+                AbonnementNamen.WagenparkBasic => ApplyWagenparkBasicPricing(kilometersDriven, rentalDuration, kilometerPrijs, isSchade),
+                AbonnementNamen.WagenparkPremium => ApplyWagenparkPremiumPricing(kilometersDriven, rentalDuration, kilometerPrijs, isSchade),
+                _ => throw new InvalidOperationException("Unknown business abonnement type")
+            };
+        }
+
+        private static decimal ApplyWagenparkBasicPricing(decimal kilometersDriven, int rentalDuration, decimal kilometerPrijs, bool isSchade)
+        {
+            decimal maxDailyKm = 100; 
+            decimal surchargePerKm = 0.18m; 
+            decimal dailyRate = 50m; 
+            decimal basePrice = dailyRate * rentalDuration + kilometersDriven * kilometerPrijs;
+            decimal averageDailyKm = kilometersDriven / rentalDuration;
+            if (averageDailyKm > maxDailyKm)
+            {
+                basePrice += (averageDailyKm - maxDailyKm) * surchargePerKm * rentalDuration;
+            }
+            if (isSchade)
+            {
+                basePrice += 150m; 
+            }
+            return basePrice;
+        }
+
+        private static decimal ApplyWagenparkPremiumPricing(decimal kilometersDriven, int rentalDuration, decimal kilometerPrijs, bool isSchade)
+        {
+            decimal maxDailyKm = 150; 
+            decimal surchargePerKm = 0.10m; 
+            decimal dailyRate = 75m; 
+            decimal basePrice = dailyRate * rentalDuration + kilometersDriven * kilometerPrijs;
+            decimal averageDailyKm = kilometersDriven / rentalDuration;
+            if (averageDailyKm > maxDailyKm)
+            {
+                basePrice += (averageDailyKm - maxDailyKm) * surchargePerKm * rentalDuration;
+            }
+            basePrice *= 0.85m; 
+            if (isSchade)
+            {
+                basePrice += 200m; 
             }
             return basePrice;
         }

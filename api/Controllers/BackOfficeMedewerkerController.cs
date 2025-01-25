@@ -90,55 +90,6 @@ namespace api.Controllers
             }
         }
 
-        [HttpPost("registerWagenparkBeheerder")]
-        public async Task<IActionResult> RegisterWagenparkBeheerder([FromBody]RegisterWagenParkBeheerderDto registerWagenParkBeheerderDto)
-        {
-            try
-            {
-                if (!ModelState.IsValid)
-                    return BadRequest(ModelState);
-
-                var appUser = new AppUser
-                {
-                    UserName = registerWagenParkBeheerderDto.Username,
-                    Email = registerWagenParkBeheerderDto.Email,
-                    PhoneNumber = registerWagenParkBeheerderDto.PhoneNumber,
-                    Voornaam = registerWagenParkBeheerderDto.Voornaam,
-                    Achternaam =  registerWagenParkBeheerderDto.Achternaam,
-                };
-
-                var createdUser = await _userManager.CreateAsync(appUser, registerWagenParkBeheerderDto.Password);
-
-                if (!createdUser.Succeeded)
-                {
-                    return StatusCode(500, createdUser.Errors);
-                }
-
-                WagenPark CreateWagenpark = WagenParkMapper.toWagenParkFromRegisterOfficeWorkerDto(registerWagenParkBeheerderDto);
-                await _wagenparkService.CreateWagenparkAsync(CreateWagenpark, appUser.Id);
-
-                var roleResult = await _userManager.AddToRoleAsync(appUser, "wagenparkBeheerder");
-
-                if (!roleResult.Succeeded)
-                {
-                    return StatusCode(500, roleResult.Errors);
-                }
-
-                return Ok(
-                    new NewUserDto
-                    {
-                        Username = appUser.UserName,
-                        Email = appUser.Email,
-                        Token = _tokenService.CreateToken(appUser)
-                    }
-                );
-            }
-            catch (Exception e)
-            {
-                return StatusCode(500, e.Message);
-            }
-        }
-
 
         [HttpPut("BlokkeerdVoertuig")]
         public async Task<IActionResult> BlokkeerVoertuig (int voertuigId, string Opmerking){
@@ -255,7 +206,7 @@ namespace api.Controllers
             try
             {
                 var wagenPark = await _wagenparkService.AcceptNieuwWagenParkVerzoek(idDto.Id);
-                return CreatedAtAction(nameof(_wagenparkService.GetWagenParkById), new { id = wagenPark.WagenParkId }, wagenPark);
+                return Ok(wagenPark);
             }
             catch (Exception ex)
             {
