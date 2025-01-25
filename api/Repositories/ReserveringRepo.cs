@@ -97,7 +97,7 @@ namespace api.Repositories
                 Console.WriteLine(CurrentReservering);
                 return false;
             }
-            var voertuig = await _context.VoertuigStatus.FindAsync(CurrentReservering.VoertuigId);
+            var voertuig = await _context.VoertuigData.FindAsync(CurrentReservering.VoertuigId);
             if (voertuig == null){
                 Console.WriteLine($"{CurrentReservering}  {voertuig}");
                 return false;
@@ -116,7 +116,7 @@ namespace api.Repositories
             {
                 return false;
             }
-            var voertuig = await _context.VoertuigStatus.FindAsync(CurrentReservering.VoertuigId);
+            var voertuig = await _context.VoertuigData.FindAsync(CurrentReservering.VoertuigId);
             if (voertuig == null){
                 return false;
             }
@@ -145,7 +145,7 @@ namespace api.Repositories
                 schadeformulier.SchadeFoto = memoryStream.ToArray(); 
             }
             
-            var voertuig = await _context.VoertuigStatus.FindAsync(CurrentReservering.VoertuigId);
+            var voertuig = await _context.VoertuigData.FindAsync(CurrentReservering.VoertuigId);
             if (voertuig == null){
                 return false;
             }

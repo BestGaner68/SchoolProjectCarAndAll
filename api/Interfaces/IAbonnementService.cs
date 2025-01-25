@@ -8,7 +8,12 @@ namespace api.Interfaces
 {
     public interface IAbonnementService
     {
-        public Task<List<Abonnement>> getAllAbonnementen (); //methode returned alle abonnementen uit de abonnementen Db tabel
-        public Task<bool> KiesAbonnement (int AbonnementId, string appUserId, DateTime StartDatum, DateTime EindDatum);//Methode wordt door WagenParkbeheerder gebruikt om hun abbonement aan te passen
+       Task<bool> WijzigAbonnementWagenpark (int WagenParkId, int nieuwAbonnementId);
+       Task <bool> WijzigAbonnementUser(string appUserId, int nieuweAbonnementId);
+       Task<IEnumerable<Abonnement>> GetAllAbonnementen();
+       Task<Abonnement> GetActiveAbonnement(int wagenparkId);
+       Task<bool> ExtentCurrentAbonnement(int wagenparkId);
+       Task<Abonnement?> GetUserAbonnement(string appUserId);
+       Task<bool> GeefStandaardAbonnement(AppUser appUser);
     }
 }

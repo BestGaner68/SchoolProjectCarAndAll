@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
 using api.Data;
+using api.DataStructureClasses;
 using api.Dtos.WagenParkDtos;
 using api.Interfaces;
 using api.Mapper;
@@ -30,16 +31,22 @@ namespace api.Repositories
 
         public async Task<WagenPark> CreateWagenparkAsync(WagenPark wagenPark, string userId)
         {
-            var user = await _context.Users.FindAsync(userId) ?? throw new ArgumentException("Geen gebruiker gevonden");
+            var user = await _context.Users.FindAsync(userId) 
+                ?? throw new ArgumentException("Geen gebruiker gevonden");
+
             wagenPark.AppUser = user;
-            await _context.AddAsync(wagenPark);
-            await _context.SaveChangesAsync();
-            var abonnementWagenparkLinked = new AbonnementWagenparkLinked
+            var standaardAbonnement = await _context.Abonnementen
+                .FirstOrDefaultAsync(a => a.IsStandaard) 
+                ?? throw new InvalidOperationException("Standaard abonnement niet gevonden. Zorg ervoor dat er een standaard abonnement bestaat.");
+                
+            var nieuwAbonnement = new WagenparkAbonnementen
             {
-                WagenParkId = wagenPark.WagenParkId,
-                AbonnementId = 1,
+                Abonnement = standaardAbonnement,
+                StartDatum = DateTime.UtcNow,
+                IsActief = true 
             };
-            await _context.AddAsync(abonnementWagenparkLinked);
+            wagenPark.WagenparkAbonnementen.Add(nieuwAbonnement);
+            await _context.Wagenpark.AddAsync(wagenPark);
             await _context.SaveChangesAsync();
             return wagenPark;
         }
@@ -47,7 +54,7 @@ namespace api.Repositories
         public async Task<AppUser> GetUserId(string username)
         {
             var user = await _context.Users.SingleOrDefaultAsync(u => u.UserName == username);
-            return user == null ? throw new ArgumentException($"User with username {username} does not exist.") : user;
+            return user ?? throw new ArgumentException($"User with username {username} does not exist.");
         }
      
 
@@ -78,7 +85,7 @@ namespace api.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task<List<NieuwWagenParkVerzoek>> GetAllAsync()
+        public async Task<List<NieuwWagenParkVerzoek>> GetAllWagenparkVerzoekenAsync()
         {
             return await _context.NieuwWagenParkVerzoek.ToListAsync();
         }
@@ -104,7 +111,14 @@ namespace api.Repositories
                 throw new InvalidOperationException($"Er is iets misgegaan bij het aanmaken van de gebruiker: {errors}");
             }
 
-            await _emailService.SendWagenParkBeheerderWelcomeEmail(verzoek.Email, verzoek.GewensdeUsername, password);
+            var welcomeEmailMetaData = new EmailMetaData
+            {
+                ToAddress = verzoek.Email,
+                Subject = "Welkom bij CarAndAll - Je Account Is Actief!",
+                Body = EmailTemplates.GetWelkomEmailWagenParkBeheerder(verzoek.Voornaam, verzoek.GewensdeUsername, password)
+            };
+            await _emailService.SendEmail(welcomeEmailMetaData);
+
             var wagenpark = new WagenPark
             {
                 Bedrijfsnaam = verzoek.Bedrijfsnaam,
@@ -127,13 +141,21 @@ namespace api.Repositories
             }
             _context.NieuwWagenParkVerzoek.Remove(verzoek);
             await _context.SaveChangesAsync();
-            await _emailService.SendWagenParkBeheerWeigerEmail(verzoek.Email, weigerNieuwWagenParkVerzoekDto.Reden, verzoek.Voornaam);
+            var weigerEmailBody = EmailTemplates.GetWagenParkBeheerWeigerEmail(verzoek.Voornaam, weigerNieuwWagenParkVerzoekDto.Reden);
+            var weigerEmailMetaData = new EmailMetaData
+            {
+                ToAddress = verzoek.Email,
+                Subject = "Wagenparkbeheer Verzoek Geweigerd",
+                Body = weigerEmailBody
+            };
+            await _emailService.SendEmail(weigerEmailMetaData);
             return true;
         }
 
         public async Task<WagenPark> GetWagenParkById(int WagenparkId)
         {
-            return await _context.Wagenpark.FindAsync(WagenparkId) ?? throw new ArgumentException($"Geen WagenPark Gevonden met Id {WagenparkId}");
+            return await _context.Wagenpark.FindAsync(WagenparkId) 
+                ?? throw new ArgumentException($"Geen WagenPark Gevonden met Id {WagenparkId}");
         }
     }
 }

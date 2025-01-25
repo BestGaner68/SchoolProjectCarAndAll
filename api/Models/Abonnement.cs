@@ -10,7 +10,10 @@ namespace api.Models
     {
         [Key]
         public int AbonnementId { get; set; }
-        public string AbonnementType { get; set; } = string.Empty;
-        public int AbonnementMaandPrijs {get; set;}
+        public string Naam { get; set; } = string.Empty;
+        public decimal Prijs { get; set; }
+        public bool IsStandaard { get; set; }
+        public bool IsWagenparkAbonnement { get; set; }
+        public ICollection<UserAbonnement> UserAbonnementen { get; set; } 
     }
 }

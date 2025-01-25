@@ -2,13 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using api.Models;
+using FluentEmail.Core.Models;
 
 namespace api.Repositories
 {
     public interface IEmailService
     {
-        Task SendEmail(string to, string subject, string body);
-        Task SendWagenParkBeheerderWelcomeEmail(string to, string username, string password);
-        Task SendWagenParkBeheerWeigerEmail (string to, string? Reden, string Voornaam);
+        Task SendEmail(EmailMetaData emailMetaData);
     }
 }

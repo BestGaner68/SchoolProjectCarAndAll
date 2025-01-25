@@ -146,3 +146,5 @@ C:\Users\ayhan\OneDrive\Documents\My Web Sites\New folder\SchoolProjectCarAndAll
 C:\Users\ayhan\OneDrive\Documents\My Web Sites\New folder\SchoolProjectCarAndAll\api\obj\Debug\net8.0\api.pdb
 C:\Users\ayhan\OneDrive\Documents\My Web Sites\New folder\SchoolProjectCarAndAll\api\obj\Debug\net8.0\api.genruntimeconfig.cache
 C:\Users\ayhan\OneDrive\Documents\My Web Sites\New folder\SchoolProjectCarAndAll\api\obj\Debug\net8.0\ref\api.dll
+C:\Users\ayhan\OneDrive\Documents\My Web Sites\New folder\SchoolProjectCarAndAll\api\bin\Debug\net8.0\FluentEmail.Core.dll
+C:\Users\ayhan\OneDrive\Documents\My Web Sites\New folder\SchoolProjectCarAndAll\api\bin\Debug\net8.0\FluentEmail.Smtp.dll

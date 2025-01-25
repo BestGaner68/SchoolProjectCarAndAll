@@ -47,7 +47,7 @@ namespace api.Repositories
 
         public async Task<bool> IsAvailable(int voertuigId)
         {
-            var status = await _context.VoertuigStatus
+            var status = await _context.VoertuigData
                 .Where(v => v.VoertuigId == voertuigId)
                 .Select(v => v.Status)
                 .FirstOrDefaultAsync();
@@ -129,7 +129,7 @@ namespace api.Repositories
             schadeMelding.ReparatieOpmerking = ReparatieOpmerking;
             schadeMelding.Status = SchadeStatus.Behandeld;
 
-            var CurrentVoertuigStatus = await _context.VoertuigStatus.Where(x => x.VoertuigId == schadeMelding.VoertuigId).FirstOrDefaultAsync();
+            var CurrentVoertuigStatus = await _context.VoertuigData.Where(x => x.VoertuigId == schadeMelding.VoertuigId).FirstOrDefaultAsync();
             if (CurrentVoertuigStatus == null)
             {
                 return false;
@@ -141,7 +141,7 @@ namespace api.Repositories
 
         public async Task<bool> BlokkeerVoertuig(int voertuigId, string? Opmerking)
         {
-            var CurrentVoertuig = await _context.VoertuigStatus.FindAsync(voertuigId);
+            var CurrentVoertuig = await _context.VoertuigData.FindAsync(voertuigId);
             if (CurrentVoertuig == null)
             {
                 return false;
@@ -154,7 +154,7 @@ namespace api.Repositories
 
         public async Task<bool> DeBlokkeerVoertuig(int voertuigId)
         {
-            var CurrentVoertuig = await _context.VoertuigStatus.FindAsync(voertuigId);
+            var CurrentVoertuig = await _context.VoertuigData.FindAsync(voertuigId);
             if (CurrentVoertuig == null)
             {
                 return false;
@@ -170,9 +170,9 @@ namespace api.Repositories
 
         public async Task<List<Voertuig>> GetAllAvailableVoertuigen()
         {
-            var VoertuigLijst = await _context.VoertuigStatus.Where(x => x.Status == VoertuigStatussen.KlaarVoorGebruik).ToListAsync();
+            var VoertuigLijst = await _context.VoertuigData.Where(x => x.Status == VoertuigStatussen.KlaarVoorGebruik).ToListAsync();
             var AvailableVoertuigen = new List<Voertuig>();
-            foreach (VoertuigStatus voertuig in VoertuigLijst)
+            foreach (VoertuigData voertuig in VoertuigLijst)
             {
                 var tempVoertuig = await _context.Voertuig.FindAsync(voertuig.VoertuigId);
                 if (tempVoertuig != null)
@@ -185,7 +185,7 @@ namespace api.Repositories
 
         public async Task<string> GetStatus(int voertuigId)
         {
-            var VoertuigStatus = await _context.VoertuigStatus.FindAsync(voertuigId);
+            var VoertuigStatus = await _context.VoertuigData.FindAsync(voertuigId);
             if (VoertuigStatus == null)
             {
                 return $"Geen voertuig gevonden met id {voertuigId}";
@@ -196,7 +196,7 @@ namespace api.Repositories
         public async Task<bool> CreeerNieuwVoertuig(NieuwVoertuigDto nieuwVoertuigDto)
         {
             var TempVoertuig = VoertuigMapper.FromNieuweVoertuigDtoToVoertuig(nieuwVoertuigDto);
-            TempVoertuig.voertuigStatus = new VoertuigStatus{
+            TempVoertuig.VoertuigData = new VoertuigData{
                 Status = VoertuigStatussen.KlaarVoorGebruik,
             };
             await _context.Voertuig.AddAsync(TempVoertuig);
@@ -231,15 +231,18 @@ namespace api.Repositories
             return true; 
         }
 
-        public async Task AddVoertuig(Voertuig voertuig)
+        public async Task AddVoertuigStatuses(List<VoertuigData> voertuigData)
         {
-            await _context.Voertuig.AddAsync(voertuig);
-            await _context.SaveChangesAsync();
+            if (voertuigData.Count == 0)
+                throw new ArgumentException("geen voertuigen gevonden");
+
+            await _context.VoertuigData.AddRangeAsync(voertuigData);
+            await _context.SaveChangesAsync(); 
         }
 
         public async Task<bool> AreAnyVoertuigStatus()
         {
-            var anyVoertuigStatus = await _context.VoertuigStatus.ToListAsync();
+            var anyVoertuigStatus = await _context.VoertuigData.ToListAsync();
             if (anyVoertuigStatus.Count != 0)
             {
                 return true;
@@ -247,9 +250,12 @@ namespace api.Repositories
             return false;
         }
 
-        public async Task AddVoertuigStatus(VoertuigStatus voertuigStatus)
+        public async Task AddVoertuigen(List<Voertuig> voertuigen)
         {
-            await _context.VoertuigStatus.AddAsync(voertuigStatus);
+            if (voertuigen.Count == 0)
+                throw new ArgumentException("geen voertuigen gevonden");
+
+            await _context.Voertuig.AddRangeAsync(voertuigen); 
             await _context.SaveChangesAsync();
         }
     }

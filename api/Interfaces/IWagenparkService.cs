@@ -14,7 +14,7 @@ namespace api.Interfaces
         Task<WagenPark> CreateWagenparkAsync(WagenPark wagenpark, string username);
         Task<WagenPark?> GetBeheerdersWagenPark (string AppUserId);
         Task NieuwWagenParkVerzoek(NieuwWagenParkVerzoekDto wagenParkVerzoekDto);
-        Task<List<NieuwWagenParkVerzoek>> GetAllAsync();
+        Task<List<NieuwWagenParkVerzoek>> GetAllWagenparkVerzoekenAsync();
         Task<WagenPark> GetWagenParkById(int WagenparkId);
         Task<WagenPark> AcceptNieuwWagenParkVerzoek(int id);
         Task<bool> WeigerNieuwWagenParkVerzoek(WeigerNieuwWagenParkVerzoekDto weigerNieuwWagenParkVerzoekDto);

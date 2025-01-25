@@ -103,6 +103,8 @@ builder.Services.AddScoped<SmtpClient>(sp => new SmtpClient(emailSettings.SmtpSe
     EnableSsl = emailSettings.EnableSsl, 
 });
 
+builder.Services.AddFluentEmail(builder.Configuration);
+builder.Services.AddHostedService<NotificationHostedService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IVerhuurVerzoekService, VerhuurVerzoekRepo>();
 builder.Services.AddScoped<IWagenparkService, WagenparkRepo>();
@@ -123,7 +125,6 @@ using (var scope = app.Services.CreateScope())
 
     var voertuigService = scope.ServiceProvider.GetRequiredService<IVoertuigService>();
     await VoertuigInitializer.InitializeVoertuigenAsync(voertuigService);
-    await VoertuigInitializer.InitializeVoertuigStatusAsync(voertuigService);
 }
 
 if (app.Environment.IsDevelopment())

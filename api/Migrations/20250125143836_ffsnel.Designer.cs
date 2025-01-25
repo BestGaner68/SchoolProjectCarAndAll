@@ -12,8 +12,8 @@ using api.Data;
 namespace api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250120142721_init")]
-    partial class init
+    [Migration("20250125143836_ffsnel")]
+    partial class ffsnel
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -166,48 +166,23 @@ namespace api.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AbonnementId"));
 
-                    b.Property<int>("AbonnementMaandPrijs")
-                        .HasColumnType("int");
+                    b.Property<bool>("IsStandaard")
+                        .HasColumnType("bit");
 
-                    b.Property<string>("AbonnementType")
+                    b.Property<bool>("IsWagenparkAbonnement")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Naam")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("Prijs")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("AbonnementId");
 
                     b.ToTable("Abonnementen");
-                });
-
-            modelBuilder.Entity("api.Models.AbonnementWagenparkLinked", b =>
-                {
-                    b.Property<int>("AbonnementWagenparkLinkedId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AbonnementWagenparkLinkedId"));
-
-                    b.Property<int>("AbonnementId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("EindDatum")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("GeredenKilometers")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("StartDatum")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("WagenParkId")
-                        .HasColumnType("int");
-
-                    b.HasKey("AbonnementWagenparkLinkedId");
-
-                    b.HasIndex("AbonnementId");
-
-                    b.HasIndex("WagenParkId");
-
-                    b.ToTable("AbonnementWagenparkLinked");
                 });
 
             modelBuilder.Entity("api.Models.AppUser", b =>
@@ -283,13 +258,37 @@ namespace api.Migrations
 
             modelBuilder.Entity("api.Models.NieuwWagenParkVerzoek", b =>
                 {
-                    b.Property<int>("NieuwWagenParkVerzoekId")
+                    b.Property<int>("WagenparkVerzoekId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("NieuwWagenParkVerzoekId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("WagenparkVerzoekId"));
 
-                    b.HasKey("NieuwWagenParkVerzoekId");
+                    b.Property<string>("Achternaam")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Bedrijfsnaam")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("GewensdeUsername")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("KvkNummer")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Voornaam")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("WagenparkVerzoekId");
 
                     b.ToTable("NieuwWagenParkVerzoek");
                 });
@@ -377,6 +376,39 @@ namespace api.Migrations
                     b.ToTable("SchadeFormulier");
                 });
 
+            modelBuilder.Entity("api.Models.UserAbonnement", b =>
+                {
+                    b.Property<int>("UserAbonnementId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserAbonnementId"));
+
+                    b.Property<int>("AbonnementId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("AppUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("UserAbonnementId");
+
+                    b.HasIndex("AbonnementId");
+
+                    b.HasIndex("AppUserId");
+
+                    b.ToTable("UserAbonnementen");
+                });
+
             modelBuilder.Entity("api.Models.VerhuurVerzoek", b =>
                 {
                     b.Property<int>("VerhuurVerzoekId")
@@ -436,9 +468,6 @@ namespace api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("KilometerPrijs")
-                        .HasColumnType("int");
-
                     b.Property<string>("Kleur")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -460,10 +489,14 @@ namespace api.Migrations
                     b.ToTable("Voertuig");
                 });
 
-            modelBuilder.Entity("api.Models.VoertuigStatus", b =>
+            modelBuilder.Entity("api.Models.VoertuigData", b =>
                 {
                     b.Property<int>("VoertuigId")
                         .HasColumnType("int");
+
+                    b.Property<decimal>("KilometerPrijs")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Opmerking")
                         .HasColumnType("nvarchar(max)");
@@ -474,7 +507,7 @@ namespace api.Migrations
 
                     b.HasKey("VoertuigId");
 
-                    b.ToTable("VoertuigStatus");
+                    b.ToTable("VoertuigData");
                 });
 
             modelBuilder.Entity("api.Models.WagenPark", b =>
@@ -489,10 +522,6 @@ namespace api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("BedrijfsString")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Bedrijfsnaam")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -501,12 +530,6 @@ namespace api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("MaxVoertuigen")
-                        .HasColumnType("int");
-
-                    b.Property<int>("VoertuigenInGebruik")
-                        .HasColumnType("int");
-
                     b.HasKey("WagenParkId");
 
                     b.HasIndex("AppUserId");
@@ -514,54 +537,68 @@ namespace api.Migrations
                     b.ToTable("Wagenpark");
                 });
 
-            modelBuilder.Entity("api.Models.WagenParkVerzoek", b =>
+            modelBuilder.Entity("api.Models.WagenParkUserList", b =>
                 {
-                    b.Property<int>("wagenparkverzoekId")
+                    b.Property<int>("WagenParkUserListId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("wagenparkverzoekId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("WagenParkUserListId"));
 
                     b.Property<string>("AppUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Status")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("WagenparkId")
+                    b.Property<string>("EmailAddress")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("WagenParkId")
                         .HasColumnType("int");
 
-                    b.HasKey("wagenparkverzoekId");
+                    b.HasKey("WagenParkUserListId");
 
-                    b.HasIndex("AppUserId");
+                    b.HasIndex("WagenParkId");
 
-                    b.HasIndex("WagenparkId");
-
-                    b.ToTable("WagenparkVerzoeken");
+                    b.ToTable("WagenParkUserLists");
                 });
 
-            modelBuilder.Entity("api.Models.WagenparkLinkedUser", b =>
+            modelBuilder.Entity("api.Models.WagenparkAbonnementen", b =>
                 {
-                    b.Property<int>("WagenparkLinkedUserId")
+                    b.Property<int>("WagenparkAbonnementId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("WagenparkLinkedUserId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("WagenparkAbonnementId"));
 
-                    b.Property<string>("AppUserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("WagenparkId")
+                    b.Property<int>("AbonnementId")
                         .HasColumnType("int");
 
-                    b.HasKey("WagenparkLinkedUserId");
+                    b.Property<DateTime?>("EindDatum")
+                        .HasColumnType("datetime2");
 
-                    b.HasIndex("AppUserId");
+                    b.Property<bool>("IsActief")
+                        .HasColumnType("bit");
 
-                    b.HasIndex("WagenparkId");
+                    b.Property<bool>("IsVolgendAbonnement")
+                        .HasColumnType("bit");
 
-                    b.ToTable("WagenparkUserLinked");
+                    b.Property<DateTime>("StartDatum")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("WagenParkId")
+                        .HasColumnType("int");
+
+                    b.HasKey("WagenparkAbonnementId");
+
+                    b.HasIndex("AbonnementId");
+
+                    b.HasIndex("WagenParkId");
+
+                    b.ToTable("WagenparkAbonnementen");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -615,30 +652,30 @@ namespace api.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("api.Models.AbonnementWagenparkLinked", b =>
+            modelBuilder.Entity("api.Models.UserAbonnement", b =>
                 {
                     b.HasOne("api.Models.Abonnement", "Abonnement")
-                        .WithMany()
+                        .WithMany("UserAbonnementen")
                         .HasForeignKey("AbonnementId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("api.Models.WagenPark", "wagenPark")
-                        .WithMany()
-                        .HasForeignKey("WagenParkId")
+                    b.HasOne("api.Models.AppUser", "AppUser")
+                        .WithMany("UserAbonnementen")
+                        .HasForeignKey("AppUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Abonnement");
 
-                    b.Navigation("wagenPark");
+                    b.Navigation("AppUser");
                 });
 
-            modelBuilder.Entity("api.Models.VoertuigStatus", b =>
+            modelBuilder.Entity("api.Models.VoertuigData", b =>
                 {
                     b.HasOne("api.Models.Voertuig", "Voertuig")
-                        .WithOne("voertuigStatus")
-                        .HasForeignKey("api.Models.VoertuigStatus", "VoertuigId")
+                        .WithOne("VoertuigStatus")
+                        .HasForeignKey("api.Models.VoertuigData", "VoertuigId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -656,46 +693,55 @@ namespace api.Migrations
                     b.Navigation("AppUser");
                 });
 
-            modelBuilder.Entity("api.Models.WagenParkVerzoek", b =>
+            modelBuilder.Entity("api.Models.WagenParkUserList", b =>
                 {
-                    b.HasOne("api.Models.AppUser", "appUser")
+                    b.HasOne("api.Models.WagenPark", "WagenPark")
                         .WithMany()
-                        .HasForeignKey("AppUserId")
+                        .HasForeignKey("WagenParkId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("api.Models.WagenPark", "wagenPark")
-                        .WithMany()
-                        .HasForeignKey("WagenparkId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("appUser");
-
-                    b.Navigation("wagenPark");
+                    b.Navigation("WagenPark");
                 });
 
-            modelBuilder.Entity("api.Models.WagenparkLinkedUser", b =>
+            modelBuilder.Entity("api.Models.WagenparkAbonnementen", b =>
                 {
-                    b.HasOne("api.Models.AppUser", "AppUser")
+                    b.HasOne("api.Models.Abonnement", "Abonnement")
                         .WithMany()
-                        .HasForeignKey("AppUserId");
-
-                    b.HasOne("api.Models.WagenPark", "Wagenpark")
-                        .WithMany()
-                        .HasForeignKey("WagenparkId")
+                        .HasForeignKey("AbonnementId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("AppUser");
+                    b.HasOne("api.Models.WagenPark", "WagenPark")
+                        .WithMany("WagenparkAbonnementen")
+                        .HasForeignKey("WagenParkId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Navigation("Wagenpark");
+                    b.Navigation("Abonnement");
+
+                    b.Navigation("WagenPark");
+                });
+
+            modelBuilder.Entity("api.Models.Abonnement", b =>
+                {
+                    b.Navigation("UserAbonnementen");
+                });
+
+            modelBuilder.Entity("api.Models.AppUser", b =>
+                {
+                    b.Navigation("UserAbonnementen");
                 });
 
             modelBuilder.Entity("api.Models.Voertuig", b =>
                 {
-                    b.Navigation("voertuigStatus")
+                    b.Navigation("VoertuigStatus")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("api.Models.WagenPark", b =>
+                {
+                    b.Navigation("WagenparkAbonnementen");
                 });
 #pragma warning restore 612, 618
         }
