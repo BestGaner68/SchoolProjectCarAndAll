@@ -40,14 +40,16 @@ namespace api.Controllers
             return Ok(voertuigen);
         }
         [HttpGet("GetVoertuigByDate")]
-        public async Task<IActionResult> GetVoertuigenByDate( DateTime Voertuigstartdate, DateTime Voertuigenddate)
+        public async Task<IActionResult> GetVoertuigenByDate([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
         {
-            var voertuigen = await _voertuigService.GetVoertuigenByDate( Voertuigstartdate, Voertuigenddate);
-            if (!voertuigen.Any())
+            var dateRangeRequest = new Dtos.ReserveringenEnSchade.DatumDto
             {
-                return NotFound(new { Message = $"Geen voertuigen gevonden met datum: {Voertuigstartdate} {Voertuigenddate}" });
-            }
-            return Ok(voertuigen);
+                StartDate = startDate,
+                EndDate = endDate
+            };
+
+            var beschikbareVoertuigen = await _voertuigService.GetVoertuigenByDate(dateRangeRequest);
+            return Ok(beschikbareVoertuigen);
         }
     }
 }
