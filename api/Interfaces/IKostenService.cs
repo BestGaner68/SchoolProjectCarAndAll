@@ -10,9 +10,10 @@ namespace api.Interfaces
     {
         Task<decimal> BerekenVoorschot(int reserveringId, string appuserId);
         Task<decimal> BerekenDaadWerkelijkPrijs(int reserveringId, int KilometersGereden, bool isSchade, string appuserId);
-        Task<decimal> BerekenVoorschotPrijsParticulier(int reserveringId);
-        Task<decimal> BerekenDaadwerkelijkePrijsParticulier(int reserveringId, decimal kilometersDriven, bool isSchade);
         Task<decimal> BerekenVoorschotPrijsZakelijk(int reserveringId, Abonnement abonnement);
         Task<decimal> BerekenDaadwerkelijkePrijsZakelijk(int reserveringId, decimal kilometersDriven, bool isSchade, Abonnement abonnement);
+        Task<decimal> BerekenVoorschotPrijsParticulier(int reserveringId, Abonnement abonnement);
+        Task<decimal> BerekenDaadwerkelijkePrijsParticulier(int reserveringId, decimal kilometersDriven, bool isSchade, Abonnement abonnement);
+        Task <decimal> BerekenPayAsYouGo(int reserveringId, bool IsSchade);
     }
 }

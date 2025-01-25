@@ -13,5 +13,4 @@ public interface IWagenParkUserListService
     Task <WagenPark> GetWagenParkByAppUserEmail(string email);
     Task <WagenPark> GetWagenParkByAppUserId (string AppUserId);
     Task <bool> UpdateUserStatus(string AppUserId, string wagenParkUserListStatussen);
-
 }

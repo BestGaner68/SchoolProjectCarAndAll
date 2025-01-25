@@ -101,5 +101,14 @@ namespace api.Controllers
             }
         }
 
+        [HttpGet("GetCurrentAbonnement")]
+        public async Task<IActionResult> GetCurrentAbonnement()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null) return Unauthorized(new {message = "Gebruiker niet geauthoriseerd."});
+            var abonnement = await _abonnementService.GetUserAbonnement(userId);
+            return Ok(abonnement);
+        }
+
     }
 }
