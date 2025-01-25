@@ -11,5 +11,7 @@ namespace api.DataStructureClasses
         public const string Basic = "Basic";
         public const string Professional = "Professional";
         public const string Premium= "Premium";
+        public const string WagenparkBasic = "WagenparkBasic";
+        public const string WagenparkPremium = "WagenparkPremium";
     }
 }
