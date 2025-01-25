@@ -13,7 +13,7 @@ namespace api.Interfaces
        Task<IEnumerable<Abonnement>> GetAllAbonnementen();
        Task<Abonnement> GetActiveAbonnement(int wagenparkId);
        Task<bool> ExtentCurrentAbonnement(int wagenparkId);
-       Task<Abonnement?> GetUserAbonnement(string appUserId);
+       Task<Abonnement> GetUserAbonnement(string appUserId);
        Task<bool> GeefStandaardAbonnement(AppUser appUser);
     }
 }

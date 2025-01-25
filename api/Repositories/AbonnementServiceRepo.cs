@@ -7,6 +7,7 @@ using api.Data;
 using api.DataStructureClasses;
 using api.Interfaces;
 using api.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace api.Repositories
@@ -14,12 +15,12 @@ namespace api.Repositories
     public class AbonnementServiceRepo :IAbonnementService
     {
         private readonly ApplicationDbContext _context;
-        private readonly IWagenparkService _wagenparkService;
+        private readonly UserManager<AppUser> _userManager;
         private readonly IEmailService _emailService;
-        public AbonnementServiceRepo(ApplicationDbContext context, IWagenparkService wagenparkService, IEmailService emailService)
+        public AbonnementServiceRepo(ApplicationDbContext context, IWagenparkService wagenparkService, IEmailService emailService, UserManager<AppUser> userManager)
         {
             _context=context;
-            _wagenparkService = wagenparkService;
+            _userManager = userManager;
             _emailService = emailService;
         }
 
@@ -79,24 +80,43 @@ namespace api.Repositories
             return await _context.Abonnementen.ToListAsync();
         }
 
-        public async Task<Abonnement?> GetUserAbonnement(string appUserId)
+        public async Task<Abonnement> GetUserAbonnement(string appUserId)
         {
-            var currentUser = await _context.Users.FindAsync(appUserId);
-            if (currentUser == null) return null;
-            var userWagenParkId = await _context.WagenParkUserLists
-                .Where(w => w.AppUserId == appUserId)
-                .Select(w => w.WagenParkId)
-                .FirstOrDefaultAsync();
-             
-            if (userWagenParkId == 0) return null;
-            var userWagenpark = await _context.Wagenpark.FindAsync(userWagenParkId);
-            if (userWagenpark == null) return null;
-            var abonnement = await _context.WagenparkAbonnementen
-                .Where(a => a.WagenParkId == userWagenpark.WagenParkId && a.IsActief == true)
-                .FirstOrDefaultAsync();
+            var currentUser = await _context.Users.FindAsync(appUserId) 
+                ?? throw new ArgumentException("Abonnement not found.");
+            
+            var roles = await _userManager.GetRolesAsync(currentUser);
+            if (roles.Contains(Rollen.ParticuliereKlant))
+            {
+                var abonnementId = await _context.UserAbonnementen
+                    .Where(w => w.AppUserId == appUserId && w.IsActive)
+                    .Select(w => w.AbonnementId)
+                    .FirstOrDefaultAsync();
 
-            if (abonnement == null) return null;
-            return await _context.Abonnementen.FindAsync(abonnement.AbonnementId);  
+                if (abonnementId == 0) throw new ArgumentException("");
+                var UserAbonnement = await _context.Abonnementen.FindAsync(abonnementId);
+                return UserAbonnement ?? throw new ArgumentException("");
+            }
+            else
+            {
+                var userWagenParkId = await _context.WagenParkUserLists
+                    .Where(w => w.AppUserId == appUserId)
+                    .Select(w => w.WagenParkId)
+                    .FirstOrDefaultAsync();
+
+                if (userWagenParkId == 0) throw new ArgumentException("");
+                var userWagenpark = await _context.Wagenpark.FindAsync(userWagenParkId) 
+                    ?? throw new ArgumentException("");
+
+                var abonnement = await _context.WagenparkAbonnementen
+                    .Where(a => a.WagenParkId == userWagenpark.WagenParkId && a.IsActief == true)
+                    .FirstOrDefaultAsync() ?? throw new ArgumentException("");
+            
+                var UserAbonnement = await _context.Abonnementen.FindAsync(abonnement.AbonnementId) 
+                    ?? throw new ArgumentException("");
+                
+                return UserAbonnement;
+            }
         }
 
         public async Task<bool> WijzigAbonnementWagenpark(int wagenParkId, int nieuwAbonnementId)
@@ -117,10 +137,14 @@ namespace api.Repositories
                 throw new InvalidOperationException("Uw heeft al een volgend abonnement geselecteerd");
 
             var huidigAbonnement = wagenPark.WagenparkAbonnementen
-                .FirstOrDefault(wa => wa.IsActief);
+                .FirstOrDefault(wa => wa.IsActief)
+                ?? throw new ArgumentException("");
             
             var tempStartDatum = huidigAbonnement?.EindDatum ?? DateTime.UtcNow;
-
+            if (huidigAbonnement.AbonnementId == nieuwAbonnement.AbonnementId)
+            {
+                throw new InvalidOperationException("Nieuw abonnement kan niet hetzelfde zijn als lopende abonnement.");
+            }
             if (huidigAbonnement?.Abonnement.IsStandaard == true) 
             {
                 huidigAbonnement.IsActief = false;
@@ -179,6 +203,11 @@ namespace api.Repositories
 
             var existingQueued = await _context.UserAbonnementen
                 .FirstOrDefaultAsync(ua => ua.AppUserId == appUser.Id && !ua.IsActive);
+            
+            if (huidigAbonnement.AbonnementId == nieuwAbonnement.AbonnementId)
+            {
+                throw new InvalidOperationException("Nieuw abonnement kan niet hetzelfde zijn als lopende abonnement.");
+            }
 
             if (existingQueued != null)
             {

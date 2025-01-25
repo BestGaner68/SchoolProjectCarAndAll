@@ -25,9 +25,13 @@ namespace api.Repositories
         public async Task<decimal> BerekenVoorschot(int reserveringId, string appuserId)
         {
             var abonnement = await _abonnementService.GetUserAbonnement(appuserId);
-            if (abonnement == null)
+            if (abonnement.IsStandaard)
             {
-                return await BerekenVoorschotPrijsParticulier(reserveringId);
+                return await BerekenPayAsYouGo(reserveringId, false);
+            }
+            if (!abonnement.IsWagenparkAbonnement)
+            {
+                return await BerekenVoorschotPrijsParticulier(reserveringId, abonnement);
             }
             return await BerekenVoorschotPrijsZakelijk(reserveringId, abonnement);
         }
@@ -35,14 +39,18 @@ namespace api.Repositories
         public async Task<decimal> BerekenDaadWerkelijkPrijs(int reserveringId, int KilometersGereden, bool isSchade, string appuserId)
         {
             var abonnement = await _abonnementService.GetUserAbonnement(appuserId);
-            if (abonnement == null)
+            if (abonnement.IsStandaard)
             {
-                return await BerekenDaadwerkelijkePrijsParticulier(reserveringId, KilometersGereden, isSchade);
+                return await BerekenPayAsYouGo(reserveringId, isSchade);
+            }
+            if (!abonnement.IsWagenparkAbonnement)
+            {
+                return await BerekenDaadwerkelijkePrijsParticulier(reserveringId, KilometersGereden , isSchade, abonnement);
             }
             return await BerekenDaadwerkelijkePrijsZakelijk(reserveringId, KilometersGereden, isSchade, abonnement);
         }
 
-        public async Task<decimal> BerekenVoorschotPrijsParticulier(int reserveringId)
+        public async Task<decimal> BerekenVoorschotPrijsZakelijk(int reserveringId, Abonnement abonnement)
         {
             var reservering = await _context.Reservering
                 .FirstOrDefaultAsync(r => r.ReserveringId == reserveringId) 
@@ -58,7 +66,7 @@ namespace api.Repositories
             return estimatedPrice;
         }
 
-        public async Task<decimal> BerekenDaadwerkelijkePrijsParticulier(int reserveringId, decimal kilometersDriven, bool isSchade)
+        public async Task<decimal> BerekenDaadwerkelijkePrijsZakelijk(int reserveringId, decimal kilometersDriven, bool isSchade, Abonnement abonnement)
         {
             var reservering = await _context.Reservering
                 .FirstOrDefaultAsync(r => r.ReserveringId == reserveringId) 
@@ -78,7 +86,7 @@ namespace api.Repositories
             return actualPrice;
         }
 
-        public async Task<decimal> BerekenVoorschotPrijsZakelijk(int reserveringId, Abonnement abonnement)
+        public async Task<decimal> BerekenVoorschotPrijsParticulier(int reserveringId, Abonnement abonnement)
         {
             var reservering = await _context.Reservering
                 .FirstOrDefaultAsync(r => r.ReserveringId == reserveringId)
@@ -90,7 +98,7 @@ namespace api.Repositories
 
             var rentalDuration = (reservering.EindDatum - reservering.StartDatum).Days;
 
-            return GetPrijsOpBasisVanAbonnement(
+            return GetPrijsOpBasisVanAbonnementParticulier(
                 abonnement,
                 reservering.VerwachtteKM,
                 rentalDuration,
@@ -99,7 +107,7 @@ namespace api.Repositories
             );
         }
 
-        public async Task<decimal> BerekenDaadwerkelijkePrijsZakelijk(int reserveringId, decimal kilometersDriven, bool isSchade, Abonnement abonnement)
+        public async Task<decimal> BerekenDaadwerkelijkePrijsParticulier(int reserveringId, decimal kilometersDriven, bool isSchade, Abonnement abonnement)
         {
             var reservering = await _context.Reservering
                 .FirstOrDefaultAsync(r => r.ReserveringId == reserveringId)
@@ -111,7 +119,7 @@ namespace api.Repositories
 
             var rentalDuration = (reservering.EindDatum - reservering.StartDatum).Days;
 
-            return GetPrijsOpBasisVanAbonnement(
+            return GetPrijsOpBasisVanAbonnementParticulier(
                 abonnement,
                 kilometersDriven,
                 rentalDuration,
@@ -120,7 +128,18 @@ namespace api.Repositories
             );
         }
 
-        private decimal GetPrijsOpBasisVanAbonnement(Abonnement abonnement, decimal kilometersDriven, int rentalDuration, decimal kilometerPrijs, bool isSchade)
+        public async Task <decimal> BerekenPayAsYouGo(int reserveringId, bool IsSchade)
+        {
+            var CurrentReservering = await _context.Reservering.FindAsync(reserveringId) 
+                ?? throw new ArgumentException("");
+
+            var rentalDuration = (CurrentReservering.EindDatum - CurrentReservering.StartDatum).Days;
+            var voertuigData = await _context.VoertuigData.FindAsync(CurrentReservering.VoertuigId)
+                ?? throw new ArgumentException("");
+            return ApplyPayAsYouGoPricing(CurrentReservering.VerwachtteKM, rentalDuration, voertuigData.KilometerPrijs, IsSchade);
+        }
+
+        private decimal GetPrijsOpBasisVanAbonnementParticulier(Abonnement abonnement, decimal kilometersDriven, int rentalDuration, decimal kilometerPrijs, bool isSchade)
         {
             return abonnement.Naam switch
             {
