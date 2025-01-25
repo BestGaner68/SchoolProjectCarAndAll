@@ -206,7 +206,7 @@ namespace api.Controllers
             try
             {
                 var wagenPark = await _wagenparkService.AcceptNieuwWagenParkVerzoek(idDto.Id);
-                return Ok(wagenPark);
+                return Ok("wagenpark succesvol aangemaakt.");
             }
             catch (Exception ex)
             {

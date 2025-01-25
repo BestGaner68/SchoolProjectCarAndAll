@@ -38,7 +38,7 @@ namespace api.Repositories
             var standaardAbonnement = await _context.Abonnementen
                 .FirstOrDefaultAsync(a => a.IsStandaard) 
                 ?? throw new InvalidOperationException("Standaard abonnement niet gevonden. Zorg ervoor dat er een standaard abonnement bestaat.");
-                
+
             var nieuwAbonnement = new WagenparkAbonnementen
             {
                 Abonnement = standaardAbonnement,
@@ -115,7 +115,7 @@ namespace api.Repositories
             {
                 ToAddress = verzoek.Email,
                 Subject = "Welkom bij CarAndAll - Je Account Is Actief!",
-                Body = EmailTemplates.GetWelkomEmailWagenParkBeheerder(verzoek.Voornaam, verzoek.GewensdeUsername, password)
+                Body = EmailTemplates.GetWelkomEmailWagenParkBeheerder(verzoek.Voornaam, password, verzoek.GewensdeUsername)
             };
             await _emailService.SendEmail(welcomeEmailMetaData);
 

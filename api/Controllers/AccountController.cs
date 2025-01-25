@@ -274,6 +274,41 @@ namespace api.Controllers
             }
         }
 
+        [HttpPut("changePassword")]
+        [Authorize]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto changePasswordDto)
+        {
+            try
+            {
+                var AppUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (string.IsNullOrEmpty(AppUserId))
+                {
+                    return Unauthorized("No userID found in token.");
+                }
+                var appUser = await _userManager.FindByIdAsync(AppUserId);
+                if (appUser == null)
+                {
+                    return NotFound("User not found.");
+                }
+                var passwordCheckResult = await _userManager.CheckPasswordAsync(appUser, changePasswordDto.OldPassword);
+                if (!passwordCheckResult)
+                {
+                    return BadRequest("The old password is incorrect.");
+                }
+                var result = await _userManager.ChangePasswordAsync(appUser, changePasswordDto.OldPassword, changePasswordDto.NewPassword);
+
+                if (!result.Succeeded)
+                {
+                    return BadRequest($"Error changing password: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                }
+                return Ok("Password changed successfully.");
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
+        }
+
         [HttpPut("NieuwWagenParkVerzoek")]
         public async Task<IActionResult> NieuwWagenParkVerzoek(NieuwWagenParkVerzoekDto wagenParkVerzoekDto)
         {
