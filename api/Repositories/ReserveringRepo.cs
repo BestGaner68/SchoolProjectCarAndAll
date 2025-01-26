@@ -163,7 +163,7 @@ namespace api.Repositories
 
         public async Task<HuurGeschiedenisDto> GetHuurGeschiedenis(Reservering reservering)
         {
-            var voertuigData = await _voertuigService.GetAllVoertuigDataById(reservering.VoertuigId);
+            var voertuigData = await _voertuigService.GetSimpleVoertuigDataById(reservering.VoertuigId);
             return ReserveringMapper.ToHuurGeschiedenisDto(reservering, voertuigData);
         }
         public async Task<bool> MeldSchadeVanuitVoertuigId(int VoertuigId, string Schade, IFormFile? Foto)

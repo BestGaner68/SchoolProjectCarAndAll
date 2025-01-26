@@ -127,5 +127,35 @@ namespace api.Service
             
             await context.SaveChangesAsync(stoppingToken);
         }
+        
+        private async Task SendReserveringStartNotifications(
+        ApplicationDbContext _context,
+        IEmailService _emailService,
+        CancellationToken stoppingToken)
+        {
+            var now = DateTime.UtcNow.Date; 
+            var reminderThreshold = now.AddDays(1); 
+            var upcomingReserveringen = await _context.Reservering
+                .Include(r => r.AppUserId) 
+                .Where(r => r.StartDatum.Date == reminderThreshold && r.Status == ReserveringStatussen.Geaccepteerd)
+                .ToListAsync(stoppingToken);
+
+            foreach (var reservering in upcomingReserveringen)
+            {
+                var User = await _context.Users.FindAsync(reservering.AppUserId);
+                var voertuig = await _context.Voertuig.FindAsync(reservering.VoertuigId);
+
+                if (User != null && !string.IsNullOrEmpty(User.Email))
+                {
+                    var emailMetaData = new EmailMetaData
+                    {
+                        ToAddress = User.Email,
+                        Subject = "Herinnering: Uw reservering start morgen",
+                        Body = EmailTemplates.GetReserveringReminderBody(reservering.StartDatum, voertuig.Type)
+                    };
+                    await _emailService.SendEmail(emailMetaData);
+                }
+            }
+        }
     }
 }

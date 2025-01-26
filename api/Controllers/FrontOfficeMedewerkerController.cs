@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using api.Dtos.ReserveringenEnSchade;
 using api.Dtos.Verhuur;
 using api.Interfaces;
+using api.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api.Controllers
@@ -13,8 +14,24 @@ namespace api.Controllers
     public class FrontOfficeMedewerkerController : ControllerBase
     {
         private readonly IReserveringService _reserveringService;
-        public FrontOfficeMedewerkerController(IReserveringService reserveringService){
+        private readonly IVoertuigService _voertuigService;
+        public FrontOfficeMedewerkerController(IReserveringService reserveringService, IVoertuigService VoertuigService){
             _reserveringService = reserveringService;
+            _voertuigService = VoertuigService;
+        }
+
+        [HttpGet("GetAllVoertuigData/{voertuigId}")]
+        public async Task<IActionResult> GetAllVoertuigData ([FromRoute]int voertuigId)
+        {
+            try
+            {
+                var voertuigData = await _voertuigService.GetAllDataVoertuig(voertuigId);
+                return Ok(voertuigData);
+            }
+            catch (Exception ex)
+            {
+                return Problem(detail: ex.Message, statusCode: 500);
+            }
         }
 
         [HttpPut("GeefVoertuigUit")]

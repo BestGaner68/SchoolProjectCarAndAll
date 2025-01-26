@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Azure.Core.Pipeline;
 
-namespace api.Dtos.Voertuig
+namespace api.Dtos.VoertuigDtos
 {
     public class VoertuigDto
     {

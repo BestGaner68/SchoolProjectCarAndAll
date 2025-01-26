@@ -72,8 +72,6 @@ namespace api.Controllers
                 return BadRequest(new {message = "Voertuig is momenteel niet in gebruik, controllleer de status of kies een ander voertuig"});
             }
 
-            //var succes = _voertuigService.CheckMaxVoertuigenWagenpark(userId);
-
             var verhuurVerzoekModel = verhuurVerzoekDto.ToVerhuurVerzoekFromDto(userId);
             await _verhuurVerzoekRepo.CreateAsync(verhuurVerzoekModel);
             return CreatedAtAction(nameof(GetById), new {id = verhuurVerzoekModel.VerhuurVerzoekId}, verhuurVerzoekModel.ToVerhuurVerzoekDto());

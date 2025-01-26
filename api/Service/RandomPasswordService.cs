@@ -13,7 +13,7 @@ namespace api.Service
         {
             const string validChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"; 
             const string digits = "1234567890"; 
-            const string specialChars = "!@#$%^&*()-_=+[]{}|;:'\",.<>?/";  
+            const string specialChars = "!@#$%^&*()-_=+[]{}|<>?/";  
             var length = 12;
             var password = new char[length];
 

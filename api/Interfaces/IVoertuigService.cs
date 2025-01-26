@@ -1,6 +1,6 @@
 using api.Dtos.ReserveringenEnSchade;
 using api.Dtos.Verhuur;
-using api.Dtos.Voertuig;
+using api.Dtos.VoertuigDtos;
 using api.Models;
 
 namespace api.Interfaces
@@ -11,7 +11,8 @@ namespace api.Interfaces
         Task<List<Voertuig>> GetVoertuigenByMerk(string VoertuigMerk); //Methode filterd voertuigen uit de Db op Merk
         Task<List<Voertuig>> GetVoertuigenByDate( DatumDto datumdto); //Methode filterd voertuigen uit de Db op Merk
         Task<List<Voertuig>> GetVoertuigenBySoort(string VoertuigSoort); //Methode filterd voertuigen uit de Db op Soort
-        Task <VoertuigDto> GetAllVoertuigDataById (int voertuigId); //Methode stuurt data naar frontend gebaseerd op het id van de benodigde auto   
+        Task <VoertuigDto> GetSimpleVoertuigDataById (int voertuigId); //Methode stuurt data naar frontend gebaseerd op het id van de benodigde auto
+        Task<VolledigeVoertuigDataDto> GetAllDataVoertuig(int voertuigId); //Methode wordt gebruik voor frontendmedewerkers om zo alle data van een voertuig te kunnen zien   
         Task<bool> CheckDatesAsync(int voertuigId, DateTime startDate, DateTime endDate); // Methode checked of voertuig gehuurd kan worden op de ingevoerde data, gebruik in het maken van een verhuurverzoek
         Task<bool> IsAvailable(int voertuigId); // Methode om de huidige status van een voertuig op te vragen uit de Db
         Task<string> GetStatus (int voertuigId); // Methode haalt de momentele status op van een voertuig

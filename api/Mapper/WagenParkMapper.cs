@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using api.Dtos.Account;
 using api.Dtos.ReserveringenEnSchade;
-using api.Dtos.Voertuig;
+using api.Dtos.VoertuigDtos;
 using api.Dtos.WagenParkDtos;
 using api.Models;
 
