@@ -42,10 +42,10 @@ namespace api.Controllers
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
 
-                var validRoles = new[] { "BackendWorker", "FrontendWorker" };
+                var validRoles = new[] { Rollen.BackendWorker, Rollen.FrontendWorker };
                 if (!validRoles.Contains(registerOfficeDto.TypeAccount))
                 {
-                    return BadRequest("Verkeerde Rol, Mogelijkheden: BackendWorker, FrontendWorker.");
+                    return BadRequest("Verkeerde Rol, Mogelijkheden: backendWorker, frontendWorker.");
                 }
 
                 var appUser = new AppUser
@@ -62,13 +62,13 @@ namespace api.Controllers
                 }
 
                 IdentityResult roleResult;
-                if (registerOfficeDto.TypeAccount == "backendWorker")
+                if (registerOfficeDto.TypeAccount == Rollen.BackendWorker)
                 {
-                    roleResult = await _userManager.AddToRoleAsync(appUser, "backendWorker");
+                    roleResult = await _userManager.AddToRoleAsync(appUser, Rollen.BackendWorker);
                 }
                 else
                 {
-                    roleResult = await _userManager.AddToRoleAsync(appUser, "frontendWorker");
+                    roleResult = await _userManager.AddToRoleAsync(appUser, Rollen.FrontendWorker);
                 }
                 if (!roleResult.Succeeded)
                 {

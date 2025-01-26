@@ -12,6 +12,5 @@ namespace api.DataStructureClasses
         public const string ParticuliereKlant = "particuliereKlant";
         public const string FrontendWorker = "frontendWorker";
         public const string BedrijfsKlant = "bedrijfsKlant";
-        public const string Pending = "pending";
     }
 }

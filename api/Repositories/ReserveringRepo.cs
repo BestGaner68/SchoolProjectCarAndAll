@@ -172,6 +172,9 @@ namespace api.Repositories
             if (CurrentReservering == null){
                 return false;
             }
+
+            CurrentReservering.Status = ReserveringStatussen.Afgerond;
+            
             var schadeformulier = new SchadeFormulier{
                 VoertuigId = CurrentReservering.VoertuigId,
                 Schade = Schade,

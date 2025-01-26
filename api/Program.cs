@@ -117,6 +117,7 @@ builder.Services.AddScoped<IAbonnementService, AbonnementServiceRepo>();
 builder.Services.AddScoped<IEmailService, EmailRepo>();
 builder.Services.AddScoped<IKostenService, KostenRepo>();
 builder.Services.AddScoped<IFactuurService, FactuurRepo>();
+builder.Services.AddScoped<IBetaalService, BetaalRepo>();
 
 var app = builder.Build();
 
