@@ -48,6 +48,7 @@ public class WagenParkUserListRepo : IWagenParkUserListService
     public async Task<List<AppUser>> GetAllUsersInWagenPark(string WagenParkBeheerderId)
     {
         var currentWagenpark = await _context.Wagenpark
+            .Include(x => x.AppUser)
             .FirstOrDefaultAsync(x => x.AppUser.Id.Equals(WagenParkBeheerderId));
 
         if (currentWagenpark == null)
@@ -60,10 +61,21 @@ public class WagenParkUserListRepo : IWagenParkUserListService
             .Select(x => x.AppUserId)
             .ToListAsync();
 
-        var tasks = appUserIds.Select(appUserId => _userManager.FindByIdAsync(appUserId));
-        var gevondenUsers = await Task.WhenAll(tasks);
-
-        return gevondenUsers.Where(user => user != null).ToList();
+        
+        if (appUserIds.Count == 0)
+        {
+            return [];
+        }
+        var gevondenUsers = new List<AppUser>();
+        foreach (var userId in appUserIds)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user != null)
+            {
+                gevondenUsers.Add(user);
+            }
+        }
+        return gevondenUsers;
     }
 
     public async Task<List<WagenParkOverzichtDto>> GetOverzicht(string wagenparkbeheerderId)
@@ -134,7 +146,9 @@ public class WagenParkUserListRepo : IWagenParkUserListService
             return false;
         }
         result.AppUserId = AppUserId;
+        Console.WriteLine($"gebruiker string = {AppUserId}");
         result.Status = NieuwStatus;
+        Console.WriteLine($"gebruiker is toegevoegt en string geupdate");
         await _context.SaveChangesAsync();
         return true;
     }
