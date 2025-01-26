@@ -16,10 +16,12 @@ namespace api.Controllers
         private readonly IReserveringService _reserveringService;
         private readonly IVoertuigService _voertuigService;
         private readonly IKostenService _kostenService;
-        public FrontOfficeMedewerkerController(IReserveringService reserveringService, IVoertuigService VoertuigService, IKostenService kostenService){
+        private readonly IFactuurService _factuurService;
+        public FrontOfficeMedewerkerController(IReserveringService reserveringService, IVoertuigService VoertuigService, IKostenService kostenService, IFactuurService factuurService){
             _reserveringService = reserveringService;
             _voertuigService = VoertuigService;
             _kostenService = kostenService;
+            _factuurService = factuurService;
         }
 
         [HttpGet("GetAllVoertuigData/{voertuigId}")]
@@ -84,11 +86,11 @@ namespace api.Controllers
             {
                 return BadRequest("Er is iets mis gegaan bij het berekenen van de prijs.");
             }
-
-            var factuur = await MaakFactuur(reservering, prijsOverzicht);
+            var AppUserId = reservering.AppUserId;
+            var factuur = await _factuurService.MaakFactuur(reservering, prijsOverzicht, AppUserId);
 
             // Stuur de factuur per e-mail naar de klant
-            var emailResult = await StuurFactuurPerEmail(factuur);
+            var emailResult = await _factuurService.StuurFactuurPerEmail(factuur);
             if (!emailResult)
             {
                 return BadRequest("Er is een fout opgetreden bij het verzenden van de factuur.");

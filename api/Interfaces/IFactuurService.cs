@@ -9,6 +9,7 @@ namespace api.Interfaces
 {
     public interface IFactuurService
     {
-        public Task<Factuur> MaakFactuur(Reservering reservering, PrijsOverzichtDto prijsOverzicht, AppUser appUser);
+        public Task<Factuur> MaakFactuur(Reservering reservering, PrijsOverzichtDto prijsOverzicht, string appUserId);
+        public Task<bool> StuurFactuurPerEmail(Factuur factuur);
     }
 }
