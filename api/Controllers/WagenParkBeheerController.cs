@@ -46,7 +46,7 @@ namespace api.Controllers
             return Ok(ToDto);
         }
         
-        [Authorize  ]
+        [Authorize]
         [HttpPut("NodigGebruikerUitVoorWagenpark")]
         public async Task<IActionResult> NodigGebruikerUitVoorWagenpark([FromBody]NodigUitDto nodigUitDto)
         {
@@ -63,7 +63,7 @@ namespace api.Controllers
             if (!succes){
                 return BadRequest (new {message = "Er is iets misgegaan bij het uitnodigen van de gebruiker"});
             }
-            return NoContent();
+            return Ok($"Gebruiker met email {nodigUitDto.Email} is uitgenodigd");
         }
 
         [Authorize]

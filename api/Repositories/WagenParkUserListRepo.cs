@@ -30,9 +30,9 @@ public class WagenParkUserListRepo : IWagenParkUserListService
     public async Task<WagenPark> GetWagenParkByAppUserEmail(string email)
     {
         var wagenparkuserlist = await _context.WagenParkUserLists
-            .Where(x => x.EmailAddress.Equals(email, StringComparison.CurrentCultureIgnoreCase))
+            .Where(x => x.EmailAddress.ToLower().Equals(email.ToLower()))
             .FirstOrDefaultAsync()
-            ?? throw new ArgumentException ("Geen WagenParkUserList gevonden bij deze gebruiker??");
+            ?? throw new ArgumentException ("Geen WagenParkUserList gevonden bij deze gebruiker123??");
 
         if (string.IsNullOrEmpty(email))
         {
@@ -90,12 +90,18 @@ public class WagenParkUserListRepo : IWagenParkUserListService
 
     public async Task<bool> StuurInvite(string email, string WagenParkBeheerderId)
     {
-        var FoundWagenPark = await GetWagenParkByAppUserEmail(WagenParkBeheerderId);
+        var FoundWagenPark = await _context.Wagenpark.Where(x => x.AppUser.Id == WagenParkBeheerderId).FirstOrDefaultAsync();
         if (FoundWagenPark == null)
         {
             return false;
         }
-    
+        var dubbelUserInvite = await _context.WagenParkUserLists.Where(x => x.EmailAddress == email && x.WagenParkId == FoundWagenPark.WagenParkId).FirstOrDefaultAsync();
+        if (!(dubbelUserInvite == null))
+        {
+            throw new Exception("Gebruiker is al toegevoegt");
+        }
+
+
         WagenParkUserList TempWagenParkUserList = new()
         {
             EmailAddress = email,
