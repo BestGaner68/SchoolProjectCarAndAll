@@ -89,7 +89,7 @@ namespace api.Repositories
                 }
                 if (reservering.Status == "MagWordenGewijzigd")
                 {
-                
+
                     if (wijzigReserveringDto.NewStartDatum < DateTime.UtcNow || wijzigReserveringDto.NewEindDatum < DateTime.UtcNow)
                     {
                         throw new Exception("De ingevulde Data zijn al geweest."); 
@@ -99,12 +99,12 @@ namespace api.Repositories
                         reservering.StartDatum = wijzigReserveringDto.NewStartDatum.Value;
                         reservering.EindDatum = wijzigReserveringDto.NewEindDatum.Value;
                     }
-    
+
                     if (wijzigReserveringDto.NieuwVoertuigId.HasValue)
                     {
                         reservering.VoertuigId = wijzigReserveringDto.NieuwVoertuigId.Value;
                     }
-    
+
                     await _context.SaveChangesAsync();
                     return true;
                 }
@@ -148,7 +148,7 @@ namespace api.Repositories
             }
             Console.WriteLine("Alles ok");
             voertuig.Status = VoertuigStatussen.Uitgegeven;
-            CurrentReservering.Status = "Uitgegeven";
+            CurrentReservering.Status = ReserveringStatussen.Uitgegeven;
             await _context.SaveChangesAsync();
             return true;
         }
@@ -165,7 +165,7 @@ namespace api.Repositories
                 return false;
             }
             voertuig.Status = VoertuigStatussen.KlaarVoorGebruik;
-            CurrentReservering.Status = "Afgerond";
+            CurrentReservering.Status = ReserveringStatussen.Afgerond;
             await _context.SaveChangesAsync();
             return true;
         }
