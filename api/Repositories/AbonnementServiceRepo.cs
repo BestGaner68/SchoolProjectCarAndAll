@@ -267,7 +267,9 @@ namespace api.Repositories
             return true;
         }
 
-
-        
+        public async Task AddAbonnement(List<Abonnement> abonnements){
+            await _context.Abonnementen.AddRangeAsync(abonnements);
+            await _context.SaveChangesAsync();
+        }
     }
 }

@@ -13,7 +13,7 @@ namespace api.Service
 {
     public static class VoertuigInitializer
     {
-        public static async Task InitializeDataBase(IVoertuigService voertuigService)
+        public static async Task InitializeDataBase(IVoertuigService voertuigService, IAbonnementService abonnementService)
         {
             var bestaandeVoertuigen = await voertuigService.GetAllVoertuigen();
             var bestaandeVoertuigData = await voertuigService.AreAnyVoertuigStatus();
@@ -225,24 +225,16 @@ namespace api.Service
             await voertuigService.AddVoertuigen(voertuigen);
 
 
-            var Abonnementen = new List<Abonnement>();
+            var Abonnementen = new List<Abonnement>
             {
-                new Abonnement { Naam = AbonnementNamen.PayAsYouGo, Prijs = 0m, IsStandaard = true, IsWagenparkAbonnement = false };
-                new Abonnement { Naam = AbonnementNamen.Basic, Prijs = 50m, IsStandaard = false, IsWagenparkAbonnement = false };
-                new Abonnement { Naam = AbonnementNamen.Professional, Prijs = 100m, IsStandaard = false, IsWagenparkAbonnement = false };
-                new Abonnement { Naam = AbonnementNamen.Premium, Prijs = 200m, IsStandaard = false, IsWagenparkAbonnement = false };
-                new Abonnement { Naam = AbonnementNamen.WagenparkBasic, Prijs = 150m, IsStandaard = false, IsWagenparkAbonnement = true };
-                new Abonnement { Naam = AbonnementNamen.WagenparkPremium, Prijs = 300m, IsStandaard = false, IsWagenparkAbonnement = true };
+                new() { Naam = AbonnementNamen.PayAsYouGo, Prijs = 0m, IsStandaard = true, IsWagenparkAbonnement = false },
+                new() { Naam = AbonnementNamen.Basic, Prijs = 50m, IsStandaard = false, IsWagenparkAbonnement = false },
+                new() { Naam = AbonnementNamen.Professional, Prijs = 100m, IsStandaard = false, IsWagenparkAbonnement = false },
+                new() { Naam = AbonnementNamen.Premium, Prijs = 200m, IsStandaard = false, IsWagenparkAbonnement = false },
+                new() { Naam = AbonnementNamen.WagenparkBasic, Prijs = 150m, IsStandaard = false, IsWagenparkAbonnement = true },
+                new() { Naam = AbonnementNamen.WagenparkPremium, Prijs = 300m, IsStandaard = false, IsWagenparkAbonnement = true },
             };
-
-            foreach(Abonnement abonnement in Abonnementen)
-            {
-                
-            }
-        }
-
-
-        
-        
+            await abonnementService.AddAbonnement(Abonnementen);
+        }        
     }
 }

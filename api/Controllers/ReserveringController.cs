@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using api.Dtos.ReserveringenEnSchade;
+using api.Dtos.Verhuur;
 using api.Interfaces;
 using api.Mapper;
 using api.Models;
@@ -79,12 +80,48 @@ namespace api.Controllers
                     var ToevoegenHuurGeschiedenis = await _reserveringService.GetHuurGeschiedenis(Reservering);
                     huurgeschiedenis.Add(ToevoegenHuurGeschiedenis);
                 }
-            return Ok(huurgeschiedenis);
+                return Ok(huurgeschiedenis);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new { message = "Er is een interne fout opgetreden." });
+            }
         }
-        catch (Exception ex)
+
+        [HttpPut("WijzigReservering/{reserveringId}")]
+        public async Task<IActionResult> WijzigReservering([FromBody] WijzigReserveringDto wijzigReserveringDto)
         {
-            return StatusCode(500, new { message = "Er is een interne fout opgetreden." });
+            try
+            {
+                var result = await _reserveringService.WijzigReservering(wijzigReserveringDto);
+                if (result)
+                {
+                    return Ok("Reservering successfully updated.");
+                }
+                return BadRequest("Failed to update reservering.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = ex.Message });
+            }
+        }
+
+        [HttpDelete("VerwijderReservering/{reserveringId}")]
+        public async Task<IActionResult> VerwijderReservering([FromRoute] int reserveringId)
+        {
+            try
+            { 
+                var succes = await _reserveringService.VerwijderReservering(reserveringId);
+                if (!succes)
+                {
+                    return BadRequest(new { Message = "Er is iets misgegaan" });
+                }
+                return Ok("Verzoek succesvol verwijderd");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = ex.Message }); 
+            }
         }
     }
-        }
 }

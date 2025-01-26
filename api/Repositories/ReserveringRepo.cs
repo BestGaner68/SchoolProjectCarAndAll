@@ -5,6 +5,7 @@ using api.Models;
 using Microsoft.EntityFrameworkCore;
 using api.Dtos.ReserveringenEnSchade;
 using api.DataStructureClasses;
+using api.Dtos.Verhuur;
 
 namespace api.Repositories
 {
@@ -22,37 +23,28 @@ namespace api.Repositories
         }
         
         public async Task<bool> AcceptVerhuurVerzoek(int verhuurVerzoekId)
-        {
-            try
+        {       
+            var CurrentVerhuurVerzoek = await _context.VerhuurVerzoek.FindAsync(verhuurVerzoekId);
+            if (CurrentVerhuurVerzoek == null)
             {
-                var CurrentVerhuurVerzoek = await _context.VerhuurVerzoek.FindAsync(verhuurVerzoekId);
-                if (CurrentVerhuurVerzoek == null){
-                    return false;
-                }
-                CurrentVerhuurVerzoek.Status = "Geaccpeteerd";
-                var CurrentReservering = VerhuurVerzoekMapper.ToReserveringFromVerhuurVerzoek(CurrentVerhuurVerzoek);
-                var UserWagenPark = await _wagenparkUserListService.GetWagenParkByAppUserId(CurrentReservering.AppUserId);
-                if (!(UserWagenPark == null))
-                {
-                    CurrentReservering.Type = "Zakelijk";
-                }
-                else
-                {
-                    CurrentReservering.Type = "Particulier";
-                }
-                var User = await _context.Users.FindAsync(CurrentReservering.AppUserId);
-                CurrentReservering.Fullname = $"{User.Voornaam} {User.Achternaam}";
-                await _context.Reservering.AddAsync(CurrentReservering);
-                await _context.SaveChangesAsync();
-                return true;
+                return false;
             }
-            catch (Exception ex)
+            CurrentVerhuurVerzoek.Status = "Geaccepteerd";
+            var CurrentReservering = VerhuurVerzoekMapper.ToReserveringFromVerhuurVerzoek(CurrentVerhuurVerzoek);
+            var User = await _context.Users.FindAsync(CurrentReservering.AppUserId);
+            CurrentReservering.Fullname = $"{User.Voornaam} {User.Achternaam}";
+            if (CurrentReservering.StartDatum > DateTime.UtcNow.AddDays(7))
             {
-                Console.WriteLine($"Error: {ex.Message}");
-                return false; 
+                CurrentReservering.Status = ReserveringStatussen.MagWordenGewijzigd;
             }
-        }
-
+            else
+            {
+                CurrentReservering.Status = ReserveringStatussen.ReadyForPickUp;
+            }
+            await _context.Reservering.AddAsync(CurrentReservering);
+            await _context.SaveChangesAsync();
+            return true;
+        }       
         public async Task<bool> WeigerVerhuurVerzoek(int verhuurVerzoekId)
         {
             try{
@@ -61,7 +53,7 @@ namespace api.Repositories
                 {
                     return false;
                 }
-                CurrentVerhuurVerzoek.Status = "Geweigerd";
+                CurrentVerhuurVerzoek.Status = ReserveringStatussen.Geweigerd;
                 await _context.SaveChangesAsync();
                 return true;
             }
@@ -71,6 +63,58 @@ namespace api.Repositories
                 return false;
             }
         }
+        
+
+        public async Task<bool> VerwijderReservering(int reserveringId)
+        {   
+            var reservering = await _context.Reservering.FindAsync(reserveringId) 
+                ?? throw new Exception("reservering niet gevonden");
+
+            if (reservering.Status == ReserveringStatussen.MagWordenGewijzigd)
+            {
+                _context.Reservering.Remove(reservering);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            throw new Exception("Reservering kan niet meer worden verwijderd");
+        }
+
+        public async Task<bool> WijzigReservering(WijzigReserveringDto wijzigReserveringDto)
+        {
+            {
+                var reservering = await _context.Reservering.FindAsync(wijzigReserveringDto.ReserveringId);
+                if (reservering == null)
+                {
+                    return false; 
+                }
+                if (reservering.Status == "MagWordenGewijzigd")
+                {
+                
+                    if (wijzigReserveringDto.NewStartDatum < DateTime.UtcNow || wijzigReserveringDto.NewEindDatum < DateTime.UtcNow)
+                    {
+                        throw new Exception("De ingevulde Data zijn al geweest."); 
+                    }
+                    if (wijzigReserveringDto.NewStartDatum.HasValue && wijzigReserveringDto.NewEindDatum.HasValue)
+                    {
+                        reservering.StartDatum = wijzigReserveringDto.NewStartDatum.Value;
+                        reservering.EindDatum = wijzigReserveringDto.NewEindDatum.Value;
+                    }
+    
+                    if (wijzigReserveringDto.NieuwVoertuigId.HasValue)
+                    {
+                        reservering.VoertuigId = wijzigReserveringDto.NieuwVoertuigId.Value;
+                    }
+    
+                    await _context.SaveChangesAsync();
+                    return true;
+                }
+                return false;
+            }
+        }
+
+
+
+
 
         public async Task<List<Reservering>> GetAll()
         {

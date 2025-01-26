@@ -34,6 +34,8 @@ namespace api.Service
                     var emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
                     await SendAbonnementExpiryNotifications(context, emailService, stoppingToken);
                     await ProcessAbonnementSwitches(context, emailService, stoppingToken);
+                    await SendReserveringStartNotifications(context, emailService, stoppingToken);
+                    await UpdateReservingStatuses(context, stoppingToken);
                 }
                 catch (Exception ex)
                 {
@@ -157,5 +159,25 @@ namespace api.Service
                 }
             }
         }
+
+
+        private async Task UpdateReservingStatuses(ApplicationDbContext context, CancellationToken stoppingToken)
+        {
+            var now = DateTime.UtcNow;
+            var reserveringen = await context.Reservering
+                .Where(r => r.Status == "MagWordenGewijzigd" && r.StartDatum > now)
+                .ToListAsync(stoppingToken);
+
+            foreach (var reservering in reserveringen)
+            {
+                if ((reservering.StartDatum - now).TotalDays <= 7)
+                {
+                    reservering.Status = "ReadyForPick";
+                    await context.SaveChangesAsync(stoppingToken);
+                    _logger.LogInformation($"Reservation {reservering.ReserveringId} status changed to ReadyForPick.");
+                }
+            }
+        }
+
     }
 }
