@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Meliodas\\Source\\Repos\\SchoolProjectCarAndAll\\api\\api.csproj": {}
+    "C:\\Users\\Meliodas\\source\\repos\\SchoolProjectCarAndAll\\api\\api.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Meliodas\\Source\\Repos\\SchoolProjectCarAndAll\\api\\api.csproj": {
+    "C:\\Users\\Meliodas\\source\\repos\\SchoolProjectCarAndAll\\api\\api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Meliodas\\Source\\Repos\\SchoolProjectCarAndAll\\api\\api.csproj",
+        "projectUniqueName": "C:\\Users\\Meliodas\\source\\repos\\SchoolProjectCarAndAll\\api\\api.csproj",
         "projectName": "api",
-        "projectPath": "C:\\Users\\Meliodas\\Source\\Repos\\SchoolProjectCarAndAll\\api\\api.csproj",
+        "projectPath": "C:\\Users\\Meliodas\\source\\repos\\SchoolProjectCarAndAll\\api\\api.csproj",
         "packagesPath": "C:\\Users\\Meliodas\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Meliodas\\Source\\Repos\\SchoolProjectCarAndAll\\api\\obj\\",
+        "outputPath": "C:\\Users\\Meliodas\\source\\repos\\SchoolProjectCarAndAll\\api\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Meliodas\\AppData\\Roaming\\NuGet\\NuGet.Config",

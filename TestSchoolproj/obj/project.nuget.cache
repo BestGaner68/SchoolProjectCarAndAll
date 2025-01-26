@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "7c3H7bjTlURn6EK+sRMW/2olGsEF1K6D4XvFUJzVAAktlLSwsBOfxmzRbGQy64ts4PGkX3cGSOsWOwSBYKoeJA==",
+  "dgSpecHash": "t3wfHYaOQFNwQqxRxuZmiJu80pEDzcDkL5xZ91r/xc3IhXeV15NSzkBJmaXDxEjnj6x91TWaToE+7wC3/NIcyw==",
   "success": true,
-  "projectFilePath": "C:\\Users\\Meliodas\\Source\\Repos\\SchoolProjectCarAndAll\\TestSchoolproj\\TestSchoolproj.csproj",
+  "projectFilePath": "C:\\Users\\Meliodas\\source\\repos\\SchoolProjectCarAndAll\\TestSchoolproj\\TestSchoolproj.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Meliodas\\.nuget\\packages\\azure.core\\1.25.0\\azure.core.1.25.0.nupkg.sha512",
     "C:\\Users\\Meliodas\\.nuget\\packages\\azure.identity\\1.7.0\\azure.identity.1.7.0.nupkg.sha512",

@@ -11415,11 +11415,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Meliodas\\Source\\Repos\\SchoolProjectCarAndAll\\TestSchoolproj\\TestSchoolproj.csproj",
+      "projectUniqueName": "C:\\Users\\Meliodas\\source\\repos\\SchoolProjectCarAndAll\\TestSchoolproj\\TestSchoolproj.csproj",
       "projectName": "TestSchoolproj",
-      "projectPath": "C:\\Users\\Meliodas\\Source\\Repos\\SchoolProjectCarAndAll\\TestSchoolproj\\TestSchoolproj.csproj",
+      "projectPath": "C:\\Users\\Meliodas\\source\\repos\\SchoolProjectCarAndAll\\TestSchoolproj\\TestSchoolproj.csproj",
       "packagesPath": "C:\\Users\\Meliodas\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Meliodas\\Source\\Repos\\SchoolProjectCarAndAll\\TestSchoolproj\\obj\\",
+      "outputPath": "C:\\Users\\Meliodas\\source\\repos\\SchoolProjectCarAndAll\\TestSchoolproj\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Meliodas\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -11436,8 +11436,8 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "C:\\Users\\Meliodas\\Source\\Repos\\SchoolProjectCarAndAll\\api\\api.csproj": {
-              "projectPath": "C:\\Users\\Meliodas\\Source\\Repos\\SchoolProjectCarAndAll\\api\\api.csproj"
+            "C:\\Users\\Meliodas\\source\\repos\\SchoolProjectCarAndAll\\api\\api.csproj": {
+              "projectPath": "C:\\Users\\Meliodas\\source\\repos\\SchoolProjectCarAndAll\\api\\api.csproj"
             }
           }
         }
