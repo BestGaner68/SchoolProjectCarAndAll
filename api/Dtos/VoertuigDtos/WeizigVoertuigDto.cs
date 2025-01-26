@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 
-namespace api.Dtos.Voertuig
+namespace api.Dtos.VoertuigDtos
 {
     public class WeizigVoertuigDto
     {

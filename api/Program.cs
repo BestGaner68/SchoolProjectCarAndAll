@@ -124,7 +124,8 @@ using (var scope = app.Services.CreateScope())
     await RoleInitializer.InitializeRolesAsync(roleManager);
 
     var voertuigService = scope.ServiceProvider.GetRequiredService<IVoertuigService>();
-    await VoertuigInitializer.InitializeVoertuigenAsync(voertuigService);
+    var AbonnementenService = scope.ServiceProvider.GetRequiredService<IAbonnementService>();
+    await VoertuigInitializer.InitializeDataBase(voertuigService, AbonnementenService);
 }
 
 if (app.Environment.IsDevelopment())

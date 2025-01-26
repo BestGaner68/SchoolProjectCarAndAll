@@ -20,5 +20,7 @@ namespace api.Interfaces
         Task<bool> MeldSchadeVanuitVoertuigId (int voertuigId, string Schade, IFormFile? SchadeFoto);
         Task<List<Reservering>> GetMyReserveringen(string AppUserId); //Methode genereerd een lijst van alle afgeronde reservering van een gebruiker
         Task<HuurGeschiedenisDto> GetHuurGeschiedenis(Reservering reservering); //Methode pakt alle relevante data uit de Db
+        Task<bool> WijzigReservering(WijzigReserveringDto wijzigReserveringDto);
+        Task<bool> VerwijderReservering(int reserveringId);
     }
 }

@@ -19,6 +19,5 @@ namespace api.Models
         public int VerwachtteKM { get; set; }
         public string Fullname { get; set; } = string.Empty;
         public string Status { get; set; } = string.Empty;
-        public string Type { get; set; } = string.Empty;
     }
 }

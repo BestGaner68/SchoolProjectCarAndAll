@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using api.Data;
 using api.DataStructureClasses;
 using api.Dtos.Verhuur;
-using api.Dtos.Voertuig;
+using api.Dtos.VoertuigDtos;
 using api.Interfaces;
 using api.Mapper;
 
@@ -86,16 +86,30 @@ namespace api.Repositories
 
         }
 
-        public async Task<VoertuigDto> GetAllVoertuigDataById(int voertuigId)
+        public async Task<VoertuigDto> GetSimpleVoertuigDataById(int voertuigId)
         {
-            var voertuig = await _context.Voertuig.FindAsync(voertuigId);
-            if (voertuig == null){
-                return null;
-            }
+            var voertuig = await _context.Voertuig.FindAsync(voertuigId) ?? throw new InvalidDataException();
             return new VoertuigDto{
                 Soort = voertuig.Soort,
                 type = voertuig.Type,
                 Merk = voertuig.Merk,
+            };
+        }
+
+        public async Task<VolledigeVoertuigDataDto> GetAllDataVoertuig(int voertuigId)
+        {
+            var voertuig = await _context.Voertuig
+                .Include(v => v.VoertuigData)
+                .FirstOrDefaultAsync(v => v.VoertuigId == voertuigId) ?? throw new KeyNotFoundException($"Voertuig with ID {voertuigId} not found.");
+
+            var schades = await _context.SchadeFormulier
+                .Where(s => s.VoertuigId == voertuigId)
+                .ToListAsync();
+
+            return new VolledigeVoertuigDataDto
+            {
+                Voertuig = voertuig,
+                Schades = schades
             };
         }
 

@@ -15,5 +15,6 @@ namespace api.Interfaces
        Task<bool> ExtentCurrentAbonnement(int wagenparkId);
        Task<Abonnement> GetUserAbonnement(string appUserId);
        Task<bool> GeefStandaardAbonnement(AppUser appUser);
+       Task AddAbonnement(List<Abonnement> abonnements);
     }
 }

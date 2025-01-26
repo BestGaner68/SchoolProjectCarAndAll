@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using api.Data;
 using api.Dtos.Verhuur;
-using api.Dtos.Voertuig;
+using api.Dtos.VoertuigDtos;
 using api.Interfaces;
 using api.Mapper;
 using api.Models;
@@ -51,7 +51,7 @@ namespace api.Repositories
         {
             AppUser user = await _context.Users.FindAsync(verhuurVerzoek.AppUserId);
             string fullName = $"{user.Voornaam} {user.Achternaam}";
-            VoertuigDto voertuigDto = await _voertuigService.GetAllVoertuigDataById(verhuurVerzoek.VoertuigId);
+            VoertuigDto voertuigDto = await _voertuigService.GetSimpleVoertuigDataById(verhuurVerzoek.VoertuigId);
             VolledigeDataDto volledigeDataDto = VerhuurVerzoekMapper.ToVolledigeDataDto(verhuurVerzoek, fullName, voertuigDto);
             return volledigeDataDto;
         }

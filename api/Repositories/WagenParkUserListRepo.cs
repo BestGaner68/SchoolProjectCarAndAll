@@ -63,7 +63,7 @@ public class WagenParkUserListRepo : IWagenParkUserListService
         var wagenParkOverzichtDtos = new List<WagenParkOverzichtDto>();
         foreach (var reservering in reserveringenBinnenWagenPark)
         {
-            var voertuigData = await _voertuigService.GetAllVoertuigDataById(reservering.VoertuigId);
+            var voertuigData = await _voertuigService.GetSimpleVoertuigDataById(reservering.VoertuigId);
             var appUser = await _context.Users.FindAsync(reservering.AppUserId);
             var voertuigStatus = await _voertuigService.GetStatus(reservering.VoertuigId);
             if (voertuigData != null && appUser != null)
