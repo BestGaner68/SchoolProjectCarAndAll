@@ -181,7 +181,7 @@ namespace api.Controllers
         }
 
         [HttpGet("getUserData")]
-        [Authorize]  // Zorg ervoor dat alleen geauthenticeerde gebruikers deze route kunnen aanroepen
+        [Authorize] 
         public async Task<IActionResult> GetUserData()
         {
             try

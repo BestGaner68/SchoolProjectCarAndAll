@@ -26,10 +26,17 @@ namespace api.Controllers
             _wagenparkService = wagenparkService;
         }
 
-        [HttpGet("GetAllAbonnementen")]
-        public async Task<IActionResult> GetAllAbonnementen()
+        [HttpGet("GetUserAbonnementen")]
+        public async Task<IActionResult> GetAllUserAbonnementen()
         {
-            var abonnementen = await _abonnementService.GetAllAbonnementen();
+            var abonnementen = await _abonnementService.GetAllUserAbonnementen();
+            return Ok(abonnementen);
+        }
+
+        [HttpGet("GetWagenparkBeheerderAbonnementen")]
+        public async Task<IActionResult> GetWagenparkBeheerderAbonnementen()
+        {
+            var abonnementen = await _abonnementService.GetAllWagenparkBeheerderAbonnementen();
             return Ok(abonnementen);
         }
 
