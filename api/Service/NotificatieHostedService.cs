@@ -41,7 +41,7 @@ namespace api.Service
                 {
                     _logger.LogError(ex, "An error occurred in NotificationHostedService.");
                 }
-                await Task.Delay(TimeSpan.FromHours(24), stoppingToken);
+                await Task.Delay(TimeSpan.FromHours(12), stoppingToken);
             }
         }
 

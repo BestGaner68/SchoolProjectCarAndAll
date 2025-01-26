@@ -29,8 +29,19 @@ public class WagenParkUserListRepo : IWagenParkUserListService
 
     public async Task<WagenPark> GetWagenParkByAppUserEmail(string email)
     {
-        var wagenparkuserlist = await _context.WagenParkUserLists.Where(x => x.EmailAddress.Equals(email)).FirstOrDefaultAsync() ?? throw new ArgumentException ("Geen WagenParkUserList gevonden bij deze gebruiker??");
-        var gevondenWagenPark = await _context.Wagenpark.FindAsync(wagenparkuserlist.WagenParkId) ?? throw new ArgumentException ("Geen WagenPark gevonden bij deze gebruiker??");
+        var wagenparkuserlist = await _context.WagenParkUserLists
+            .Where(x => x.EmailAddress.ToLower().Equals(email.ToLower()))
+            .FirstOrDefaultAsync()
+            ?? throw new ArgumentException ("Geen WagenParkUserList gevonden bij deze gebruiker123??");
+
+        if (string.IsNullOrEmpty(email))
+        {
+            throw new ArgumentException("Email address cannot be null or empty.");
+        }
+        
+        var gevondenWagenPark = await _context.Wagenpark.FindAsync(wagenparkuserlist.WagenParkId) 
+            ?? throw new ArgumentException ("Geen WagenPark gevonden bij deze gebruiker??");
+
         return gevondenWagenPark;
     }
 
@@ -79,12 +90,18 @@ public class WagenParkUserListRepo : IWagenParkUserListService
 
     public async Task<bool> StuurInvite(string email, string WagenParkBeheerderId)
     {
-        var FoundWagenPark = await GetWagenParkByAppUserEmail(WagenParkBeheerderId);
+        var FoundWagenPark = await _context.Wagenpark.Where(x => x.AppUser.Id == WagenParkBeheerderId).FirstOrDefaultAsync();
         if (FoundWagenPark == null)
         {
             return false;
         }
-    
+        var dubbelUserInvite = await _context.WagenParkUserLists.Where(x => x.EmailAddress == email && x.WagenParkId == FoundWagenPark.WagenParkId).FirstOrDefaultAsync();
+        if (!(dubbelUserInvite == null))
+        {
+            throw new Exception("Gebruiker is al toegevoegt");
+        }
+
+
         WagenParkUserList TempWagenParkUserList = new()
         {
             EmailAddress = email,
@@ -109,16 +126,29 @@ public class WagenParkUserListRepo : IWagenParkUserListService
         await UpdateUserStatus(AppUserId, WagenParkUserListStatussen.Verwijderd);
         //doe hier nog iets mee bij het maken van een verzoek
     }
+    
+    public async Task<bool>PrimeUserInWagenParkUserList(string AppUserId, string NieuwStatus, string userEmail, int wagenparkId)
+    {
+        var result =await _context.WagenParkUserLists.Where(x => x.WagenParkId == wagenparkId && x.EmailAddress == userEmail).FirstOrDefaultAsync();
+        if (result == null){
+            return false;
+        }
+        result.AppUserId = AppUserId;
+        result.Status = NieuwStatus;
+        await _context.SaveChangesAsync();
+        return true;
+    }
+
 
     public async Task<bool>UpdateUserStatus(string AppUserId, string NieuwStatus)
     {
-            var result = await _context.WagenParkUserLists.Where(x => x.AppUserId == AppUserId).FirstOrDefaultAsync();
-            if (result == null){
-                return false;
-            }
-            result.Status = NieuwStatus;
-            await _context.SaveChangesAsync();
-            return true;
+        var result =await _context.WagenParkUserLists.Where(x => x.AppUserId == AppUserId).FirstOrDefaultAsync();
+        if (result == null){
+            return false;
+        }
+        result.Status = NieuwStatus;
+        await _context.SaveChangesAsync();
+        return true;
     }
 
     public async Task<WagenPark> GetWagenParkByAppUserId(string appUserId)

@@ -130,7 +130,7 @@ namespace api.Controllers
         }
 
         [HttpPut("BehandelSchadeMelding")]
-        public async Task<IActionResult> BehandelSchadeMelding (SchadeMeldingBehandelDto schadeMeldingBehandelDto)
+        public async Task<IActionResult> BehandelSchadeMelding ([FromBody]SchadeMeldingBehandelDto schadeMeldingBehandelDto)
         {
             if (!ModelState.IsValid){
                 return BadRequest(new {message = "ongeldige invoer"});
@@ -143,7 +143,7 @@ namespace api.Controllers
         }
 
         [HttpPut("MeldSchade")]
-        public async Task<IActionResult> MeldSchade(MeldSchadeDto meldSchadeDto) 
+        public async Task<IActionResult> MeldSchade([FromBody]MeldSchadeDto meldSchadeDto) 
         {
             var result = await _reserveringService.MeldSchadeVanuitVoertuigId(meldSchadeDto.VoertuigId, meldSchadeDto.Schade, meldSchadeDto.SchadeFoto);
             if (!result)
