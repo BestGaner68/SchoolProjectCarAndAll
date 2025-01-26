@@ -9,7 +9,8 @@ namespace api.Dtos.VoertuigDtos
     public class SchadeMeldingBehandelDto
     {
         [Required]
-        public int SchadeFormulierId;
-        public string ReparatieOpmerking = string.Empty;
+        public int SchadeFormulierId {get; set;}
+        [Required]
+        public string ReparatieOpmerking {get; set;}= string.Empty;
     }
 }
