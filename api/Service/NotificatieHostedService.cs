@@ -138,7 +138,6 @@ namespace api.Service
             var now = DateTime.UtcNow.Date; 
             var reminderThreshold = now.AddDays(1); 
             var upcomingReserveringen = await _context.Reservering
-                .Include(r => r.AppUserId) 
                 .Where(r => r.StartDatum.Date == reminderThreshold && r.Status == ReserveringStatussen.ReadyForPickUp)
                 .ToListAsync(stoppingToken);
 

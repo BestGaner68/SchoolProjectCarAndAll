@@ -19,18 +19,37 @@ namespace api.Controllers
     public class ReserveringController : ControllerBase
     {
         private readonly IReserveringService _reserveringService;
-        public ReserveringController(IReserveringService reserveringService, IWagenparkService wagenparkService){
+        private readonly IKostenService _kostenService; 
+        public ReserveringController(IReserveringService reserveringService, IKostenService kostenService){
             _reserveringService = reserveringService;
+            _kostenService = kostenService; 
         }
 
         [HttpPost("KeurVerzoekGoed/{verzoekId}")]
-        public async Task<IActionResult> KeurVerzoekGoed ([FromRoute]int verzoekId){
-            var result = await _reserveringService.AcceptVerhuurVerzoek(verzoekId);
-            if (!result){
-                return NotFound("Er is geen verhuurverzoek gevonden of een andere fout opgetreden");
+        public async Task<IActionResult> KeurVerzoekGoed([FromRoute] int verzoekId)
+        {
+            try
+            {
+                var appUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var result = await _reserveringService.AcceptVerhuurVerzoek(verzoekId);
+                if (!result)
+                {
+                    return NotFound("Er is geen verhuurverzoek gevonden of een andere fout opgetreden");
+                }
+                return Ok("Verzoek is succesvol goedgekeurt.");
             }
-            return Ok("VerhuurVerzoek is goedgekeurt en toegevoegt aan de reserveringen tabel");
-
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Er is een interne fout opgetreden", details = ex.Message });
+            }
         }
         [HttpPost("keurVerzoekAf/{verzoekId}")]
         public async Task<IActionResult> KeurVerzoekAf ([FromRoute]int verzoekId){

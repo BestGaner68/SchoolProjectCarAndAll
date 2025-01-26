@@ -22,5 +22,6 @@ namespace api.Interfaces
         Task<HuurGeschiedenisDto> GetHuurGeschiedenis(Reservering reservering); //Methode pakt alle relevante data uit de Db
         Task<bool> WijzigReservering(WijzigReserveringDto wijzigReserveringDto);
         Task<bool> VerwijderReservering(int reserveringId);
+        Task <Reservering?>GetReserveringById(int reserveringId);
     }
 }

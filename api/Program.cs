@@ -115,6 +115,8 @@ builder.Services.AddScoped<IDoubleDataCheckerRepo, DoubleDataCheckerRepo>();
 builder.Services.AddScoped<IReserveringService, ReserveringRepo>();
 builder.Services.AddScoped<IAbonnementService, AbonnementServiceRepo>();
 builder.Services.AddScoped<IEmailService, EmailRepo>();
+builder.Services.AddScoped<IKostenService, KostenRepo>();
+builder.Services.AddScoped<IFactuurService, FactuurRepo>();
 
 var app = builder.Build();
 

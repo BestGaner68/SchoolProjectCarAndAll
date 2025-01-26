@@ -17,12 +17,14 @@ public class WagenParkUserListRepo : IWagenParkUserListService
     private readonly ApplicationDbContext _context;
     private readonly UserManager<AppUser> _userManager;
     private readonly IVoertuigService _voertuigService;
+    private readonly IEmailService _emailService;
 
-        public WagenParkUserListRepo(ApplicationDbContext context, UserManager<AppUser> usermanger, IVoertuigService voertuigService)
+        public WagenParkUserListRepo(ApplicationDbContext context, UserManager<AppUser> usermanger, IVoertuigService voertuigService, IEmailService emailService)
         {
             _context = context;
             _userManager = usermanger;
             _voertuigService = voertuigService;
+            _emailService = emailService;
         }
 
     public async Task<WagenPark> GetWagenParkByAppUserEmail(string email)
@@ -82,15 +84,26 @@ public class WagenParkUserListRepo : IWagenParkUserListService
         {
             return false;
         }
-        WagenParkUserList TempWagenParkUserList = new(){
+    
+        WagenParkUserList TempWagenParkUserList = new()
+        {
             EmailAddress = email,
             WagenPark = FoundWagenPark,
             Status = WagenParkUserListStatussen.Uitgenodigt
         };
         await _context.WagenParkUserLists.AddAsync(TempWagenParkUserList);
+        await _context.SaveChangesAsync();
+    
+        var emailMetaData = new EmailMetaData
+        {
+            ToAddress = email,
+            Subject = "Uitnodiging voor deelname aan WagenPark",
+            Body = EmailTemplates.GetUitnodigingVoorWagenparkBody(FoundWagenPark.Bedrijfsnaam)
+        };
+        await _emailService.SendEmail(emailMetaData);
+    
         return true;
     }
-
     public async Task VerwijderGebruiker(string AppUserId)
     {
         await UpdateUserStatus(AppUserId, WagenParkUserListStatussen.Verwijderd);
