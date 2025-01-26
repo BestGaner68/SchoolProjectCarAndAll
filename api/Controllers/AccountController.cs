@@ -190,20 +190,12 @@ namespace api.Controllers
                 if (string.IsNullOrEmpty(AppUserId))
                 {
                     return Unauthorized(new {message = "JWT Token is niet meer in gebruik"});
-                }
-
-                if (string.IsNullOrEmpty(AppUserId))
-                {
-                    return Unauthorized("No userID found in token.");
-                }
-                
+                }     
                 var appUser = await _userManager.FindByIdAsync(AppUserId);
-
                 if (appUser == null)
                 {
                     return NotFound("User not found");
                 }
-            
                 var dto = new UserDataDto
                 {
                     Username = appUser.UserName,

@@ -111,6 +111,9 @@ namespace api.Repositories
                 throw new InvalidOperationException($"Er is iets misgegaan bij het aanmaken van de gebruiker: {errors}");
             }
 
+            var result2 = await _userManager.AddToRoleAsync(newUser, Rollen.WagenparkBeheerder);
+            await _context.SaveChangesAsync();
+
             var welcomeEmailMetaData = new EmailMetaData
             {
                 ToAddress = verzoek.Email,
