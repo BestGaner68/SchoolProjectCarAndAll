@@ -112,10 +112,6 @@ namespace api.Repositories
             }
         }
 
-
-
-
-
         public async Task<List<Reservering>> GetAll()
         {
            var result = await _context.Reservering.ToListAsync();
@@ -234,6 +230,11 @@ namespace api.Repositories
             await _context.SaveChangesAsync();
 
             return true; 
+        }
+
+        public async Task<Reservering?> GetReserveringById(int reserveringId)
+        {
+            return await _context.Reservering.FindAsync(reserveringId) ?? null;
         }
     }
 }

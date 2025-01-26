@@ -68,5 +68,18 @@ namespace api.DataStructureClasses
                    "Volg de veiligheidsinstructies en zorg ervoor dat u alle benodigde documenten meeneemt.\n\n" +
                    "Met vriendelijke groet,\nHet Team";
         }
+
+        public static string GetUitnodigingVoorWagenparkBody(string wagenParkNaam)
+        {
+            return
+            $"Uitnodiging voor WagenPark {wagenParkNaam}" +
+
+            "Beste gebruiker," +
+
+            $"U bent uitgenodigd om deel te nemen aan het WagenPark {wagenParkNaam}." +
+            $"U kunt via onze website een zakelijk account om toegang te krijgen tot het wagen" +
+            "Met vriendelijke groet, " + 
+            "Het team van CarAndAll";
+        }
     }
 }

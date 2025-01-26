@@ -15,6 +15,8 @@ namespace api.Dtos.ReserveringenEnSchade
         public bool IsSchade { get; set; }
         [RequiredIfSchade]
         public string? Schade {get; set;}
+        [Required]
+        public int GeredenKilometers {get; set;}
         public IFormFile? BeschrijvingFoto {get; set;}
     }
 }

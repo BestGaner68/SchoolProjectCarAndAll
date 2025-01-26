@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using api.Data;
 using api.DataStructureClasses;
+using api.Dtos.KostenDtos;
 using api.Interfaces;
 using api.Models;
 using Microsoft.EntityFrameworkCore;
@@ -14,15 +15,13 @@ namespace api.Repositories
     {
         private readonly ApplicationDbContext _context;
         private readonly IAbonnementService _abonnementService;
-        private readonly int PrijsPerDag = 15;
-        private readonly int SchadePrijs = 80;
         public KostenRepo(ApplicationDbContext context, IAbonnementService abonnementService)
         {
             _context = context;
             _abonnementService = abonnementService;
         }
 
-        public async Task<decimal> BerekenVoorschot(int reserveringId, string appuserId)
+        public async Task<PrijsOverzichtDto> BerekenVoorschot(int reserveringId, string appuserId)
         {
             var abonnement = await _abonnementService.GetUserAbonnement(appuserId);
             if (abonnement.IsStandaard)
@@ -36,7 +35,7 @@ namespace api.Repositories
             return await BerekenVoorschotPrijsZakelijk(reserveringId, abonnement);
         }
 
-        public async Task<decimal> BerekenDaadWerkelijkPrijs(int reserveringId, int KilometersGereden, bool isSchade, string appuserId)
+        public async Task<PrijsOverzichtDto> BerekenDaadWerkelijkPrijs(int reserveringId, int KilometersGereden, bool isSchade, string appuserId)
         {
             var abonnement = await _abonnementService.GetUserAbonnement(appuserId);
             if (abonnement.IsStandaard)
@@ -50,7 +49,7 @@ namespace api.Repositories
             return await BerekenDaadwerkelijkePrijsZakelijk(reserveringId, KilometersGereden, isSchade, abonnement);
         }
 
-        public async Task<decimal> BerekenVoorschotPrijsZakelijk(int reserveringId, Abonnement abonnement)
+        public async Task<PrijsOverzichtDto> BerekenVoorschotPrijsZakelijk(int reserveringId, Abonnement abonnement)
         {
             var reservering = await _context.Reservering
                 .FirstOrDefaultAsync(r => r.ReserveringId == reserveringId)
@@ -65,7 +64,7 @@ namespace api.Repositories
             return GetPrijsOpBasisVanAbonnementZakelijk(abonnement, reservering.VerwachtteKM, rentalDuration, voertuigData.KilometerPrijs, false);
         }
 
-        public async Task<decimal> BerekenDaadwerkelijkePrijsZakelijk(int reserveringId, decimal kilometersDriven, bool isSchade, Abonnement abonnement)
+        public async Task<PrijsOverzichtDto> BerekenDaadwerkelijkePrijsZakelijk(int reserveringId, decimal kilometersDriven, bool isSchade, Abonnement abonnement)
         {
             var reservering = await _context.Reservering
                 .FirstOrDefaultAsync(r => r.ReserveringId == reserveringId)
@@ -77,12 +76,12 @@ namespace api.Repositories
 
             var rentalDuration = (reservering.EindDatum - reservering.StartDatum).Days;
             var additionalKilometerCharge = kilometersDriven * voertuigStatus.KilometerPrijs;
-            decimal actualPrice = GetPrijsOpBasisVanAbonnementZakelijk(abonnement, kilometersDriven, rentalDuration, voertuigStatus.KilometerPrijs, isSchade);
+            var PrijsOverzicht = GetPrijsOpBasisVanAbonnementZakelijk(abonnement, kilometersDriven, rentalDuration, voertuigStatus.KilometerPrijs, isSchade);
 
-            return actualPrice;
+            return PrijsOverzicht;
         }
 
-        public async Task<decimal> BerekenVoorschotPrijsParticulier(int reserveringId, Abonnement abonnement)
+        public async Task<PrijsOverzichtDto> BerekenVoorschotPrijsParticulier(int reserveringId, Abonnement abonnement)
         {
             var reservering = await _context.Reservering
                 .FirstOrDefaultAsync(r => r.ReserveringId == reserveringId)
@@ -103,7 +102,7 @@ namespace api.Repositories
             );
         }
 
-        public async Task<decimal> BerekenDaadwerkelijkePrijsParticulier(int reserveringId, decimal kilometersDriven, bool isSchade, Abonnement abonnement)
+        public async Task<PrijsOverzichtDto> BerekenDaadwerkelijkePrijsParticulier(int reserveringId, decimal kilometersDriven, bool isSchade, Abonnement abonnement)
         {
             var reservering = await _context.Reservering
                 .FirstOrDefaultAsync(r => r.ReserveringId == reserveringId)
@@ -124,18 +123,18 @@ namespace api.Repositories
             );
         }
 
-        public async Task <decimal> BerekenPayAsYouGo(int reserveringId, bool IsSchade)
+        public async Task <PrijsOverzichtDto> BerekenPayAsYouGo(int reserveringId, bool IsSchade)
         {
             var CurrentReservering = await _context.Reservering.FindAsync(reserveringId) 
-                ?? throw new ArgumentException("");
+                ?? throw new ArgumentException("hier probleem");
 
             var rentalDuration = (CurrentReservering.EindDatum - CurrentReservering.StartDatum).Days;
-            var voertuigData = await _context.VoertuigData.FindAsync(CurrentReservering.VoertuigId)
-                ?? throw new ArgumentException("");
+            var voertuigData = await _context.VoertuigData.Where(x => x.VoertuigId == CurrentReservering.VoertuigId).FirstOrDefaultAsync()
+                ?? throw new ArgumentException("toch hier probleem");
             return ApplyPayAsYouGoPricing(CurrentReservering.VerwachtteKM, rentalDuration, voertuigData.KilometerPrijs, IsSchade);
         }
 
-        private static decimal GetPrijsOpBasisVanAbonnementParticulier(Abonnement abonnement, decimal kilometersDriven, int rentalDuration, decimal kilometerPrijs, bool isSchade)
+        private static PrijsOverzichtDto GetPrijsOpBasisVanAbonnementParticulier(Abonnement abonnement, decimal kilometersDriven, int rentalDuration, decimal kilometerPrijs, bool isSchade)
         {
             return abonnement.Naam switch
             {
@@ -147,82 +146,153 @@ namespace api.Repositories
             };
         }
 
-        private static decimal ApplyPayAsYouGoPricing(decimal kilometersDriven, int rentalDuration, decimal kilometerPrijs, bool isSchade)
+        private static PrijsOverzichtDto ApplyPayAsYouGoPricing(decimal kilometersDriven, int rentalDuration, decimal kilometerPrijs, bool isSchade)
         {
             decimal maxDailyKm = 50;
             decimal surchargePerKm = 0.25m;
             decimal dailyRate = 30m;
             decimal basePrice = dailyRate * rentalDuration + kilometersDriven * kilometerPrijs;
+            decimal surcharge = 0m;
+            decimal damageFee = 0m;
             decimal averageDailyKm = kilometersDriven / rentalDuration;
+        
             if (averageDailyKm > maxDailyKm)
             {
-                basePrice += (averageDailyKm - maxDailyKm) * surchargePerKm * rentalDuration;
+                surcharge = (averageDailyKm - maxDailyKm) * surchargePerKm * rentalDuration;
+                basePrice += surcharge;
             }
             if (isSchade)
             {
-                basePrice += 100m;
+                damageFee = 100m;
+                basePrice += damageFee;
             }
-            return basePrice;
+        
+            var prijsOverzicht = new PrijsOverzichtDto
+            {
+                TotalePrijs = basePrice,
+                PrijsDetails = new List<PrijsOnderdeelDto>
+                {
+                    new() { Beschrijving = $"Dagkosten = {dailyRate} * {rentalDuration} dagen", Amount = dailyRate * rentalDuration },
+                    new() { Beschrijving = $"Kilometer Kosten = {kilometersDriven} km * {kilometerPrijs} per km", Amount = kilometersDriven * kilometerPrijs },
+                    new() { Beschrijving = $"Toeslag (overtollige km) = ({averageDailyKm} km/dag - {maxDailyKm} km/dag) * {surchargePerKm} per km * {rentalDuration} dagen", Amount = surcharge },
+                    new() { Beschrijving = $"Schadevergoeding = {damageFee} (indien schade)", Amount = damageFee }
+                }
+            };
+        
+            return prijsOverzicht;
         }
 
-        private static decimal ApplyBasicPricing(decimal kilometersDriven, int rentalDuration, decimal kilometerPrijs, bool isSchade)
+        private static PrijsOverzichtDto ApplyBasicPricing(decimal kilometersDriven, int rentalDuration, decimal kilometerPrijs, bool isSchade)
         {
             decimal maxDailyKm = 75;
             decimal surchargePerKm = 0.20m;
             decimal dailyRate = 25m;
             decimal basePrice = dailyRate * rentalDuration + kilometersDriven * kilometerPrijs;
+            decimal surcharge = 0m;
+            decimal damageFee = 0m;
             decimal averageDailyKm = kilometersDriven / rentalDuration;
+        
             if (averageDailyKm > maxDailyKm)
             {
-                basePrice += (averageDailyKm - maxDailyKm) * surchargePerKm * rentalDuration;
+                surcharge = (averageDailyKm - maxDailyKm) * surchargePerKm * rentalDuration;
+                basePrice += surcharge;
             }
             if (isSchade)
             {
-                basePrice += 80m;
+                damageFee = 80m;
+                basePrice += damageFee;
             }
-            return basePrice;
+        
+            var prijsOverzicht = new PrijsOverzichtDto
+            {
+                TotalePrijs = basePrice,
+                PrijsDetails = new List<PrijsOnderdeelDto>
+                {
+                    new() { Beschrijving = $"Dagkosten = {dailyRate} * {rentalDuration} dagen", Amount = dailyRate * rentalDuration },
+                    new() { Beschrijving = $"Kilometer Kosten = {kilometersDriven} km * {kilometerPrijs} per km", Amount = kilometersDriven * kilometerPrijs },
+                    new() { Beschrijving = $"Toeslag (overtollige km) = ({averageDailyKm} km/dag - {maxDailyKm} km/dag) * {surchargePerKm} per km * {rentalDuration} dagen", Amount = surcharge },
+                    new() { Beschrijving = $"Schadevergoeding = {damageFee} (indien schade)", Amount = damageFee }
+                }
+            };
+        
+            return prijsOverzicht;
         }
 
-        private static decimal ApplyProfessionalPricing(decimal kilometersDriven, int rentalDuration, decimal kilometerPrijs, bool isSchade)
+        private static PrijsOverzichtDto ApplyPremiumPricing(decimal kilometersDriven, int rentalDuration, decimal kilometerPrijs, bool isSchade)
+        {
+            decimal maxDailyKm = 150;
+            decimal surchargePerKm = 0.10m;
+            decimal dailyRate = 15m;
+            decimal basePrice = dailyRate * rentalDuration + kilometersDriven * kilometerPrijs;
+            decimal surcharge = 0m;
+            decimal damageFee = 0m;
+            decimal averageDailyKm = kilometersDriven / rentalDuration;
+
+            if (averageDailyKm > maxDailyKm)
+            {
+                surcharge = (averageDailyKm - maxDailyKm) * surchargePerKm * rentalDuration;
+                basePrice += surcharge;
+            }
+
+            basePrice *= 0.8m; 
+            if (isSchade)
+            {
+                damageFee = 0m; 
+            }
+
+            var prijsOverzicht = new PrijsOverzichtDto
+            {
+                TotalePrijs = basePrice,
+                PrijsDetails = new List<PrijsOnderdeelDto>
+                {
+                    new() { Beschrijving = $"Dagkosten = {dailyRate} * {rentalDuration} dagen", Amount = dailyRate * rentalDuration },
+                    new() { Beschrijving = $"Kilometer Kosten = {kilometersDriven} km * {kilometerPrijs} per km", Amount = kilometersDriven * kilometerPrijs },
+                    new() { Beschrijving = $"Toeslag (overtollige km) = ({averageDailyKm} km/dag - {maxDailyKm} km/dag) * {surchargePerKm} per km * {rentalDuration} dagen", Amount = surcharge },
+                    new() { Beschrijving = $"Korting voor Premium = -({basePrice * 0.2m})", Amount = -(basePrice * 0.2m) },
+                    new() { Beschrijving = $"Schadevergoeding = {damageFee} (indien schade)", Amount = damageFee }
+                }
+            };
+
+            return prijsOverzicht;
+        }
+
+        private static PrijsOverzichtDto ApplyProfessionalPricing(decimal kilometersDriven, int rentalDuration, decimal kilometerPrijs, bool isSchade)
         {
             decimal maxDailyKm = 100;
             decimal surchargePerKm = 0.15m;
             decimal dailyRate = 20m;
             decimal basePrice = dailyRate * rentalDuration + kilometersDriven * kilometerPrijs;
+            decimal surcharge = 0m;
+            decimal damageFee = 0m;
             decimal averageDailyKm = kilometersDriven / rentalDuration;
             if (averageDailyKm > maxDailyKm)
             {
-                basePrice += (averageDailyKm - maxDailyKm) * surchargePerKm * rentalDuration;
+                surcharge = (averageDailyKm - maxDailyKm) * surchargePerKm * rentalDuration;
+                basePrice += surcharge;
             }
-            basePrice *= 0.9m;
+            basePrice *= 0.9m; 
             if (isSchade)
             {
-                basePrice += 50m; 
+                damageFee = 50m; 
+                basePrice += damageFee;
             }
-            return basePrice;
+            var prijsOverzicht = new PrijsOverzichtDto
+            {
+                TotalePrijs = basePrice,
+                PrijsDetails = new List<PrijsOnderdeelDto>
+                {
+                    new() { Beschrijving = $"Dagkosten = {dailyRate} * {rentalDuration} dagen", Amount = dailyRate * rentalDuration },
+                    new() { Beschrijving = $"Kilometer Kosten = {kilometersDriven} km * {kilometerPrijs} per km", Amount = kilometersDriven * kilometerPrijs },
+                    new() { Beschrijving = $"Toeslag (overtollige km) = ({averageDailyKm} km/dag - {maxDailyKm} km/dag) * {surchargePerKm} per km * {rentalDuration} dagen", Amount = surcharge },
+                    new() { Beschrijving = $"Korting voor Professioneel = -({basePrice * 0.1m})", Amount = -(basePrice * 0.1m) },
+                    new() { Beschrijving = $"Schadevergoeding = {damageFee} (indien schade)", Amount = damageFee }
+                }
+            };
+
+            return prijsOverzicht;
         }
 
-        private static decimal ApplyPremiumPricing(decimal kilometersDriven, int rentalDuration, decimal kilometerPrijs, bool isSchade)
-        {
-            decimal maxDailyKm = 150;
-            decimal surchargePerKm = 0.10m;
-            decimal dailyRate = 15m;
-
-            decimal basePrice = dailyRate * rentalDuration + kilometersDriven * kilometerPrijs;
-            decimal averageDailyKm = kilometersDriven / rentalDuration;
-            if (averageDailyKm > maxDailyKm)
-            {
-                basePrice += (averageDailyKm - maxDailyKm) * surchargePerKm * rentalDuration;
-            }
-            basePrice *= 0.8m; 
-            if (isSchade)
-            {
-                basePrice += 0m;
-            }
-            return basePrice;
-        }
-
-        private static decimal GetPrijsOpBasisVanAbonnementZakelijk(Abonnement abonnement, decimal kilometersDriven, int rentalDuration, decimal kilometerPrijs, bool isSchade)
+        private static PrijsOverzichtDto GetPrijsOpBasisVanAbonnementZakelijk(Abonnement abonnement, decimal kilometersDriven, int rentalDuration, decimal kilometerPrijs, bool isSchade)
         {
             return abonnement.Naam switch
             {
@@ -232,41 +302,76 @@ namespace api.Repositories
             };
         }
 
-        private static decimal ApplyWagenparkBasicPricing(decimal kilometersDriven, int rentalDuration, decimal kilometerPrijs, bool isSchade)
+        private static PrijsOverzichtDto ApplyWagenparkBasicPricing(decimal kilometersDriven, int rentalDuration, decimal kilometerPrijs, bool isSchade)
         {
-            decimal maxDailyKm = 100; 
-            decimal surchargePerKm = 0.18m; 
-            decimal dailyRate = 50m; 
+            decimal maxDailyKm = 100;
+            decimal surchargePerKm = 0.18m;
+            decimal dailyRate = 50m;
             decimal basePrice = dailyRate * rentalDuration + kilometersDriven * kilometerPrijs;
+            decimal surcharge = 0m;
+            decimal damageFee = 0m;
             decimal averageDailyKm = kilometersDriven / rentalDuration;
+
             if (averageDailyKm > maxDailyKm)
             {
-                basePrice += (averageDailyKm - maxDailyKm) * surchargePerKm * rentalDuration;
+                surcharge = (averageDailyKm - maxDailyKm) * surchargePerKm * rentalDuration;
+                basePrice += surcharge;
             }
+
             if (isSchade)
             {
-                basePrice += 150m; 
+                damageFee = 150m; 
+                basePrice += damageFee;
             }
-            return basePrice;
+
+            var prijsOverzicht = new PrijsOverzichtDto
+            {
+                TotalePrijs = basePrice,
+                PrijsDetails = new List<PrijsOnderdeelDto>
+                {
+                    new() { Beschrijving = $"Dagkosten = {dailyRate} * {rentalDuration} dagen", Amount = dailyRate * rentalDuration },
+                    new() { Beschrijving = $"Kilometer Kosten = {kilometersDriven} km * {kilometerPrijs} per km", Amount = kilometersDriven * kilometerPrijs },
+                    new() { Beschrijving = $"Toeslag (overtollige km) = ({averageDailyKm} km/dag - {maxDailyKm} km/dag) * {surchargePerKm} per km * {rentalDuration} dagen", Amount = surcharge },
+                    new() { Beschrijving = $"Schadevergoeding = {damageFee} (indien schade)", Amount = damageFee }
+                }
+            };
+
+            return prijsOverzicht;
         }
 
-        private static decimal ApplyWagenparkPremiumPricing(decimal kilometersDriven, int rentalDuration, decimal kilometerPrijs, bool isSchade)
+        private static PrijsOverzichtDto ApplyWagenparkPremiumPricing(decimal kilometersDriven, int rentalDuration, decimal kilometerPrijs, bool isSchade)
         {
-            decimal maxDailyKm = 150; 
-            decimal surchargePerKm = 0.10m; 
-            decimal dailyRate = 75m; 
+            decimal maxDailyKm = 150;
+            decimal surchargePerKm = 0.10m;
+            decimal dailyRate = 75m;
             decimal basePrice = dailyRate * rentalDuration + kilometersDriven * kilometerPrijs;
+            decimal surcharge = 0m;
+            decimal damageFee = 0m;
             decimal averageDailyKm = kilometersDriven / rentalDuration;
             if (averageDailyKm > maxDailyKm)
             {
-                basePrice += (averageDailyKm - maxDailyKm) * surchargePerKm * rentalDuration;
+                surcharge = (averageDailyKm - maxDailyKm) * surchargePerKm * rentalDuration;
+                basePrice += surcharge;
             }
             basePrice *= 0.85m; 
             if (isSchade)
             {
-                basePrice += 200m; 
+                damageFee = 200m; 
+                basePrice += damageFee;
             }
-            return basePrice;
+            var prijsOverzicht = new PrijsOverzichtDto
+            {
+                TotalePrijs = basePrice,
+                PrijsDetails = new List<PrijsOnderdeelDto>
+                {
+                    new() { Beschrijving = $"Dagkosten = {dailyRate} * {rentalDuration} dagen", Amount = dailyRate * rentalDuration },
+                    new() { Beschrijving = $"Kilometer Kosten = {kilometersDriven} km * {kilometerPrijs} per km", Amount = kilometersDriven * kilometerPrijs },
+                    new() { Beschrijving = $"Toeslag (overtollige km) = ({averageDailyKm} km/dag - {maxDailyKm} km/dag) * {surchargePerKm} per km * {rentalDuration} dagen", Amount = surcharge },
+                    new() { Beschrijving = $"Korting voor Premium = -({basePrice * 0.15m})", Amount = -(basePrice * 0.15m) },
+                    new() { Beschrijving = $"Schadevergoeding = {damageFee} (indien schade)", Amount = damageFee }
+                }
+            };
+            return prijsOverzicht;
         }
 
 

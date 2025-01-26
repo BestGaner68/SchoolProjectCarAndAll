@@ -15,9 +15,13 @@ namespace api.Controllers
     {
         private readonly IReserveringService _reserveringService;
         private readonly IVoertuigService _voertuigService;
-        public FrontOfficeMedewerkerController(IReserveringService reserveringService, IVoertuigService VoertuigService){
+        private readonly IKostenService _kostenService;
+        private readonly IFactuurService _factuurService;
+        public FrontOfficeMedewerkerController(IReserveringService reserveringService, IVoertuigService VoertuigService, IKostenService kostenService, IFactuurService factuurService){
             _reserveringService = reserveringService;
             _voertuigService = VoertuigService;
+            _kostenService = kostenService;
+            _factuurService = factuurService;
         }
 
         [HttpGet("GetAllVoertuigData/{voertuigId}")]
@@ -45,28 +49,54 @@ namespace api.Controllers
         }
 
         [HttpPut("NeemIn")]
-        public async Task<IActionResult> NeemIn ([FromBody]InnameDto innameDto){
+        public async Task<IActionResult> NeemIn([FromBody] InnameDto innameDto)
+        {
             if (!ModelState.IsValid)
             {
                 return BadRequest("Vul alle verplichte velden in.");
             }
-            
+
+            // Schade verwerken
             if (innameDto.IsSchade)
             {
                 var currentresult = await _reserveringService.MeldSchadeVanuitReservering(innameDto.ReserveringId, innameDto.Schade, innameDto.BeschrijvingFoto);
-                if (!currentresult)    
+                if (!currentresult)
                 {
-                    return BadRequest("Er is iets mis gegaan");
+                    return BadRequest("Er is iets mis gegaan bij het melden van de schade.");
                 }
-                return Ok("Schade succesvol gemeld");
+                return Ok("Schade succesvol gemeld.");
             }
+
+            // Reservering afronden
             var result = await _reserveringService.NeemIn(innameDto.ReserveringId);
             if (!result)
             {
-                return BadRequest("Er is iets mis gegaan");
+                return BadRequest("Er is iets mis gegaan bij het afronden van de reservering.");
             }
-            return Ok("Reservering is compleet");
-        }
-    
+
+
+            var reservering = await _reserveringService.GetReserveringById(innameDto.ReserveringId);
+            if (reservering == null)
+            {
+                return BadRequest("Reservering niet gevonden.");
+            }
+
+            var prijsOverzicht = await _kostenService.BerekenDaadWerkelijkPrijs(innameDto.ReserveringId, innameDto.GeredenKilometers, innameDto.IsSchade, reservering.AppUserId);
+            if (prijsOverzicht == null)
+            {
+                return BadRequest("Er is iets mis gegaan bij het berekenen van de prijs.");
+            }
+            var AppUserId = reservering.AppUserId;
+            var factuur = await _factuurService.MaakFactuur(reservering, prijsOverzicht, AppUserId);
+
+            // Stuur de factuur per e-mail naar de klant
+            var emailResult = await _factuurService.StuurFactuurPerEmail(factuur);
+            if (!emailResult)
+            {
+                return BadRequest("Er is een fout opgetreden bij het verzenden van de factuur.");
+            }
+
+            return Ok("Reservering is compleet en factuur is verzonden.");
+        }           
     }
 }
