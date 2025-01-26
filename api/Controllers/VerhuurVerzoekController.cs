@@ -71,6 +71,12 @@ namespace api.Controllers
             {
                 return BadRequest(new {message = "Voertuig is momenteel niet in gebruik, controllleer de status of kies een ander voertuig"});
             }
+            var timeDifference = verhuurVerzoekDto.EindDatum - verhuurVerzoekDto.StartDatum;
+
+            if (timeDifference.TotalDays < 2)
+            {
+                return BadRequest($"StartDatum en EindDatum moeten minimaal 24 uur uit elkaar liggen. {timeDifference}");
+            }
 
             var verhuurVerzoekModel = verhuurVerzoekDto.ToVerhuurVerzoekFromDto(userId);
             await _verhuurVerzoekRepo.CreateAsync(verhuurVerzoekModel);

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using api.CustomValidationAttributes;
 
 namespace api.Dtos.Account
 {
@@ -12,8 +13,9 @@ namespace api.Dtos.Account
         public int VoertuigId { get; set; }
     
         [Required(ErrorMessage = "StartDatum is verplicht.")]
+        [Min12HoursAhead]
         public DateTime StartDatum { get; set; }
-    
+
         [Required(ErrorMessage = "EindDatum is verplicht.")]
         public DateTime EindDatum { get; set; }
     

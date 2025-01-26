@@ -59,12 +59,12 @@ namespace api.Repositories
             body.AppendLine($"Factuurnummer: {factuur.Factuurnummer}");
             body.AppendLine($"Datum: {factuur.Datum.ToString("dd-MM-yyyy")}");
             body.AppendLine($"Klant: {factuur.KlantNaam}");
-            body.AppendLine($"Totaalbedrag: {factuur.Bedrag.ToString("C2")}");
+            body.AppendLine($"Totaalbedrag: €{factuur.Bedrag.ToString("0.00")}");
 
             body.AppendLine("\nPrijsdetails:");
             foreach (var detail in factuur.PrijsDetails)
             {
-                body.AppendLine($"{detail.Beschrijving}: {detail.Amount.ToString("C2")}");
+                body.AppendLine($"{detail.Beschrijving}: €{detail.Amount.ToString("0.00")}");
             }
 
             body.AppendLine("\nHartelijk dank voor uw reservering!");

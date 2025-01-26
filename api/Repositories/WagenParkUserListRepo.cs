@@ -29,8 +29,19 @@ public class WagenParkUserListRepo : IWagenParkUserListService
 
     public async Task<WagenPark> GetWagenParkByAppUserEmail(string email)
     {
-        var wagenparkuserlist = await _context.WagenParkUserLists.Where(x => x.EmailAddress.Equals(email)).FirstOrDefaultAsync() ?? throw new ArgumentException ("Geen WagenParkUserList gevonden bij deze gebruiker??");
-        var gevondenWagenPark = await _context.Wagenpark.FindAsync(wagenparkuserlist.WagenParkId) ?? throw new ArgumentException ("Geen WagenPark gevonden bij deze gebruiker??");
+        var wagenparkuserlist = await _context.WagenParkUserLists
+            .Where(x => x.EmailAddress.Equals(email, StringComparison.CurrentCultureIgnoreCase))
+            .FirstOrDefaultAsync()
+            ?? throw new ArgumentException ("Geen WagenParkUserList gevonden bij deze gebruiker??");
+
+        if (string.IsNullOrEmpty(email))
+        {
+            throw new ArgumentException("Email address cannot be null or empty.");
+        }
+        
+        var gevondenWagenPark = await _context.Wagenpark.FindAsync(wagenparkuserlist.WagenParkId) 
+            ?? throw new ArgumentException ("Geen WagenPark gevonden bij deze gebruiker??");
+
         return gevondenWagenPark;
     }
 

@@ -51,52 +51,58 @@ namespace api.Controllers
         [HttpPut("NeemIn")]
         public async Task<IActionResult> NeemIn([FromBody] InnameDto innameDto)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest("Vul alle verplichte velden in.");
-            }
-
-            // Schade verwerken
-            if (innameDto.IsSchade)
-            {
-                var currentresult = await _reserveringService.MeldSchadeVanuitReservering(innameDto.ReserveringId, innameDto.Schade, innameDto.BeschrijvingFoto);
-                if (!currentresult)
+                if (!ModelState.IsValid)
                 {
-                    return BadRequest("Er is iets mis gegaan bij het melden van de schade.");
+                    return BadRequest(ModelState);
                 }
-                return Ok("Schade succesvol gemeld.");
+        
+                if (innameDto.IsSchade)
+                {
+                    var currentresult = await _reserveringService.MeldSchadeVanuitReservering(innameDto.ReserveringId, innameDto.Schade, innameDto.BeschrijvingFoto);
+                    if (!currentresult)
+                    {
+                        return BadRequest("Er is iets mis gegaan bij het melden van de schade.");
+                    }
+                }
+                else
+                {
+                    var result = await _reserveringService.NeemIn(innameDto.ReserveringId);
+                    if (!result)
+                    {
+                        return BadRequest("Er is iets mis gegaan bij het afronden van de reservering.");
+                    }
+                }
+        
+                var reservering = await _reserveringService.GetReserveringById(innameDto.ReserveringId);
+                if (reservering == null)
+                {
+                    return BadRequest("Reservering niet gevonden.");
+                }
+        
+                var prijsOverzicht = await _kostenService.BerekenDaadWerkelijkPrijs(innameDto.ReserveringId, innameDto.GeredenKilometers, innameDto.IsSchade, reservering.AppUserId);
+                if (prijsOverzicht == null)
+                {
+                    return BadRequest("Er is iets mis gegaan bij het berekenen van de prijs.");
+                }
+        
+                var AppUserId = reservering.AppUserId;
+                var factuur = await _factuurService.MaakFactuur(reservering, prijsOverzicht, AppUserId);
+                var emailResult = await _factuurService.StuurFactuurPerEmail(factuur);
+                if (!emailResult)
+                {
+                    return BadRequest("Er is een fout opgetreden bij het verzenden van de factuur.");
+                }
+        
+                return Ok("Reservering is compleet en factuur is verzonden.");
             }
-
-            // Reservering afronden
-            var result = await _reserveringService.NeemIn(innameDto.ReserveringId);
-            if (!result)
+            catch (Exception ex)
             {
-                return BadRequest("Er is iets mis gegaan bij het afronden van de reservering.");
+                Console.WriteLine($"An error occurred: {ex.Message}");
+        
+                return StatusCode(500, "Er is een onverwachte fout opgetreden.");
             }
-
-
-            var reservering = await _reserveringService.GetReserveringById(innameDto.ReserveringId);
-            if (reservering == null)
-            {
-                return BadRequest("Reservering niet gevonden.");
-            }
-
-            var prijsOverzicht = await _kostenService.BerekenDaadWerkelijkPrijs(innameDto.ReserveringId, innameDto.GeredenKilometers, innameDto.IsSchade, reservering.AppUserId);
-            if (prijsOverzicht == null)
-            {
-                return BadRequest("Er is iets mis gegaan bij het berekenen van de prijs.");
-            }
-            var AppUserId = reservering.AppUserId;
-            var factuur = await _factuurService.MaakFactuur(reservering, prijsOverzicht, AppUserId);
-
-            // Stuur de factuur per e-mail naar de klant
-            var emailResult = await _factuurService.StuurFactuurPerEmail(factuur);
-            if (!emailResult)
-            {
-                return BadRequest("Er is een fout opgetreden bij het verzenden van de factuur.");
-            }
-
-            return Ok("Reservering is compleet en factuur is verzonden.");
-        }           
+        }          
     }
 }
