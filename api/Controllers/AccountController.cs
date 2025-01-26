@@ -155,7 +155,7 @@ namespace api.Controllers
                 if (!roleResult.Succeeded)
                     return StatusCode(500, roleResult.Errors);
 
-                var linked = await _wagenparkUserListService.UpdateUserStatus(appUser.Id, WagenParkUserListStatussen.Toegevoegt);
+                var linked = await _wagenparkUserListService.PrimeUserInWagenParkUserList(appUser.Email, WagenParkUserListStatussen.Toegevoegt, appUser.Email, TempWagenPark.WagenParkId);
                 if (!linked)
                 {
                     return BadRequest(new { message = "gebruiker niet toegevoegt aan wagenpark" });

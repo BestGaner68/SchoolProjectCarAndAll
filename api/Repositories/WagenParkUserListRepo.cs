@@ -126,16 +126,29 @@ public class WagenParkUserListRepo : IWagenParkUserListService
         await UpdateUserStatus(AppUserId, WagenParkUserListStatussen.Verwijderd);
         //doe hier nog iets mee bij het maken van een verzoek
     }
+    
+    public async Task<bool>PrimeUserInWagenParkUserList(string AppUserId, string NieuwStatus, string userEmail, int wagenparkId)
+    {
+        var result =await _context.WagenParkUserLists.Where(x => x.WagenParkId == wagenparkId && x.EmailAddress == userEmail).FirstOrDefaultAsync();
+        if (result == null){
+            return false;
+        }
+        result.AppUserId = AppUserId;
+        result.Status = NieuwStatus;
+        await _context.SaveChangesAsync();
+        return true;
+    }
+
 
     public async Task<bool>UpdateUserStatus(string AppUserId, string NieuwStatus)
     {
-            var result = await _context.WagenParkUserLists.Where(x => x.AppUserId == AppUserId).FirstOrDefaultAsync();
-            if (result == null){
-                return false;
-            }
-            result.Status = NieuwStatus;
-            await _context.SaveChangesAsync();
-            return true;
+        var result =await _context.WagenParkUserLists.Where(x => x.AppUserId == AppUserId).FirstOrDefaultAsync();
+        if (result == null){
+            return false;
+        }
+        result.Status = NieuwStatus;
+        await _context.SaveChangesAsync();
+        return true;
     }
 
     public async Task<WagenPark> GetWagenParkByAppUserId(string appUserId)
