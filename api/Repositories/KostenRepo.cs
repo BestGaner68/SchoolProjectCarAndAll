@@ -49,7 +49,7 @@ namespace api.Repositories
             return await BerekenDaadwerkelijkePrijsZakelijk(reserveringId, KilometersGereden, isSchade, abonnement);
         }
 
-        public async Task<PrijsOverzichtDto> BerekenVoorschotPrijsZakelijk(int reserveringId, Abonnement abonnement)
+        private async Task<PrijsOverzichtDto> BerekenVoorschotPrijsZakelijk(int reserveringId, Abonnement abonnement)
         {
             var reservering = await _context.Reservering
                 .FirstOrDefaultAsync(r => r.ReserveringId == reserveringId)
@@ -64,7 +64,7 @@ namespace api.Repositories
             return GetPrijsOpBasisVanAbonnementZakelijk(abonnement, reservering.VerwachtteKM, rentalDuration, voertuigData.KilometerPrijs, false);
         }
 
-        public async Task<PrijsOverzichtDto> BerekenDaadwerkelijkePrijsZakelijk(int reserveringId, decimal kilometersDriven, bool isSchade, Abonnement abonnement)
+        private async Task<PrijsOverzichtDto> BerekenDaadwerkelijkePrijsZakelijk(int reserveringId, decimal kilometersDriven, bool isSchade, Abonnement abonnement)
         {
             var reservering = await _context.Reservering
                 .FirstOrDefaultAsync(r => r.ReserveringId == reserveringId)
@@ -81,7 +81,7 @@ namespace api.Repositories
             return PrijsOverzicht;
         }
 
-        public async Task<PrijsOverzichtDto> BerekenVoorschotPrijsParticulier(int reserveringId, Abonnement abonnement)
+        private async Task<PrijsOverzichtDto> BerekenVoorschotPrijsParticulier(int reserveringId, Abonnement abonnement)
         {
             var reservering = await _context.Reservering
                 .FirstOrDefaultAsync(r => r.ReserveringId == reserveringId)
@@ -102,7 +102,7 @@ namespace api.Repositories
             );
         }
 
-        public async Task<PrijsOverzichtDto> BerekenDaadwerkelijkePrijsParticulier(int reserveringId, decimal kilometersDriven, bool isSchade, Abonnement abonnement)
+        private async Task<PrijsOverzichtDto> BerekenDaadwerkelijkePrijsParticulier(int reserveringId, decimal kilometersDriven, bool isSchade, Abonnement abonnement)
         {
             var reservering = await _context.Reservering
                 .FirstOrDefaultAsync(r => r.ReserveringId == reserveringId)
@@ -123,7 +123,7 @@ namespace api.Repositories
             );
         }
 
-        public async Task <PrijsOverzichtDto> BerekenPayAsYouGo(int reserveringId, bool IsSchade)
+        private async Task <PrijsOverzichtDto> BerekenPayAsYouGo(int reserveringId, bool IsSchade)
         {
             var CurrentReservering = await _context.Reservering.FindAsync(reserveringId) 
                 ?? throw new ArgumentException("hier probleem");

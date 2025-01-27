@@ -1,0 +1,1 @@
+Data Transfer Object die gebruikt worden bij het versturen van data van en naar api endpoints

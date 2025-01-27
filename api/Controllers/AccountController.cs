@@ -26,11 +26,10 @@ namespace api.Controllers
         private readonly SignInManager<AppUser> _signInManager;
         private readonly IWagenparkService _wagenparkService;
         private readonly IWagenParkUserListService _wagenparkUserListService;
-        private readonly IRoleService _roleService;
         private readonly IDoubleDataCheckerRepo _doubleDataCheckerRepo;
         private readonly IAbonnementService _abonnementService;
         public AccountController(UserManager<AppUser> userManager, ITokenService tokenService,
-        SignInManager<AppUser> signInManager, IWagenparkService wagenparkService, IRoleService roleService,
+        SignInManager<AppUser> signInManager, IWagenparkService wagenparkService,
         IWagenParkUserListService wagenParkUserListService,
         IDoubleDataCheckerRepo doubleDataCheckerRepo, IAbonnementService abonnementService)
         {
@@ -38,31 +37,33 @@ namespace api.Controllers
             _tokenService = tokenService;
             _signInManager = signInManager;
             _wagenparkService = wagenparkService;
-            _roleService = roleService;
             _doubleDataCheckerRepo = doubleDataCheckerRepo;
             _wagenparkUserListService = wagenParkUserListService;
             _abonnementService = abonnementService; 
         }
-        
-        [HttpPost("Login")]
-        public async Task<IActionResult> Login(LoginDto loginDto){
-            if(!ModelState.IsValid){
+
+        [HttpPost("Login")] //method voor login
+        public async Task<IActionResult> Login(LoginDto loginDto)
+        {
+            if (!ModelState.IsValid)
+            {
                 return BadRequest(ModelState);
-            };
+            }
 
             var user = await _userManager.Users.FirstOrDefaultAsync(x => x.UserName == loginDto.Username.ToLower());
 
-            if(user == null) return Unauthorized("Invalid Username!");
+            if (user == null) return Unauthorized("Invalid Username!");
 
             var result = await _signInManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
-            
-            if(!result.Succeeded)
+
+            if (!result.Succeeded)
             {
                 return Unauthorized("Username not found or password incorrect");
-            };
+            }
 
             return Ok(
-                new NewUserDto{
+                new NewUserDto
+                {
                     Username = user.UserName,
                     Email = user.Email,
                     Token = _tokenService.CreateToken(user)
@@ -70,12 +71,13 @@ namespace api.Controllers
             );
         }
 
-        [HttpPost("registerParticulier")]
-        public async Task<IActionResult> RegisterParticulier ([FromBody]RegisterDto registerDto){
-            try 
+        [HttpPost("registerParticulier")] //methode voor het registreren van particulieren klanten
+        public async Task<IActionResult> RegisterParticulier([FromBody] RegisterDto registerDto)
+        {
+            try
             {
-                if(!ModelState.IsValid)
-                    return BadRequest (ModelState);
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
 
                 var AppUser = new AppUser
                 {
@@ -88,13 +90,15 @@ namespace api.Controllers
 
                 var createdUser = await _userManager.CreateAsync(AppUser, registerDto.Password);
 
-                if(createdUser.Succeeded){
+                if (createdUser.Succeeded)
+                {
                     var roleResult = await _userManager.AddToRoleAsync(AppUser, "particuliereKlant");
-                    if (roleResult.Succeeded){
+                    if (roleResult.Succeeded)
+                    {
                         var succes = await _abonnementService.GeefStandaardAbonnement(AppUser);
                         if (!succes)
                         {
-                            return BadRequest (new {message = "er is iets misgegaan"});
+                            return BadRequest(new { message = "er is iets misgegaan" });
                         }
                         return Ok(
                             new NewUserDto
@@ -105,26 +109,23 @@ namespace api.Controllers
                             }
                         );
                     }
-                    else{
-                        return StatusCode (500, roleResult.Errors);
+                    else
+                    {
+                        return StatusCode(500, roleResult.Errors);
                     }
                 }
                 else
                 {
                     return StatusCode(500, createdUser.Errors);
                 }
-
-
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 return StatusCode(500, e);
-
             }
-
         }
 
-        [HttpPost("registerZakelijk")]
+        [HttpPost("registerZakelijk")] //methode voor het registreren van zakelijke klanten die zijn uitgenodigd door een wagenparkbeheerder
         public async Task<IActionResult> RegisterZakelijk([FromBody] RegisterDto registerDto)
         {
             try
@@ -132,10 +133,17 @@ namespace api.Controllers
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
 
+
+
                 var TempWagenPark = await _wagenparkUserListService.GetWagenParkByAppUserEmail(registerDto.Email);
-                if (TempWagenPark== null)
+                if (TempWagenPark == null)
                 {
                     return NotFound(new { message = "E-mailadres is niet geregistreerd in de WagenParkUserList tabel." });
+                }
+                var StopHere = await _wagenparkService.IsVerwijderdeGebruiker(registerDto.Email, TempWagenPark.WagenParkId);
+                if (StopHere)
+                {
+                    return BadRequest("U bent permanent verwijderd van dit wagenpark joinen.");
                 }
 
                 var appUser = new AppUser
@@ -180,17 +188,17 @@ namespace api.Controllers
             }
         }
 
-        [HttpGet("getUserData")]
-        [Authorize] 
+        [HttpGet("getUserData")] //methode voor userdata wordt gebruikt in de frontend voor routing
+        [Authorize]
         public async Task<IActionResult> GetUserData()
         {
             try
-            {    
+            {
                 var AppUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 if (string.IsNullOrEmpty(AppUserId))
                 {
-                    return Unauthorized(new {message = "JWT Token is niet meer in gebruik"});
-                }     
+                    return Unauthorized(new { message = "JWT Token is niet meer in gebruik" });
+                }
                 var appUser = await _userManager.FindByIdAsync(AppUserId);
                 if (appUser == null)
                 {
@@ -203,7 +211,7 @@ namespace api.Controllers
                     PhoneNumber = appUser.PhoneNumber,
                     Voornaam = appUser.Voornaam,
                     Achternaam = appUser.Achternaam,
-                    role = await _roleService.getUserRole(appUser.Id),
+                    role = (await _userManager.GetRolesAsync(appUser)).FirstOrDefault(),
                 };
 
                 return Ok(dto);
@@ -214,7 +222,7 @@ namespace api.Controllers
             }
         }
 
-        [HttpPut("updateUserData")]
+        [HttpPut("updateUserData")] //methode voor het updaten van de gegevens van een gebruiker
         [Authorize]
         public async Task<IActionResult> UpdateUserData([FromBody] UpdateUserDto updateDto)
         {
@@ -266,8 +274,8 @@ namespace api.Controllers
             }
         }
 
-        [HttpPut("changePassword")]
-        [Authorize]
+        [HttpPut("changePassword")] //methode voor het aanpassen van een wachtwoord
+        [Authorize] 
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto changePasswordDto)
         {
             try
@@ -301,7 +309,7 @@ namespace api.Controllers
             }
         }
 
-        [HttpPut("NieuwWagenParkVerzoek")]
+        [HttpPut("NieuwWagenParkVerzoek")] //verzoek om een wagenpark te creeeren op onze website
         public async Task<IActionResult> NieuwWagenParkVerzoek(NieuwWagenParkVerzoekDto wagenParkVerzoekDto)
         {
             if (!ModelState.IsValid)

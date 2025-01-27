@@ -14,86 +14,124 @@ using Microsoft.AspNetCore.Mvc;
 namespace api.Controllers
 {
     [Route("api/WagenParkBeheer")]
+    [ApiController]
     public class WagenParkBeheerController : ControllerBase
     {
-        private readonly IWagenParkUserListService _wagenparkUserListService;
-        private readonly IWagenparkService _wagenparkService;
-        private readonly UserManager<AppUser> _userManager;
         private readonly IWagenParkUserListService _wagenParkUserListService;
-        public WagenParkBeheerController(IWagenParkUserListService wagenparkVerzoekService, UserManager<AppUser> userManager, IWagenparkService wagenparkService, IWagenParkUserListService wagenParkUserListService)
+
+
+        public WagenParkBeheerController(IWagenParkUserListService wagenparkUserListService)
         {
-            _wagenparkUserListService = wagenparkVerzoekService;
-            _userManager = userManager;
-            _wagenparkService = wagenparkService;
-            _wagenParkUserListService = wagenParkUserListService;
+            _wagenParkUserListService = wagenparkUserListService;
         }
- 
 
         [Authorize]
-        [HttpGet("GetAllWagenParkUsers")]
+        [HttpGet("GetAllWagenParkUsers")] //returned all users geregistreerd in gebruikers wagenpark
         public async Task<IActionResult> GetAllUserInWagenPark()
         {
-            var CurrentWagenparkBeheerder = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(CurrentWagenparkBeheerder))
+            try
             {
-                return Unauthorized(new {message = "JWT Token is niet meer in gebruik"});
+                var currentWagenparkBeheerder = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (string.IsNullOrEmpty(currentWagenparkBeheerder))
+                {
+                    return Unauthorized(new { message = "JWT-token is niet meer geldig." });
+                }
+
+                var usersInWagenPark = await _wagenParkUserListService.GetAllUsersInWagenPark(currentWagenparkBeheerder);
+                if (!usersInWagenPark.Any())
+                {
+                    return NotFound(new { message = "Er zijn geen gebruikers gevonden in uw WagenPark." });
+                }
+
+                var dto = UserDtoMapper.MapToUserDtos(usersInWagenPark);
+                return Ok(dto);
             }
-            List<AppUser> UsersInWagenPark = await _wagenparkUserListService.GetAllUsersInWagenPark(CurrentWagenparkBeheerder);
-            if (!UsersInWagenPark.Any()){
-                return BadRequest(new {message = "Er zijn geen gebruikers gevonden in uw WagenPark"});
-            }
-            var ToDto = UserDtoMapper.MapToUserDtos(UsersInWagenPark);
-            return Ok(ToDto);
-        }
-        
-        [Authorize]
-        [HttpPut("NodigGebruikerUitVoorWagenpark")]
-        public async Task<IActionResult> NodigGebruikerUitVoorWagenpark([FromBody]NodigUitDto nodigUitDto)
-        {
-            if (!ModelState.IsValid)
+            catch (Exception ex)
             {
-                return BadRequest(ModelState);
+                return StatusCode(500, new { message = "Er is een interne fout opgetreden.", details = ex.Message });
             }
-            var WagenParkBeheerderId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (WagenParkBeheerderId == null)
-            {
-                return Unauthorized();
-            }
-            var succes = await _wagenparkUserListService.StuurInvite(nodigUitDto.Email, WagenParkBeheerderId);
-            if (!succes){
-                return BadRequest (new {message = "Er is iets misgegaan bij het uitnodigen van de gebruiker"});
-            }
-            return Ok($"Gebruiker met email {nodigUitDto.Email} is uitgenodigd");
         }
 
         [Authorize]
-        [HttpDelete("RemoveUserFromWagenPark")]
-        public async Task<IActionResult> RemoveUserFromWagenPark([FromBody] string AppUserId)
+        [HttpPut("NodigGebruikerUitVoorWagenpark")] //stuur uitnodig per email naar gewensde gebruiker, daarna kan account worden aangemaakt
+        public async Task<IActionResult> NodigGebruikerUitVoorWagenpark([FromBody] NodigUitDto nodigUitDto)
         {
-            var UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(UserId))
+            try
             {
-                return Unauthorized(new {message = "JWT Token is niet meer in gebruik"});
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var wagenParkBeheerderId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (string.IsNullOrEmpty(wagenParkBeheerderId))
+                {
+                    return Unauthorized(new { message = "JWT-token is niet meer geldig." });
+                }
+
+                var succes = await _wagenParkUserListService.StuurInvite(nodigUitDto.Email, wagenParkBeheerderId);
+                if (!succes)
+                {
+                    return BadRequest(new { message = "Er is iets misgegaan bij het uitnodigen van de gebruiker." });
+                }
+
+                return Ok(new { message = $"Gebruiker met e-mail {nodigUitDto.Email} is succesvol uitgenodigd." });
             }
-            await _wagenparkUserListService.VerwijderGebruiker(UserId);
-            return Ok("De gebruiker is verwijderd uit uw wagenPark");
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Er is een interne fout opgetreden.", details = ex.Message });
+            }
         }
 
         [Authorize]
-        [HttpGet("GetOverzicht")]
+        [HttpDelete("RemoveUserFromWagenPark")] //verwijderd PERMANENT een gebruiker van het wagenpark
+        public async Task<IActionResult> RemoveUserFromWagenPark([FromBody] string appUserId)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(appUserId))
+                {
+                    return BadRequest(new { message = "Gebruikers-ID mag niet leeg zijn." });
+                }
+
+                var succes = await _wagenParkUserListService.VerwijderGebruiker(appUserId);
+                if (!succes)
+                {
+                    return NotFound(new { message = "De opgegeven gebruiker is niet gevonden in uw WagenPark." });
+                }
+
+                return Ok(new { message = "De gebruiker is succesvol verwijderd uit uw WagenPark." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Er is een interne fout opgetreden.", details = ex.Message });
+            }
+        }
+
+        [Authorize]
+        [HttpGet("GetOverzicht")] //maakt een overzicht van de huringen van de gebruikers in het wagenpark
         public async Task<IActionResult> GetOverzicht()
         {
-            var CurrentWagenparkBeheerder = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(CurrentWagenparkBeheerder))
+            try
             {
-                return Unauthorized(new {message = "JWT Token is niet meer in gebruik"});
+                var currentWagenparkBeheerder = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (string.IsNullOrEmpty(currentWagenparkBeheerder))
+                {
+                    return Unauthorized(new { message = "JWT-token is niet meer geldig." });
+                }
+
+                var overzicht = await _wagenParkUserListService.GetOverzicht(currentWagenparkBeheerder);
+                if (overzicht.Count == 0)
+                {
+                    return NotFound(new { message = "Geen reserveringen gevonden binnen uw WagenPark." });
+                }
+
+                return Ok(overzicht);
             }
-            var overzicht = await _wagenparkUserListService.GetOverzicht(CurrentWagenparkBeheerder);
-            if (!overzicht.Any())
+            catch (Exception ex)
             {
-                return BadRequest("Geen Reserveringen gevonden binnen uw WagenPark");
+                return StatusCode(500, new { message = "Er is een interne fout opgetreden.", details = ex.Message });
             }
-            return Ok(overzicht);
         }
     }
 }

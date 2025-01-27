@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace api.Data
 {
-    public class ApplicationDbContext : IdentityDbContext<AppUser>
+    public class ApplicationDbContext : IdentityDbContext<AppUser> //applicationDbContext class dus de database die we gebruiken
     {
      public ApplicationDbContext(DbContextOptions dbContextOptions)
      : base(dbContextOptions)

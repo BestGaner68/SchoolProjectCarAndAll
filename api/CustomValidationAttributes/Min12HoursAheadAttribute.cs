@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace api.CustomValidationAttributes
 {
-    public class Min12HoursAheadAttribute : ValidationAttribute
+    public class Min12HoursAheadAttribute : ValidationAttribute //custom attribute voor valideren van dto
     {
         public override bool IsValid(object value)
         {

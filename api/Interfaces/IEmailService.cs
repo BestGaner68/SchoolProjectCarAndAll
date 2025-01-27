@@ -9,6 +9,6 @@ namespace api.Repositories
 {
     public interface IEmailService
     {
-        Task SendEmail(EmailMetaData emailMetaData);
+        Task SendEmail(EmailMetaData emailMetaData); //simple methode gebruikt om emails te versturen
     }
 }

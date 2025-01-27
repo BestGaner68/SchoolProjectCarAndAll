@@ -133,10 +133,27 @@ public class WagenParkUserListRepo : IWagenParkUserListService
     
         return true;
     }
-    public async Task VerwijderGebruiker(string AppUserId)
+    public async Task<bool> VerwijderGebruiker(string appUserId)
     {
-        await UpdateUserStatus(AppUserId, WagenParkUserListStatussen.Verwijderd);
-        //doe hier nog iets mee bij het maken van een verzoek
+
+        var appUser = await _userManager.FindByIdAsync(appUserId);
+        if (appUser == null)
+        {
+            return false; 
+        }
+        var deleteResult = await _userManager.DeleteAsync(appUser);
+        if (!deleteResult.Succeeded)
+        {
+            return false;
+        }
+        var emailMetadata = new EmailMetaData
+        {
+            ToAddress = appUser.Email,
+            Subject = "Account Verwijderd",
+            Body = $"Beste {appUser.Voornaam},\n\nUw account is volledig verwijderd door uw wagenparkbeheerder. Als u vragen heeft, neem dan contact met ons op.\n\nMet vriendelijke groet,\nHet CarAndAll Team"
+        };
+        await _emailService.SendEmail(emailMetadata);
+        return true; 
     }
     
     public async Task<bool>PrimeUserInWagenParkUserList(string AppUserId, string NieuwStatus, string userEmail, int wagenparkId)
@@ -146,9 +163,7 @@ public class WagenParkUserListRepo : IWagenParkUserListService
             return false;
         }
         result.AppUserId = AppUserId;
-        Console.WriteLine($"gebruiker string = {AppUserId}");
         result.Status = NieuwStatus;
-        Console.WriteLine($"gebruiker is toegevoegt en string geupdate");
         await _context.SaveChangesAsync();
         return true;
     }

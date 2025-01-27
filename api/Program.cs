@@ -110,7 +110,6 @@ builder.Services.AddScoped<IVerhuurVerzoekService, VerhuurVerzoekRepo>();
 builder.Services.AddScoped<IWagenparkService, WagenparkRepo>();
 builder.Services.AddScoped<IWagenParkUserListService, WagenParkUserListRepo>();
 builder.Services.AddScoped<IVoertuigService, VoertuigServiceRepo>();
-builder.Services.AddScoped<IRoleService, RoleRepo>();
 builder.Services.AddScoped<IDoubleDataCheckerRepo, DoubleDataCheckerRepo>();
 builder.Services.AddScoped<IReserveringService, ReserveringRepo>();
 builder.Services.AddScoped<IAbonnementService, AbonnementServiceRepo>();

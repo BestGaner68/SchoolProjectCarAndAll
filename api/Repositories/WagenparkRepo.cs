@@ -162,5 +162,11 @@ namespace api.Repositories
             return await _context.Wagenpark.FindAsync(WagenparkId) 
                 ?? throw new ArgumentException($"Geen WagenPark Gevonden met Id {WagenparkId}");
         }
+
+        public async Task<bool> IsVerwijderdeGebruiker(string email, int wagenparkId)
+        {
+            var line = await _context.WagenParkUserLists.FirstOrDefaultAsync(x => x.EmailAddress == email && x.WagenParkId == wagenparkId) ?? throw new Exception("Geen gebruiker gevonden");
+            return line.Status.Equals(WagenParkUserListStatussen.Verwijderd);
+        }
     }
 }

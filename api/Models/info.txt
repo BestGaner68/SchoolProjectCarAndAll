@@ -1,0 +1,2 @@
+Hier staan alle modellen die gebruikt worden in de applicatie, niet elke klasse hier is verwerkt naar de database aangezien sommige niet nodig zijn. Alles waar [key] bovenaanstaat 
+is onderdeel van de db structuur.

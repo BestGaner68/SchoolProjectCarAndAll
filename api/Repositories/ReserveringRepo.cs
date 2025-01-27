@@ -13,13 +13,9 @@ namespace api.Repositories
     {
         private readonly ApplicationDbContext _context;
         private readonly IVoertuigService _voertuigService;
-        private readonly IWagenparkService _wagenparkService;
-        private readonly IWagenParkUserListService _wagenparkUserListService;
-        public ReserveringRepo (ApplicationDbContext context, IVoertuigService voertuigService, IWagenparkService wagenparkService, IWagenParkUserListService wagenParkUserListService){
+        public ReserveringRepo (ApplicationDbContext context, IVoertuigService voertuigService){
             _context = context;
             _voertuigService = voertuigService;
-            _wagenparkService = wagenparkService;
-            _wagenparkUserListService = wagenParkUserListService;
         }
         
         public async Task<bool> AcceptVerhuurVerzoek(int verhuurVerzoekId)
@@ -100,7 +96,8 @@ namespace api.Repositories
                         reservering.EindDatum = wijzigReserveringDto.NewEindDatum.Value;
                     }
 
-                    if (wijzigReserveringDto.NieuwVoertuigId.HasValue)
+                    var status = await _context.VoertuigData.FirstOrDefaultAsync(x => x.VoertuigId == wijzigReserveringDto.NieuwVoertuigId) ?? throw new Exception("voertuigId bestaat niet");
+                    if (wijzigReserveringDto.NieuwVoertuigId.HasValue && status.Status.Equals(VoertuigStatussen.KlaarVoorGebruik))
                     {
                         reservering.VoertuigId = wijzigReserveringDto.NieuwVoertuigId.Value;
                     }
@@ -174,7 +171,7 @@ namespace api.Repositories
             }
 
             CurrentReservering.Status = ReserveringStatussen.Afgerond;
-            
+
             var schadeformulier = new SchadeFormulier{
                 VoertuigId = CurrentReservering.VoertuigId,
                 Schade = Schade,

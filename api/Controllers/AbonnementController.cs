@@ -9,6 +9,7 @@ using api.Dtos.Verhuur;
 using api.Dtos.WagenParkDtos;
 using api.Interfaces;
 using api.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,30 +18,45 @@ namespace api.Controllers
     [Route("api/Abonnementen")]
     [ApiController]
     public class AbonnementController : ControllerBase
-    {
+     {
         private readonly IAbonnementService _abonnementService;
         private readonly IWagenparkService _wagenparkService;
+
         public AbonnementController(IAbonnementService abonnementService, IWagenparkService wagenparkService)
         {
             _abonnementService = abonnementService;
             _wagenparkService = wagenparkService;
         }
-
-        [HttpGet("GetUserAbonnementen")]
+        [HttpGet("GetUserAbonnementen")] //methode returned de abonnement die gebruikers kunnen kiezen
+        [Authorize]
         public async Task<IActionResult> GetAllUserAbonnementen()
         {
-            var abonnementen = await _abonnementService.GetAllUserAbonnementen();
-            return Ok(abonnementen);
+            try
+            {
+                var abonnementen = await _abonnementService.GetAllUserAbonnementen();
+                return Ok(abonnementen);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "Er is een onverwachte fout opgetreden.", Details = ex.Message });
+            }
         }
-
-        [HttpGet("GetWagenparkBeheerderAbonnementen")]
+        [HttpGet("GetWagenparkBeheerderAbonnementen")] //methode returned abonnementen die wagenparkbeheerder kunnen kiezen
+        [Authorize]
         public async Task<IActionResult> GetWagenparkBeheerderAbonnementen()
         {
-            var abonnementen = await _abonnementService.GetAllWagenparkBeheerderAbonnementen();
-            return Ok(abonnementen);
+            try
+            {
+                var abonnementen = await _abonnementService.GetAllWagenparkBeheerderAbonnementen();
+                return Ok(abonnementen);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "Er is een onverwachte fout opgetreden.", Details = ex.Message });
+            }
         }
-
-        [HttpPost("wijzig-abonnement-user")]
+        [HttpPost("wijzig-abonnement-user")] //wordt gebruikt om het abonnement van een user te weizigen
+        [Authorize]
         public async Task<IActionResult> WijzigAbonnementUser([FromBody] IdDto NieuwAbonnementId)
         {
             try
@@ -48,7 +64,7 @@ namespace api.Controllers
                 var UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 if (UserId == null)
                 {
-                    return Unauthorized(new {message = "Gebruiker niet geauthoriseerd."});
+                    return Unauthorized(new { message = "Gebruiker niet geauthoriseerd." });
                 }
                 var success = await _abonnementService.WijzigAbonnementUser(UserId, NieuwAbonnementId.Id);
                 if (success)
@@ -62,8 +78,8 @@ namespace api.Controllers
                 return StatusCode(500, new { Message = "Er is een onverwachte fout opgetreden.", Details = ex.Message });
             }
         }
-        
-        [HttpPost("wijzig-abonnement-wagenpark")]
+        [HttpPost("wijzig-abonnement-wagenpark")] //wordt gebruikt om abonnement van een wagenparkbeheerder te weizigen
+        [Authorize]
         public async Task<IActionResult> WijzigAbonnementWagenpark([FromBody] AbonnementWeizigDto abonnementWijzigDto)
         {
             try
@@ -80,42 +96,53 @@ namespace api.Controllers
                 return StatusCode(500, new { Message = "Er is een onverwachte fout opgetreden.", Details = ex.Message });
             }
         }
-
-        
-        [HttpPut("ExtentCurrentAbonnement")]
+        [HttpPut("ExtentCurrentAbonnement")] //wordt gebruikt om de periode van het abonnement te verlengen
+        [Authorize]
         public async Task<IActionResult> ExtentCurrentAbonnement([FromBody] AbonnementWeizigDto abonnementweizigDto)
         {
             try
             {
                 var AppUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                if (AppUserId == null){
-                    return Unauthorized(new {message = "Gebruiker niet geauthoriseerd."});
+                if (AppUserId == null)
+                {
+                    return Unauthorized(new { message = "Gebruiker niet geauthoriseerd." });
                 }
                 var CurrentWagenPark = await _wagenparkService.GetBeheerdersWagenPark(AppUserId);
-                if (CurrentWagenPark == null){
-                    return Unauthorized(new {message = "Gebruiker is geen eigenaar van een wagenpark"});
+                if (CurrentWagenPark == null)
+                {
+                    return Unauthorized(new { message = "Gebruiker is geen eigenaar van een wagenpark" });
                 }
                 var succes = await _abonnementService.ExtentCurrentAbonnement(CurrentWagenPark.WagenParkId);
                 if (!succes)
                 {
-                    return BadRequest(new {message = "Er is iets misgegaan"});
+                    return BadRequest(new { message = "Er is iets misgegaan" });
                 }
-                return Ok(new {message = "succesvol abonnement verlengt met 3 maanden"});
+                return Ok(new { message = "Succesvol abonnement verlengd met 3 maanden" });
             }
             catch (Exception ex)
             {
                 return StatusCode(500, new { Message = "Er is een onverwachte fout opgetreden.", Details = ex.Message });
             }
         }
-
-        [HttpGet("GetCurrentAbonnement")]
+        [HttpGet("GetCurrentAbonnement")] //returned het abonnement wat de gebruiker momenteel heeft
+        [Authorize]
         public async Task<IActionResult> GetCurrentAbonnement()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (userId == null) return Unauthorized(new {message = "Gebruiker niet geauthoriseerd."});
-            var abonnement = await _abonnementService.GetUserAbonnement(userId);
-            return Ok(abonnement);
+            try
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (userId == null) return Unauthorized(new { message = "Gebruiker niet geauthoriseerd." });
+                var abonnement = await _abonnementService.GetUserAbonnement(userId);
+                if (abonnement == null)
+                {
+                    return NotFound(new { message = "Geen abonnement gevonden voor deze gebruiker." });
+                }
+                return Ok(abonnement);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "Er is een onverwachte fout opgetreden.", Details = ex.Message });
+            }
         }
-
     }
 }

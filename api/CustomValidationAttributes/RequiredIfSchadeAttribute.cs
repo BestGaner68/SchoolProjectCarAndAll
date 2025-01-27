@@ -7,7 +7,7 @@ using api.Dtos.ReserveringenEnSchade;
 
 namespace api.CustomValidationAttributes
 {
-    public class RequiredIfSchadeAttribute : ValidationAttribute
+    public class RequiredIfSchadeAttribute : ValidationAttribute //custom attribute voor valideren van dto
     {
         protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
         {
