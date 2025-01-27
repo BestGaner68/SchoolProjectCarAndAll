@@ -16,5 +16,6 @@ namespace api.Interfaces
         Task<PrijsOverzichtDto> BerekenVoorschotPrijsParticulier(int reserveringId, Abonnement abonnement);
         Task<PrijsOverzichtDto> BerekenDaadwerkelijkePrijsParticulier(int reserveringId, decimal kilometersDriven, bool isSchade, Abonnement abonnement);
         Task<PrijsOverzichtDto> BerekenPayAsYouGo(int reserveringId, bool IsSchade);
+        Task<PrijsOverzichtDto> BerekenVerwachtePrijsUitVerhuurVerzoek(string appuserId, decimal kilometersDriven, DateTime startDatum, DateTime endDatum, int VoertuigId);
     }
 }

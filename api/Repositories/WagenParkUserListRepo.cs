@@ -48,7 +48,7 @@ public class WagenParkUserListRepo : IWagenParkUserListService
     public async Task<List<AppUser>> GetAllUsersInWagenPark(string WagenParkBeheerderId)
     {
         var currentWagenpark = await _context.Wagenpark
-            .FirstOrDefaultAsync(x => x.AppUser.Equals(WagenParkBeheerderId));
+            .FirstOrDefaultAsync(x => x.AppUser.Id.Equals(WagenParkBeheerderId));
 
         if (currentWagenpark == null)
         {

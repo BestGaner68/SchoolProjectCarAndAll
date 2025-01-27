@@ -1,3 +1,4 @@
+using System.Reflection.Metadata.Ecma335;
 using System.Security.Claims;
 using api.DataStructureClasses;
 using api.Dtos.Account;
@@ -15,10 +16,12 @@ namespace api.Controllers
     {
         private readonly IVerhuurVerzoekService _verhuurVerzoekRepo;
         private readonly IVoertuigService _voertuigService;
-        public VerhuurVerzoekController(IVerhuurVerzoekService verhuurVerzoekRepo, IVoertuigService voertuigService)
+        private readonly IKostenService _kostenService;
+        public VerhuurVerzoekController(IVerhuurVerzoekService verhuurVerzoekRepo, IVoertuigService voertuigService, IKostenService kostenService)
         {
             _verhuurVerzoekRepo = verhuurVerzoekRepo;
             _voertuigService = voertuigService;
+            _kostenService = kostenService;
         }
 
         [HttpGet("GetAllPendingVerhuurVerzoeken")]
@@ -118,6 +121,32 @@ namespace api.Controllers
                 return Ok();
             }
             return BadRequest(new { message = "De operatie kon niet worden uitgevoerd." });
-        } 
+        }
+
+        [HttpPut("GetKostenOverzicht")]
+        public async Task<IActionResult> GetKostenOverzicht([FromBody]GetKostenOverzichtDto getKostenOverzichtDto)
+        {
+            try
+            {
+                var appUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (string.IsNullOrEmpty(appUserId))
+                    return Unauthorized();
+
+                var kosten = await _kostenService.BerekenVerwachtePrijsUitVerhuurVerzoek(
+                    appUserId,
+                    getKostenOverzichtDto.VerwachtteKM,
+                    getKostenOverzichtDto.StartDatum,
+                    getKostenOverzichtDto.EindDatum,
+                    getKostenOverzichtDto.VoertuigId
+                );
+
+                return Ok(kosten);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = ex.Message });
+            }
+        }
+
     }
 }

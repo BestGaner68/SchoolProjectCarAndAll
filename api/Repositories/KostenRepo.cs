@@ -134,6 +134,18 @@ namespace api.Repositories
             return ApplyPayAsYouGoPricing(CurrentReservering.VerwachtteKM, rentalDuration, voertuigData.KilometerPrijs, IsSchade);
         }
 
+        public async Task<PrijsOverzichtDto> BerekenVerwachtePrijsUitVerhuurVerzoek(string appuserId, decimal kilometersDriven, DateTime startDatum, DateTime endDatum, int VoertuigId)
+        {
+            var kilometerPrijs = await _context.VoertuigData.FirstOrDefaultAsync(x => x.VoertuigId == VoertuigId) ?? throw new Exception("geen voertuig gevonoden.");
+            var rentalDuration = (endDatum -startDatum).Days;
+            var abonnement = await _abonnementService.GetUserAbonnement(appuserId);
+            if (abonnement.IsWagenparkAbonnement)
+            {
+                return GetPrijsOpBasisVanAbonnementZakelijk(abonnement, kilometersDriven, rentalDuration, kilometerPrijs.KilometerPrijs, true);
+            }
+            return GetPrijsOpBasisVanAbonnementParticulier(abonnement, kilometersDriven, rentalDuration, kilometerPrijs.KilometerPrijs, true);
+        }
+
         private static PrijsOverzichtDto GetPrijsOpBasisVanAbonnementParticulier(Abonnement abonnement, decimal kilometersDriven, int rentalDuration, decimal kilometerPrijs, bool isSchade)
         {
             return abonnement.Naam switch

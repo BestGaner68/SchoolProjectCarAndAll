@@ -11,7 +11,7 @@ namespace api.Interfaces
        Task<bool> WijzigAbonnementWagenpark (int WagenParkId, int nieuwAbonnementId);
        Task <bool> WijzigAbonnementUser(string appUserId, int nieuweAbonnementId);
        Task<IEnumerable<Abonnement>> GetAllUserAbonnementen();
-       Task<Abonnement> GetActiveAbonnement(int wagenparkId);
+       Task<Abonnement> GetActiveWagenparkAbonnement(int wagenparkId);
        Task<bool> ExtentCurrentAbonnement(int wagenparkId);
        Task<Abonnement> GetUserAbonnement(string appUserId);
        Task<bool> GeefStandaardAbonnement(AppUser appUser);

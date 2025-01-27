@@ -63,7 +63,7 @@ namespace api.Repositories
             return true;
         }
 
-        public async Task<Abonnement> GetActiveAbonnement(int wagenparkId)
+        public async Task<Abonnement> GetActiveWagenparkAbonnement(int wagenparkId)
         {
             var wagenpark = await _context.Wagenpark
                 .Include(wp => wp.WagenparkAbonnementen)
