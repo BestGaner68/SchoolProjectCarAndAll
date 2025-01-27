@@ -114,6 +114,8 @@ namespace api.Repositories
             var result2 = await _userManager.AddToRoleAsync(newUser, Rollen.WagenparkBeheerder);
             await _context.SaveChangesAsync();
 
+            Console.Write($"{password} {verzoek.GewensdeUsername}");
+            
             var welcomeEmailMetaData = new EmailMetaData
             {
                 ToAddress = verzoek.Email,

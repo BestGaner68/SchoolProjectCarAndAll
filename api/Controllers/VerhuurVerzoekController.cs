@@ -1,7 +1,9 @@
 using System.Reflection.Metadata.Ecma335;
 using System.Security.Claims;
+using System.Threading.Tasks;
 using api.DataStructureClasses;
 using api.Dtos.Account;
+using api.Dtos.Betalingen;
 using api.Dtos.Verhuur;
 using api.Interfaces;
 using api.Mapper;
@@ -17,11 +19,13 @@ namespace api.Controllers
         private readonly IVerhuurVerzoekService _verhuurVerzoekRepo;
         private readonly IVoertuigService _voertuigService;
         private readonly IKostenService _kostenService;
-        public VerhuurVerzoekController(IVerhuurVerzoekService verhuurVerzoekRepo, IVoertuigService voertuigService, IKostenService kostenService)
+        private readonly IBetaalService _betaalService;
+        public VerhuurVerzoekController(IVerhuurVerzoekService verhuurVerzoekRepo, IVoertuigService voertuigService, IKostenService kostenService, IBetaalService betaalService)
         {
             _verhuurVerzoekRepo = verhuurVerzoekRepo;
             _voertuigService = voertuigService;
             _kostenService = kostenService;
+            _betaalService = betaalService;
         }
 
         [HttpGet("GetAllPendingVerhuurVerzoeken")]
@@ -146,6 +150,17 @@ namespace api.Controllers
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, new { Message = ex.Message });
             }
+        }
+
+        [HttpPost("process-credit-card")]
+        public async Task<IActionResult> ProcessCreditCard([FromBody] BetaalDto betaalDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest("Alle velden zijn verplicht.");
+            }
+            var succes = await _betaalService.BehandelCreditCardGegevens(betaalDto);
+            return Ok(succes);
         }
 
     }
