@@ -75,16 +75,22 @@ namespace api.Repositories
             return activeAbonnement?.Abonnement;
         }
 
-        public async Task<IEnumerable<Abonnement>> GetAllAbonnementen()
+        public async Task<IEnumerable<Abonnement>> GetAllUserAbonnementen()
         {
-            return await _context.Abonnementen.ToListAsync();
+            return await _context.Abonnementen.Where(x => !x.IsWagenparkAbonnement).ToListAsync();
+        }
+
+        public async Task<IEnumerable<Abonnement>> GetAllWagenparkBeheerderAbonnementen()
+        {
+            return await _context.Abonnementen.Where(x => x.IsWagenparkAbonnement).ToListAsync();
         }
 
         public async Task<Abonnement> GetUserAbonnement(string appUserId)
         {
             var currentUser = await _context.Users.FindAsync(appUserId) 
                 ?? throw new ArgumentException("Abonnement not found.");
-            
+        
+
             var roles = await _userManager.GetRolesAsync(currentUser);
             if (roles.Contains(Rollen.ParticuliereKlant))
             {

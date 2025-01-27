@@ -60,13 +60,15 @@ namespace api.DataStructureClasses
 
         public static string GetReserveringReminderBody(DateTime startDatum, string voertuigNaam)
         {
-            return $"Beste gebruiker,\n\n" +
-                   $"Dit is een herinnering dat uw reservering voor het voertuig '{voertuigNaam}' morgen ({startDatum:dd-MM-yyyy}) begint.\n\n" +
-                   $"Locatie: Terrein Carandall\n" +
-                   $"Ophaaltijd: Tussen 9:00 en 15:00\n\n" +
-                   "Zorg ervoor dat u alles klaar heeft voor een vlotte start van uw reservering. " +
-                   "Volg de veiligheidsinstructies en zorg ervoor dat u alle benodigde documenten meeneemt.\n\n" +
-                   "Met vriendelijke groet,\nHet Team";
+            return 
+                $"Beste gebruiker,\n\n" +
+                $"Dit is een herinnering dat uw reservering voor het voertuig '{voertuigNaam}' morgen ({startDatum:dd-MM-yyyy}) begint.\n\n" +
+                $"Locatie: Johanna Westerdijkplein 75\n" +
+                "2521 EN Den Haag\n" +
+                $"Ophaaltijd: Tussen 9:00 en 15:00\n\n" +
+                "Zorg ervoor dat u alles klaar heeft voor een vlotte start van uw reservering. " +
+                "Volg de veiligheidsinstructies en zorg ervoor dat u alle benodigde documenten meeneemt.\n\n" +
+                "Met vriendelijke groet,\nHet Team";
         }
 
         public static string GetUitnodigingVoorWagenparkBody(string wagenParkNaam)
