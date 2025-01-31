@@ -125,74 +125,102 @@ namespace api.Repositories
             }
         }
 
+
+
         public async Task<bool> WijzigAbonnementWagenpark(int wagenParkId, int nieuwAbonnementId)
         {
-            var wagenPark = await _context.Wagenpark
+            // Haal het wagenpark op met abonnementen en de gekoppelde gebruiker
+            var currentWagenPark = await _context.Wagenpark
                 .Include(wp => wp.WagenparkAbonnementen)
-                .FirstOrDefaultAsync(wp => wp.WagenParkId == wagenParkId) ?? 
+                .Include(wp => wp.AppUser)
+                .FirstOrDefaultAsync(wp => wp.WagenParkId == wagenParkId);
+
+            if (currentWagenPark == null)
                 throw new ArgumentException("Geen wagenpark gevonden.");
-            
+
+            if (currentWagenPark.WagenparkAbonnementen == null)
+                throw new NullReferenceException("Wagenpark heeft geen abonnementen.");
+
+            // Haal het nieuwe abonnement op en controleer of het geldig is
             var nieuwAbonnement = await _context.Abonnementen
-                .FirstOrDefaultAsync(a => a.AbonnementId == nieuwAbonnementId && !a.IsStandaard && a.IsWagenparkAbonnement) ?? 
-                throw new ArgumentException($"Geen abonnement gevonden met id {nieuwAbonnementId}");
+                .FirstOrDefaultAsync(a => a.AbonnementId == nieuwAbonnementId && !a.IsStandaard && a.IsWagenparkAbonnement);
 
-            var existingQueued = wagenPark.WagenparkAbonnementen
-                .FirstOrDefault(wa => !wa.IsActief);
+            if (nieuwAbonnement == null)
+                throw new ArgumentException($"Geen geldig abonnement gevonden met ID {nieuwAbonnementId}.");
 
-            if (existingQueued != null)
-                throw new InvalidOperationException("Uw heeft al een volgend abonnement geselecteerd");
-
-            var huidigAbonnement = wagenPark.WagenparkAbonnementen
+            // Zoek het huidige actieve abonnement
+            var huidigAbonnementLine = currentWagenPark.WagenparkAbonnementen
                 .FirstOrDefault(wa => wa.IsActief)
-                ?? throw new ArgumentException("");
-            
-            var tempStartDatum = huidigAbonnement?.EindDatum ?? DateTime.UtcNow;
-            if (huidigAbonnement.AbonnementId == nieuwAbonnement.AbonnementId)
-            {
-                throw new InvalidOperationException("Nieuw abonnement kan niet hetzelfde zijn als lopende abonnement.");
-            }
-            if (huidigAbonnement?.Abonnement.IsStandaard == true) 
-            {
-                huidigAbonnement.IsActief = false;
+                ?? throw new Exception("Geen actief abonnement gevonden.");
 
-                wagenPark.WagenparkAbonnementen.Add(new WagenparkAbonnementen
+            var huidigAbonnement = await _context.Abonnementen.FindAsync(huidigAbonnementLine.AbonnementId);
+
+            if (huidigAbonnement == null)
+                throw new ArgumentException("Huidig abonnement niet gevonden in de database.");
+
+            var tempStartDatum = huidigAbonnementLine.EindDatum ?? DateTime.UtcNow;
+
+            // Controleer of het nieuwe abonnement hetzelfde is als het lopende abonnement
+            if (huidigAbonnementLine.AbonnementId == nieuwAbonnement.AbonnementId)
+                throw new InvalidOperationException("Nieuw abonnement kan niet hetzelfde zijn als het lopende abonnement.");
+            if (huidigAbonnement.IsStandaard)
+            {
+                huidigAbonnementLine.IsActief = false;
+
+                currentWagenPark.WagenparkAbonnementen.Add(new WagenparkAbonnementen
                 {
                     Abonnement = nieuwAbonnement,
-                    StartDatum = DateTime.UtcNow, 
-                    EindDatum = DateTime.UtcNow.AddDays(90), 
+                    StartDatum = DateTime.UtcNow,
+                    EindDatum = DateTime.UtcNow.AddDays(90),
                     IsActief = true
                 });
+
                 _context.Remove(huidigAbonnement);
-                var emailMetaData = new EmailMetaData
-                {
-                    ToAddress = wagenPark.AppUser.Email,
-                    Subject = "Abonnement Wijziging Bevestigd",
-                    Body = EmailTemplates.GetAbonnementWijzigingBevestigdBody(nieuwAbonnement.Naam)
-                };
-                await _emailService.SendEmail(emailMetaData);
             }
-            else 
+            else
             {
-                wagenPark.WagenparkAbonnementen.Add(new WagenparkAbonnementen
+                currentWagenPark.WagenparkAbonnementen.Add(new WagenparkAbonnementen
                 {
                     Abonnement = nieuwAbonnement,
                     StartDatum = tempStartDatum,
-                    EindDatum = tempStartDatum.AddDays(90), 
+                    EindDatum = tempStartDatum.AddDays(90),
                     IsActief = false
                 });
-                var emailMetaData = new EmailMetaData
-                {
-                    ToAddress = wagenPark.AppUser.Email,
-                    Subject = "Abonnement Wijziging Gepland",
-                    Body = EmailTemplates.GetAbonnementWijzigingGeplandBody(nieuwAbonnement.Naam, tempStartDatum)
-                    
-                };
+            }
+
+            // Controleer of de gebruiker een e-mailadres heeft voordat een e-mail wordt verzonden
+            if (string.IsNullOrEmpty(currentWagenPark.AppUser?.Email))
+                throw new NullReferenceException("AppUser of Email is niet ingesteld voor dit wagenpark.");
+
+            var emailSubject = huidigAbonnement.IsStandaard
+                ? "Abonnement Wijziging Bevestigd"
+                : "Abonnement Wijziging Gepland";
+
+            var emailBody = huidigAbonnement.IsStandaard
+                ? EmailTemplates.GetAbonnementWijzigingBevestigdBody(nieuwAbonnement.Naam)
+                : EmailTemplates.GetAbonnementWijzigingGeplandBody(nieuwAbonnement.Naam, tempStartDatum);
+
+            var emailMetaData = new EmailMetaData
+            {
+                ToAddress = currentWagenPark.AppUser.Email,
+                Subject = emailSubject,
+                Body = emailBody
+            };
+
+            // Veilige e-mailverzending met foutafhandeling
+            try
+            {
                 await _emailService.SendEmail(emailMetaData);
             }
+            catch (Exception emailEx)
+            {
+                Console.WriteLine($"Fout bij het verzenden van e-mail: {emailEx.Message}");
+                // Hier kan je een log toevoegen of een fallback-strategie toepassen
+            }
+
             await _context.SaveChangesAsync();
             return true;
         }
-
         public async Task<bool> WijzigAbonnementUser(string AppUserId, int nieuwAbonnementId)
         {
             var appUser = await _context.Users.FindAsync(AppUserId) ??

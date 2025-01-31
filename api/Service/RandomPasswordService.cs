@@ -11,22 +11,29 @@ namespace api.Service
 
         public static string GenerateRandomPassword()
         {
-            const string validChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"; 
-            const string digits = "1234567890"; 
-            const string specialChars = "!@#$%^&*()-_=+[]{}|<>?/";  
+            const string upperCase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            const string lowerCase = "abcdefghijklmnopqrstuvwxyz";
+            const string digits = "1234567890";
+            const string specialChars = "!@#$%^&*()-_=+[]{}|<>?/";
+
             var length = 12;
             var password = new char[length];
 
-            password[0] = digits[_random.Next(digits.Length)];
-            password[1] = specialChars[_random.Next(specialChars.Length)];
+            // Ensure at least one character from each required category
+            password[0] = upperCase[_random.Next(upperCase.Length)];
+            password[1] = lowerCase[_random.Next(lowerCase.Length)];
+            password[2] = digits[_random.Next(digits.Length)];
+            password[3] = specialChars[_random.Next(specialChars.Length)];
 
-            for (int i = 2; i < length; i++)
+            // Fill the rest with a mix of all categories
+            string allChars = upperCase + lowerCase + digits + specialChars;
+            for (int i = 4; i < length; i++)
             {
-                var charSet = validChars + digits + specialChars;
-                password[i] = charSet[_random.Next(charSet.Length)];
+                password[i] = allChars[_random.Next(allChars.Length)];
             }
 
-            return new string(password);
+            // Shuffle to avoid predictable patterns
+            return new string(password.OrderBy(_ => _random.Next()).ToArray());
         }
     }
 }

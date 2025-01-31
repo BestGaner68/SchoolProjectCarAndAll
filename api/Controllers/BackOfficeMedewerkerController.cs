@@ -217,7 +217,14 @@ namespace api.Controllers
         [HttpPut("WeigerVerzoek")]
         public async Task<IActionResult> WeigerVerzoek([FromBody]WeigerNieuwWagenParkVerzoekDto Dto)
         {
-            var result = await _wagenparkService.WeigerNieuwWagenParkVerzoek(Dto);
+            var weigeren = new Dtos.WagenParkDtos.WeigerNieuwWagenParkVerzoekDto
+            {
+                WagenParkId = Dto.WagenParkId,
+                Reden = Dto.Reden
+
+            };
+       
+            var result = await _wagenparkService.WeigerNieuwWagenParkVerzoek(weigeren);
             if (!result)
             {
                 return BadRequest("Er is een fout opgetreden bij het weigeren van het verzoek.");

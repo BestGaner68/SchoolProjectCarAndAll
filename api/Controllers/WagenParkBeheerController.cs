@@ -70,12 +70,12 @@ namespace api.Controllers
         [HttpDelete("RemoveUserFromWagenPark")]
         public async Task<IActionResult> RemoveUserFromWagenPark([FromBody] string AppUserId)
         {
-            var UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(UserId))
+            if (string.IsNullOrEmpty(AppUserId))
             {
-                return Unauthorized(new {message = "JWT Token is niet meer in gebruik"});
+                return Unauthorized(new { message = "JWT Token is niet meer in gebruik" });
             }
-            await _wagenparkUserListService.VerwijderGebruiker(UserId);
+            await _wagenparkUserListService.VerwijderGebruiker(AppUserId);
+
             return Ok("De gebruiker is verwijderd uit uw wagenPark");
         }
 
