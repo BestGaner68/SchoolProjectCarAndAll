@@ -117,5 +117,17 @@ namespace api.Controllers
             return Ok(abonnement);
         }
 
+        [HttpGet("ViewMyAbonnement")]
+        public async Task<IActionResult> ViewMyAbonnement()
+        {
+            var appUserId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new Exception("Geen User gevonden");
+            var abonnement = await _abonnementService.GetUserAbonnement(appUserId);
+            if (abonnement == null)
+            {
+                return BadRequest("er is iets misgegaan bij het ophalen van het abonnement");
+            }
+            return Ok(abonnement);
+        }
+
     }
 }

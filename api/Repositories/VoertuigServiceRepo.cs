@@ -115,7 +115,7 @@ namespace api.Repositories
 
         public async Task<List<Voertuig>> GetAllVoertuigen()
         {
-            return await _context.Voertuig.ToListAsync();
+            return await _context.Voertuig.Include(v => v.VoertuigData).ToListAsync();
         }
 
         public async Task<List<Voertuig>> GetVoertuigenByMerk(string VoertuigMerk)
