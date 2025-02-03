@@ -17,5 +17,7 @@ namespace api.Interfaces
        Task<bool> GeefStandaardAbonnement(AppUser appUser);
        Task AddAbonnement(List<Abonnement> abonnements);
        Task<IEnumerable<Abonnement>> GetAllWagenparkBeheerderAbonnementen();
+       Task AddVerzekering(List<Verzekering> verzekeringe);
+       Task AddAccessoires(List<Accessoires> accessoires);
     }
 }

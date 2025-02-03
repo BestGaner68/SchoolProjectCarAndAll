@@ -19,5 +19,8 @@ namespace api.Models
         public int VerwachtteKM { get; set; }
         public string Fullname { get; set; } = string.Empty;
         public string Status { get; set; } = string.Empty;
+        public int VerzekeringId { get; set; }
+        public Verzekering Verzekering { get; set; }
+        public List<Accessoires>? Accessoires{ get; set; } = [];
     }
 }

@@ -86,5 +86,38 @@ namespace api.Repositories
                 .ToListAsync();
             return Verzoeken;
         }
+
+        public async Task<List<Verzekering>> GetAllVerzekeringen()
+        {
+            return await _context.Verzekeringen.ToListAsync();
+        }
+
+        public async Task<List<Accessoires>> GetAllAccessoires()
+        {
+            return await _context.Accessoires.ToListAsync();
+        }
+
+        public async Task<List<Accessoires>> FromIdToInstanceAccessoires(List<int?> AccessoiresList)
+        {
+            if (AccessoiresList.Count == 0)
+            {
+                return [];
+            }
+            List<Accessoires> GekozenAccesoires = [];
+            foreach (int? accessoire in AccessoiresList)
+            {
+                var ToAdd = await _context.Accessoires.FindAsync(accessoire);
+                if (ToAdd != null)
+                {
+                    GekozenAccesoires.Add(ToAdd);
+                }
+            }
+            return GekozenAccesoires;
+        }
+
+        public async Task<Verzekering> FromIdToInstanceVerzekering(int verzekeringId)
+        {
+            return await _context.Verzekeringen.FindAsync(verzekeringId) ?? throw new ArgumentException($"Er is geen Verzekering gevonden met verzekeringsId: {verzekeringId}");
+        }
     }
 }

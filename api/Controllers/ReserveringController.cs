@@ -51,18 +51,21 @@ namespace api.Controllers
                 return StatusCode(500, new { message = "Er is een interne fout opgetreden", details = ex.Message });
             }
         }
-        [HttpPost("keurVerzoekAf/{verzoekId}")]
-        public async Task<IActionResult> KeurVerzoekAf ([FromRoute]int verzoekId){
-            var result = await _reserveringService.WeigerVerhuurVerzoek(verzoekId);
+
+        [HttpPost("keurVerzoekAf")]
+        public async Task<IActionResult> KeurVerzoekAf ([FromBody]WeigerVerhuurVerzoekDto weigerVerhuurVerzoekDto){
+            var result = await _reserveringService.WeigerVerhuurVerzoek(weigerVerhuurVerzoekDto);
             if (!result){
                 return NotFound("Er is geen verhuurverzoek gevonden of een andere fout opgetreden");
             }
             return Ok("VerhuurVerzoek is afgekeurt");
         }
+
         [HttpGet("GetAllReserveringen")]
         public async Task<IActionResult> GetAllReserveringen (){
             var Reserveringen = await _reserveringService.GetAll();
-            if (!Reserveringen.Any()){
+            if (Reserveringen.Count == 0)
+            {
                 return NotFound("Er zijn momenteel geen Reserveringen");
             }
             return Ok(Reserveringen);

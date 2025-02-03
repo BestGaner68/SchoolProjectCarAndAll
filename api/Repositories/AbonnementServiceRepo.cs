@@ -305,5 +305,17 @@ namespace api.Repositories
             await _context.Abonnementen.AddRangeAsync(abonnements);
             await _context.SaveChangesAsync();
         }
+
+        public async Task AddVerzekering(List<Verzekering> verzekeringen)
+        {
+            await _context.Verzekeringen.AddRangeAsync(verzekeringen);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task AddAccessoires(List<Accessoires> accessoires)
+        {
+            await _context.Accessoires.AddRangeAsync(accessoires);
+            await _context.SaveChangesAsync();
+        }
     }
 }

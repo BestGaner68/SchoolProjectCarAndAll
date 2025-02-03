@@ -19,7 +19,8 @@ namespace api.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Naam = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Prijs = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                    IsStandaard = table.Column<bool>(type: "bit", nullable: false)
+                    IsStandaard = table.Column<bool>(type: "bit", nullable: false),
+                    IsWagenparkAbonnement = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -86,28 +87,6 @@ namespace api.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Reservering",
-                columns: table => new
-                {
-                    ReserveringId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    AppUserId = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    VoertuigId = table.Column<int>(type: "int", nullable: false),
-                    StartDatum = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    EindDatum = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    AardReis = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Bestemming = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    VerwachtteKM = table.Column<int>(type: "int", nullable: false),
-                    Fullname = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Type = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Reservering", x => x.ReserveringId);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "SchadeFormulier",
                 columns: table => new
                 {
@@ -126,24 +105,17 @@ namespace api.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "VerhuurVerzoek",
+                name: "Verzekering",
                 columns: table => new
                 {
-                    VerhuurVerzoekId = table.Column<int>(type: "int", nullable: false)
+                    VerzekeringId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    VoertuigId = table.Column<int>(type: "int", nullable: false),
-                    AppUserId = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    StartDatum = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    EindDatum = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    AardReis = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Bestemming = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    VerwachtteKM = table.Column<int>(type: "int", nullable: false),
-                    Datum = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    VerzekeringNaam = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    VerzekeringPrijs = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_VerhuurVerzoek", x => x.VerhuurVerzoekId);
+                    table.PrimaryKey("PK_Verzekering", x => x.VerzekeringId);
                 });
 
             migrationBuilder.CreateTable(
@@ -279,7 +251,7 @@ namespace api.Migrations
                     AppUserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     AbonnementId = table.Column<int>(type: "int", nullable: false),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     IsActive = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
@@ -321,9 +293,67 @@ namespace api.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Reservering",
+                columns: table => new
+                {
+                    ReserveringId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    AppUserId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    VoertuigId = table.Column<int>(type: "int", nullable: false),
+                    StartDatum = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EindDatum = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    AardReis = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Bestemming = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    VerwachtteKM = table.Column<int>(type: "int", nullable: false),
+                    Fullname = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    VerzekeringId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Reservering", x => x.ReserveringId);
+                    table.ForeignKey(
+                        name: "FK_Reservering_Verzekering_VerzekeringId",
+                        column: x => x.VerzekeringId,
+                        principalTable: "Verzekering",
+                        principalColumn: "VerzekeringId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "VerhuurVerzoek",
+                columns: table => new
+                {
+                    VerhuurVerzoekId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    VoertuigId = table.Column<int>(type: "int", nullable: false),
+                    AppUserId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    StartDatum = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EindDatum = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    AardReis = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Bestemming = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    VerwachtteKM = table.Column<int>(type: "int", nullable: false),
+                    Datum = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    VerzekeringId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_VerhuurVerzoek", x => x.VerhuurVerzoekId);
+                    table.ForeignKey(
+                        name: "FK_VerhuurVerzoek_Verzekering_VerzekeringId",
+                        column: x => x.VerzekeringId,
+                        principalTable: "Verzekering",
+                        principalColumn: "VerzekeringId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "VoertuigData",
                 columns: table => new
                 {
+                    VoertuigDataId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     VoertuigId = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Opmerking = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -331,7 +361,7 @@ namespace api.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_VoertuigData", x => x.VoertuigId);
+                    table.PrimaryKey("PK_VoertuigData", x => x.VoertuigDataId);
                     table.ForeignKey(
                         name: "FK_VoertuigData_Voertuig_VoertuigId",
                         column: x => x.VoertuigId,
@@ -392,6 +422,42 @@ namespace api.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Accessoires",
+                columns: table => new
+                {
+                    AccessoiresId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Naam = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Prijs = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    ReserveringId = table.Column<int>(type: "int", nullable: true),
+                    VerhuurVerzoekId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Accessoires", x => x.AccessoiresId);
+                    table.ForeignKey(
+                        name: "FK_Accessoires_Reservering_ReserveringId",
+                        column: x => x.ReserveringId,
+                        principalTable: "Reservering",
+                        principalColumn: "ReserveringId");
+                    table.ForeignKey(
+                        name: "FK_Accessoires_VerhuurVerzoek_VerhuurVerzoekId",
+                        column: x => x.VerhuurVerzoekId,
+                        principalTable: "VerhuurVerzoek",
+                        principalColumn: "VerhuurVerzoekId");
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Accessoires_ReserveringId",
+                table: "Accessoires",
+                column: "ReserveringId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Accessoires_VerhuurVerzoekId",
+                table: "Accessoires",
+                column: "VerhuurVerzoekId");
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -432,6 +498,11 @@ namespace api.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Reservering_VerzekeringId",
+                table: "Reservering",
+                column: "VerzekeringId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_UserAbonnementen_AbonnementId",
                 table: "UserAbonnementen",
                 column: "AbonnementId");
@@ -440,6 +511,17 @@ namespace api.Migrations
                 name: "IX_UserAbonnementen_AppUserId",
                 table: "UserAbonnementen",
                 column: "AppUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_VerhuurVerzoek_VerzekeringId",
+                table: "VerhuurVerzoek",
+                column: "VerzekeringId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_VoertuigData_VoertuigId",
+                table: "VoertuigData",
+                column: "VoertuigId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Wagenpark_AppUserId",
@@ -466,6 +548,9 @@ namespace api.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "Accessoires");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
 
             migrationBuilder.DropTable(
@@ -484,16 +569,10 @@ namespace api.Migrations
                 name: "NieuwWagenParkVerzoek");
 
             migrationBuilder.DropTable(
-                name: "Reservering");
-
-            migrationBuilder.DropTable(
                 name: "SchadeFormulier");
 
             migrationBuilder.DropTable(
                 name: "UserAbonnementen");
-
-            migrationBuilder.DropTable(
-                name: "VerhuurVerzoek");
 
             migrationBuilder.DropTable(
                 name: "VoertuigData");
@@ -503,6 +582,12 @@ namespace api.Migrations
 
             migrationBuilder.DropTable(
                 name: "WagenParkUserLists");
+
+            migrationBuilder.DropTable(
+                name: "Reservering");
+
+            migrationBuilder.DropTable(
+                name: "VerhuurVerzoek");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
@@ -515,6 +600,9 @@ namespace api.Migrations
 
             migrationBuilder.DropTable(
                 name: "Wagenpark");
+
+            migrationBuilder.DropTable(
+                name: "Verzekering");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
