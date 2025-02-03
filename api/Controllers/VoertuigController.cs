@@ -53,5 +53,11 @@ namespace api.Controllers
             var beschikbareVoertuigen = await _voertuigService.GetVoertuigenByDate(dateRangeRequest);
             return Ok(beschikbareVoertuigen);
         }
+
+        [HttpGet("GetAllVoertuigDataEnStatus")]
+        public async Task<IActionResult> GetAllVoertuigDataEnStatus()
+        {
+            return Ok(await _voertuigService.GetAllVoertuigen());
+        }
     }
 }
