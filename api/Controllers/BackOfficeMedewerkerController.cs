@@ -42,10 +42,10 @@ namespace api.Controllers
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
 
-                var validRoles = new[] { "BackendWorker", "FrontendWorker" };
+                var validRoles = new[] { "backendWorker", "FrontendWorker" };
                 if (!validRoles.Contains(registerOfficeDto.TypeAccount))
                 {
-                    return BadRequest("Verkeerde Rol, Mogelijkheden: BackendWorker, FrontendWorker.");
+                    return BadRequest("Verkeerde Rol, Mogelijkheden: backendWorker, FrontendWorker.");
                 }
 
                 var appUser = new AppUser
