@@ -20,8 +20,6 @@ namespace api.Controllers
             return Ok(await _voertuigService.GetAllVoertuigen());
         }
 
-        
-
         [HttpGet("GetVoertuigByMerk")]
         public async Task<IActionResult> GetVoertuigenByMerk(string VoertuigMerk){
             var voertuigen = await _voertuigService.GetVoertuigenByMerk(VoertuigMerk);
