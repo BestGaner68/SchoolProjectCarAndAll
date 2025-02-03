@@ -13,6 +13,12 @@ namespace api.Service
 {
     public static class VoertuigInitializer
     {
+        /// <summary>
+        /// bij startup van de applicatie runt deze methode die de db als het ware "seed" zodat alle belangrijke data erin staat 
+        /// </summary>
+        /// <param name="voertuigService">Dependency Injection</param>
+        /// <param name="abonnementService">Dependency Injection</param>
+        /// <returns>niets</returns>
         public static async Task InitializeDataBase(IVoertuigService voertuigService, IAbonnementService abonnementService)
         {
             var bestaandeVoertuigen = await voertuigService.GetAllVoertuigen();
@@ -235,6 +241,27 @@ namespace api.Service
                 new() { Naam = AbonnementNamen.WagenparkPremium, Prijs = 300m, IsStandaard = false, IsWagenparkAbonnement = true },
             };
             await abonnementService.AddAbonnement(Abonnementen);
+
+            var Verzekeringen = new List<Verzekering>
+            {
+                new() { VerzekeringNaam = "Geen Verzekering", VerzekeringPrijs = 0m },
+                new() { VerzekeringNaam = "Semi-Verzekering", VerzekeringPrijs = 25m },
+                new() { VerzekeringNaam = "Volledige Verzekering", VerzekeringPrijs = 50m }
+            };
+            await abonnementService.AddVerzekering(Verzekeringen);
+
+            var Accessoires = new List<Accessoires>
+            {
+                new() { Naam = "GPS Navigatie", Prijs = 5m },
+                new() { Naam = "Kinderstoel", Prijs = 7.50m },
+                new() { Naam = "Dakdrager", Prijs = 10m },
+                new() { Naam = "Winterbanden", Prijs = 15m }
+            };
+            await abonnementService.AddAccessoires(Accessoires);
+
+
+            
+
         }        
     }
 }

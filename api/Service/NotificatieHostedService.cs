@@ -10,6 +10,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace api.Service
 {
+    /// <summary>
+    /// deze klasse runt altijd tijdens de applicatie en checked elke 12 uur of er nog iets moet gebeuren zoals: emails versturen, abonnementen omzetten
+    /// of of een reservering nog mag worden aangepast en zo niet word de status aangepast.
+    /// </summary>
     public class NotificationHostedService : BackgroundService
     {
         private readonly IServiceProvider _serviceProvider;
@@ -21,6 +25,11 @@ namespace api.Service
             _logger = logger;
         }
 
+        /// <summary>
+        /// Main methode die om de 12 uur aangeroepen wordt. maakt een call naar alle andere methodes hieronder
+        /// </summary>
+        /// <param name="stoppingToken">Geeft aan wanneer de service moet stoppen (eigenlijk nooit)</param>
+        /// <returns>niets</returns>
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             _logger.LogInformation("NotificationHostedService is starting.");
@@ -44,6 +53,15 @@ namespace api.Service
                 await Task.Delay(TimeSpan.FromHours(12), stoppingToken);
             }
         }
+
+        /// <summary>
+        /// stuurd een notificatie naar de gebruiker als het abonnement bijna afloopt (nog 1 maand over)
+        /// de gebruiker kan daarna zijn abonnement verlengen
+        /// </summary>
+        /// <param name="context">voor db calls</param>
+        /// <param name="_emailService">voor emails versturen</param>
+        /// <param name="stoppingToken">voor aangeven wanneer het moet stoppen</param>
+        /// <returns>niets</returns>
 
         private async Task SendAbonnementExpiryNotifications(
             ApplicationDbContext context, 
@@ -78,6 +96,13 @@ namespace api.Service
             }
         }
 
+        /// <summary>
+        /// veranderd de abonnementen die omgezet moeten worden. dus verwijderd actieve abonnement en zet het "gequeuede" abonnement op actief
+        /// </summary>
+        /// <param name="context"></param> **zie boven
+        /// <param name="emailService"></param>
+        /// <param name="stoppingToken"></param>
+        /// <returns>niets</returns>
         private async Task ProcessAbonnementSwitches(
             ApplicationDbContext context,
             IEmailService emailService,  
@@ -129,7 +154,13 @@ namespace api.Service
             
             await context.SaveChangesAsync(stoppingToken);
         }
-        
+        /// <summary>
+        /// Stuurd een email naar gebruikers waarvan hun reservering morgen start zodat ze alle belangrijke info hebben
+        /// </summary>
+        /// <param name="_context"></param> **zie boven
+        /// <param name="_emailService"></param>
+        /// <param name="stoppingToken"></param>
+        /// <returns>niets</returns>
         private async Task SendReserveringStartNotifications(
         ApplicationDbContext _context,
         IEmailService _emailService,
@@ -159,7 +190,12 @@ namespace api.Service
             }
         }
 
-
+        /// <summary>
+        /// voor het updaten van de statussen van reserveringen van "magwordengeweizigd" naar "readyforpickup" zodat het niet meer kan worden geweizigd
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="stoppingToken"></param>
+        /// <returns></returns>
         private async Task UpdateReservingStatuses(ApplicationDbContext context, CancellationToken stoppingToken)
         {
             var now = DateTime.UtcNow;

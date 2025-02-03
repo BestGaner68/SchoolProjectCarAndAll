@@ -4,7 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 namespace api.DataStructureClasses
 
-{    
+{
+    /// <summary>
+    /// namen van de rollen voor consistentie
+    /// </summary>    
     public static class Rollen
     {
         public const string BackendWorker = "backendWorker";

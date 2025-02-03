@@ -1,1 +1,0 @@
-Deze klassen zijn templates die ik in de applicatie later gebruik, sommige statussen zijn string en voor consitentie heb ik die hier geplaatst zodat ze altijd hetzelfde zijn

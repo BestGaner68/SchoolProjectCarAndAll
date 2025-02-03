@@ -7,6 +7,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace api.Models
 {
+    /// <summary>
+    /// basisdata van een voertuig wordt hier opgeslagen. heeft een voertuigdata waar nog extra informatie over het voertuig staat
+    /// </summary>
     public class Voertuig
     {
         [Key]

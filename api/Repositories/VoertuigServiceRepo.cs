@@ -115,7 +115,7 @@ namespace api.Repositories
 
         public async Task<List<Voertuig>> GetAllVoertuigen()
         {
-            return await _context.Voertuig.ToListAsync();
+            return await _context.Voertuig.Include(v => v.VoertuigData).ToListAsync();
         }
 
         public async Task<List<Voertuig>> GetVoertuigenByMerk(string VoertuigMerk)
@@ -279,20 +279,20 @@ namespace api.Repositories
             var endDate = datumDto.EndDate;
 
             var conflicterendeVoertuigIds = await _context.Reservering
-                .Where(r => r.StartDatum < endDate && r.EindDatum > startDate) // Zoek overlappende reserveringen
-                .Select(r => r.VoertuigId) // Haal alleen de VoertuigId's op
-                .Distinct() // Zorg ervoor dat je unieke voertuig-IDs hebt
+                .Where(r => r.StartDatum < endDate && r.EindDatum > startDate) 
+                .Select(r => r.VoertuigId) 
+                .Distinct() 
                 .ToListAsync();
 
             var conflicterendeVoertuigIds2 = await _context.VerhuurVerzoek
-                .Where(r => r.StartDatum < endDate && r.EindDatum > startDate) // Zoek overlappende reserveringen
-                .Select(r => r.VoertuigId) // Haal alleen de VoertuigId's op
-                .Distinct() // Zorg ervoor dat je unieke voertuig-IDs hebt
+                .Where(r => r.StartDatum < endDate && r.EindDatum > startDate) 
+                .Select(r => r.VoertuigId) 
+                .Distinct() 
                 .ToListAsync();
 
-            // Retourneer alle voertuigen behalve de conflicterende
+            
             return await _context.Voertuig
-                .Where(v => !conflicterendeVoertuigIds.Contains(v.VoertuigId) && !conflicterendeVoertuigIds2.Contains(v.VoertuigId)) // Voertuigen die NIET in de conflicterende lijst zitten
+                .Where(v => !conflicterendeVoertuigIds.Contains(v.VoertuigId) && !conflicterendeVoertuigIds2.Contains(v.VoertuigId)) 
                 .ToListAsync();
         }
 

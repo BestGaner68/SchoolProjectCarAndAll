@@ -12,8 +12,8 @@ using api.Data;
 namespace api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250125143225_init")]
-    partial class init
+    [Migration("20250203143857_nieuw")]
+    partial class nieuw
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,36 @@ namespace api.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("AccessoiresReservering", b =>
+                {
+                    b.Property<int>("AccessoiresId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ReserveringId")
+                        .HasColumnType("int");
+
+                    b.HasKey("AccessoiresId", "ReserveringId");
+
+                    b.HasIndex("ReserveringId");
+
+                    b.ToTable("AccessoiresReservering");
+                });
+
+            modelBuilder.Entity("AccessoiresVerhuurVerzoek", b =>
+                {
+                    b.Property<int>("AccessoiresId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("VerhuurVerzoekId")
+                        .HasColumnType("int");
+
+                    b.HasKey("AccessoiresId", "VerhuurVerzoekId");
+
+                    b.HasIndex("VerhuurVerzoekId");
+
+                    b.ToTable("AccessoiresVerhuurVerzoek");
+                });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
@@ -169,6 +199,9 @@ namespace api.Migrations
                     b.Property<bool>("IsStandaard")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsWagenparkAbonnement")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Naam")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -180,6 +213,27 @@ namespace api.Migrations
                     b.HasKey("AbonnementId");
 
                     b.ToTable("Abonnementen");
+                });
+
+            modelBuilder.Entity("api.Models.Accessoires", b =>
+                {
+                    b.Property<int>("AccessoiresId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AccessoiresId"));
+
+                    b.Property<string>("Naam")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("Prijs")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("AccessoiresId");
+
+                    b.ToTable("Accessoires");
                 });
 
             modelBuilder.Entity("api.Models.AppUser", b =>
@@ -324,17 +378,18 @@ namespace api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("VerwachtteKM")
+                        .HasColumnType("int");
+
+                    b.Property<int>("VerzekeringId")
                         .HasColumnType("int");
 
                     b.Property<int>("VoertuigId")
                         .HasColumnType("int");
 
                     b.HasKey("ReserveringId");
+
+                    b.HasIndex("VerzekeringId");
 
                     b.ToTable("Reservering");
                 });
@@ -388,7 +443,7 @@ namespace api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime>("EndDate")
+                    b.Property<DateTime?>("EndDate")
                         .HasColumnType("datetime2");
 
                     b.Property<bool>("IsActive")
@@ -442,12 +497,38 @@ namespace api.Migrations
                     b.Property<int>("VerwachtteKM")
                         .HasColumnType("int");
 
+                    b.Property<int>("VerzekeringId")
+                        .HasColumnType("int");
+
                     b.Property<int>("VoertuigId")
                         .HasColumnType("int");
 
                     b.HasKey("VerhuurVerzoekId");
 
+                    b.HasIndex("VerzekeringId");
+
                     b.ToTable("VerhuurVerzoek");
+                });
+
+            modelBuilder.Entity("api.Models.Verzekering", b =>
+                {
+                    b.Property<int>("VerzekeringId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("VerzekeringId"));
+
+                    b.Property<string>("VerzekeringNaam")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("VerzekeringPrijs")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("VerzekeringId");
+
+                    b.ToTable("Verzekeringen");
                 });
 
             modelBuilder.Entity("api.Models.Voertuig", b =>
@@ -488,8 +569,11 @@ namespace api.Migrations
 
             modelBuilder.Entity("api.Models.VoertuigData", b =>
                 {
-                    b.Property<int>("VoertuigId")
+                    b.Property<int>("VoertuigDataId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("VoertuigDataId"));
 
                     b.Property<decimal>("KilometerPrijs")
                         .HasPrecision(18, 2)
@@ -502,7 +586,13 @@ namespace api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("VoertuigId");
+                    b.Property<int>("VoertuigId")
+                        .HasColumnType("int");
+
+                    b.HasKey("VoertuigDataId");
+
+                    b.HasIndex("VoertuigId")
+                        .IsUnique();
 
                     b.ToTable("VoertuigData");
                 });
@@ -598,6 +688,36 @@ namespace api.Migrations
                     b.ToTable("WagenparkAbonnementen");
                 });
 
+            modelBuilder.Entity("AccessoiresReservering", b =>
+                {
+                    b.HasOne("api.Models.Accessoires", null)
+                        .WithMany()
+                        .HasForeignKey("AccessoiresId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("api.Models.Reservering", null)
+                        .WithMany()
+                        .HasForeignKey("ReserveringId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("AccessoiresVerhuurVerzoek", b =>
+                {
+                    b.HasOne("api.Models.Accessoires", null)
+                        .WithMany()
+                        .HasForeignKey("AccessoiresId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("api.Models.VerhuurVerzoek", null)
+                        .WithMany()
+                        .HasForeignKey("VerhuurVerzoekId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -649,6 +769,17 @@ namespace api.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("api.Models.Reservering", b =>
+                {
+                    b.HasOne("api.Models.Verzekering", "Verzekering")
+                        .WithMany()
+                        .HasForeignKey("VerzekeringId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Verzekering");
+                });
+
             modelBuilder.Entity("api.Models.UserAbonnement", b =>
                 {
                     b.HasOne("api.Models.Abonnement", "Abonnement")
@@ -668,10 +799,21 @@ namespace api.Migrations
                     b.Navigation("AppUser");
                 });
 
+            modelBuilder.Entity("api.Models.VerhuurVerzoek", b =>
+                {
+                    b.HasOne("api.Models.Verzekering", "Verzekering")
+                        .WithMany()
+                        .HasForeignKey("VerzekeringId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Verzekering");
+                });
+
             modelBuilder.Entity("api.Models.VoertuigData", b =>
                 {
                     b.HasOne("api.Models.Voertuig", "Voertuig")
-                        .WithOne("VoertuigStatus")
+                        .WithOne("VoertuigData")
                         .HasForeignKey("api.Models.VoertuigData", "VoertuigId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -732,7 +874,7 @@ namespace api.Migrations
 
             modelBuilder.Entity("api.Models.Voertuig", b =>
                 {
-                    b.Navigation("VoertuigStatus")
+                    b.Navigation("VoertuigData")
                         .IsRequired();
                 });
 

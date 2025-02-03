@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace api.Models
 {
+    /// <summary>
+    /// informatie over het abonnement, voor informatie over hoe de abonnementen werken zie Models.Abonnement
+    /// </summary>
     public class WagenparkAbonnementen
     {
         [Key]

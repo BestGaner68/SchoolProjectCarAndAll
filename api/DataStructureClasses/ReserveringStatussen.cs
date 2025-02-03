@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 
 namespace api.DataStructureClasses
 {
+    /// <summary>
+    /// namen van de reserveringen voor consistentie
+    /// </summary>
     public class ReserveringStatussen
     {
         public const string MagWordenGewijzigd = "MagWordenGewijzigd";

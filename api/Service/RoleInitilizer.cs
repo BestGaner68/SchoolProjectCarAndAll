@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Identity;
 
 namespace api.Service
 {
+    /// <summary>
+    /// zet alle rollen in de db
+    /// </summary>
     public static class RoleInitializer
     {
         public static async Task InitializeRolesAsync(RoleManager<IdentityRole> roleManager)

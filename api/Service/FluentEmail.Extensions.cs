@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace api.Service
 {
+    /// <summary>
+    ///  initalisatie van de emailservice, hier worden de gegevens uit de appsetting gelezen
+    /// </summary>
     public static class FluentEmailExtensions
     {
         public static void AddFluentEmail(this IServiceCollection services, IConfiguration configuration)

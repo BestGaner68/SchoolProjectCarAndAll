@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 
 namespace api.Models
 {
+    /// <summary>
+    /// geen db klasse, gebruik bij versturen emails
+    /// </summary>
     public class EmailMetaData
     {
         public string ToAddress { get; set; } 

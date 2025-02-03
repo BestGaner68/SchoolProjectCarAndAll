@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 
 namespace api.DataStructureClasses
 {
+    /// <summary>
+    /// namen van de schadestatussen voor consistentie
+    /// </summary>
     public class SchadeStatus
     {
         public const string Ingediend = "Ingediend";

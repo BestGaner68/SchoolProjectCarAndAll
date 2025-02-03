@@ -1,6 +1,0 @@
-FluentEmail = emailservice voor het versturen van de emails in onze applicatie
-NotifcatieHostedService = naam klopt niet helemaal maar is een hosted service die dingen die met tijd te maken hebben zoals abonnementen omzetten of herinnerings email sturen automatisch regeld
-RandomPasswordService = niet een best practice maar is om een wachtwoord aan te maken voor de wagenparkbeheerder, er zijn instructies en mogelijkheid om dit gelijk aan te passen
-roleInitilizer = initaliseren van de rollen bij eerste startup/lege db
-tokenservice = voor het maken van jwt tokens
-voertuigInitalizer = initialiseerd voertuig, voertuigData en abonnementen bij lege db

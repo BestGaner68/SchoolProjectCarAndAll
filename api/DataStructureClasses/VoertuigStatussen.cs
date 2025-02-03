@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 
 namespace api.DataStructureClasses
 {
+    /// <summary>
+    /// namen van de voertuigstatussen voor consistentie
+    /// </summary>
     public static class VoertuigStatussen
     {
         public const string KlaarVoorGebruik = "Klaar voor gebruik";

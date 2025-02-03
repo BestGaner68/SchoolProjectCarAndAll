@@ -28,8 +28,13 @@ namespace api.Controllers
             _kostenService = kostenService;
             _factuurService = factuurService;
         }
-    
-        [HttpGet("GetAllVoertuigData/{voertuigId}")] //methode voor opvragen van alle voertuigdata
+
+        /// <summary>
+        /// vraagt alle informatie van een specifiek voertuig op gebaseerd op het id
+        /// </summary>
+        /// <param name="voertuigId">Id van het voertuig</param>
+        /// <returns>informatie van het voertuig en informatie over de status merk, kenteken, naam, kilometerprijs, status etc.</returns>
+        [HttpGet("GetAllVoertuigData/{voertuigId}")] 
         [Authorize (Roles = Rollen.BackendWorker)]
         public async Task<IActionResult> GetAllVoertuigData([FromRoute] int voertuigId)
         {
@@ -47,8 +52,13 @@ namespace api.Controllers
                 return Problem(detail: ex.Message, statusCode: 500);
             }
         }
-    
-        [HttpPut("GeefVoertuigUit")] //methode voor het updaten van voertuigstatusen en bijhouden van uitgifte voertuig
+
+        /// <summary>
+        /// frontoffice worker kan dit gebruiken bij het uitgeven van een voertuig om de status hiervan te updaten en bij te houden dat het voertuig is opgehaalt
+        /// </summary>
+        /// <param name="reserveringDto">Id van de reservering</param>
+        /// <returns>niets</returns>
+        [HttpPut("GeefVoertuigUit")] 
         [Authorize (Roles = Rollen.BackendWorker)]
         public async Task<IActionResult> GeefUit([FromBody] IdDto reserveringDto)
         {
@@ -71,7 +81,12 @@ namespace api.Controllers
                 return StatusCode(500, new { message = "Er is een onverwachte fout opgetreden.", details = ex.Message });
             }
         }
-    
+
+        /// <summary>
+        /// gebruik bij inname voertuig, de medewerker kan hier invullen hoeveel km er zijn gereden en of er schade was aan het voertuig hierna wordt er een factuur gemaakt en opgestuurd naar de gebruiker
+        /// </summary>
+        /// <param name="innameDto">reserveringsid, of er schade is, eventueel een foto hiervan en de gereden kms</param>
+        /// <returns>niets, maar stuurd een factuur naar de gebruiker</returns>
         [HttpPut("NeemIn")] //methode voor innemen van voertuigen en sturen van factuur
         [Authorize (Roles = Rollen.BackendWorker)]
         public async Task<IActionResult> NeemIn([FromBody] InnameDto innameDto)
@@ -106,8 +121,8 @@ namespace api.Controllers
                 {
                     return NotFound(new { message = "Reservering niet gevonden." });
                 }
-
-                var prijsOverzicht = await _kostenService.BerekenDaadWerkelijkPrijs(innameDto.ReserveringId, innameDto.GeredenKilometers, innameDto.IsSchade, reservering.AppUserId);
+        
+                var prijsOverzicht = await _kostenService.BerekenTotalePrijs(innameDto.ReserveringId, innameDto.IsSchade, innameDto.GeredenKilometers);
                 if (prijsOverzicht == null)
                 {
                     return BadRequest("Er is iets mis gegaan bij het berekenen van de prijs.");

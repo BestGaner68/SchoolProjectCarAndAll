@@ -25,8 +25,12 @@ namespace api.Controllers
             _wagenParkUserListService = wagenparkUserListService;
         }
 
+        /// <summary>
+        /// returned alle users die in het wagenpark van de gebruiker die het runned zitten
+        /// </summary>
+        /// <returns>alle gebruikers in gebruiker zijn wagenpark</returns>
         [Authorize]
-        [HttpGet("GetAllWagenParkUsers")] //returned all users geregistreerd in gebruikers wagenpark
+        [HttpGet("GetAllWagenParkUsers")] 
         public async Task<IActionResult> GetAllUserInWagenPark()
         {
             try
@@ -52,8 +56,13 @@ namespace api.Controllers
             }
         }
 
+        /// <summary>
+        /// wagenparkbeheerder kan deze methode gebruiken om werknemers een email te sturen en te kunnen laten registreren met registreerzakelijk endpoint
+        /// </summary>
+        /// <param name="nodigUitDto">email van de gebruiker</param>
+        /// <returns>niets</returns>
         [Authorize]
-        [HttpPut("NodigGebruikerUitVoorWagenpark")] //stuur uitnodig per email naar gewensde gebruiker, daarna kan account worden aangemaakt
+        [HttpPut("NodigGebruikerUitVoorWagenpark")] 
         public async Task<IActionResult> NodigGebruikerUitVoorWagenpark([FromBody] NodigUitDto nodigUitDto)
         {
             try
@@ -83,8 +92,13 @@ namespace api.Controllers
             }
         }
 
+        /// <summary>
+        /// status van de gebruiker wordt aangepast, hierna wordt hun account verwijderd, emailadress kan permanent niet meer worden gebruikt voor het aanmaken van een zakelijk account
+        /// </summary>
+        /// <param name="appUserId">id van de gebruiker die verwijderd moet worden</param>
+        /// <returns>niets</returns>
         [Authorize]
-        [HttpDelete("RemoveUserFromWagenPark")] //verwijderd PERMANENT een gebruiker van het wagenpark
+        [HttpDelete("RemoveUserFromWagenPark")] 
         public async Task<IActionResult> RemoveUserFromWagenPark([FromBody] string appUserId)
         {
             try
@@ -108,8 +122,13 @@ namespace api.Controllers
             }
         }
 
+
+        /// <summary>
+        /// maakt een overzicht van alle reserveringen die binnen het wagenpark zijn gemaakt en afgerond
+        /// </summary>
+        /// <returns>een overzicht in de vorm wagenparkoverzichtDto, alle reserveringen die binnen het wagenpark zijn gemaakt door gebruikers</returns>
         [Authorize]
-        [HttpGet("GetOverzicht")] //maakt een overzicht van de huringen van de gebruikers in het wagenpark
+        [HttpGet("GetOverzicht")] 
         public async Task<IActionResult> GetOverzicht()
         {
             try

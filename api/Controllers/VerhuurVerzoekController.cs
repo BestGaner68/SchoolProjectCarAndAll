@@ -32,8 +32,12 @@ namespace api.Controllers
         }
 
 
+        /// <summary>
+        /// returned alle verhuurverzoeken die status pending hebben dus nog moeten worden verwerkt gebruik in frontend
+        /// </summary>
+        /// <returns>alle verhuurverzoeken met status pending</returns>
         [Authorize(Roles = $"{Rollen.BackendWorker},{Rollen.FrontendWorker}")]
-        [HttpGet("GetAllPendingVerhuurVerzoeken")] //methode returned verhuurverzoeken die verwerkt moeten worden
+        [HttpGet("GetAllPendingVerhuurVerzoeken")] 
         public async Task<IActionResult> GetAllPendingVerhuurVerzoeken()
         {
             try
@@ -61,28 +65,58 @@ namespace api.Controllers
             }
         }
 
-        [HttpGet("GetByID/{id}")] //verhuurverzoek ophalen gebaseerd op id
-        public async Task<IActionResult> GetById([FromRoute] int id)
-        {
-            try
+        /// <summary>
+        /// voor het ophalen van een verhuurverzoek op id
+        /// </summary>
+        /// <param name="id">id verhuurverzoek</param>
+        /// <returns>een verhuurverzoek</returns>
+        [HttpGet("GetByID/{id}")]
+        public async Task<IActionResult> GetById([FromRoute] int id){
+            var verhuurVerzoekByID = await _verhuurVerzoekRepo.GetByIdAsync(id);
+            if (verhuurVerzoekByID == null)
             {
-                var verhuurVerzoekByID = await _verhuurVerzoekRepo.GetByIdAsync(id);
-                if (verhuurVerzoekByID == null)
-                {
-                    return NotFound(new { message = "Verhuurverzoek niet gevonden." });
-                }
-                return Ok(verhuurVerzoekByID);
+                return NotFound();
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Fout bij het ophalen van verhuurverzoek.");
-                return StatusCode(500, new { message = "Er is een interne fout opgetreden", details = ex.Message });
-            }
+            return Ok(verhuurVerzoekByID);
         }
 
+        /// <summary>
+        /// returned alle mogelijke verzekering die gebruikers kunnen kiezen bij verhuurverzoek aanmaken. gebruik bij aanmaken van elementen in frontend
+        /// </summary>
+        /// <returns>alle verzekering uit de db</returns>
+        [HttpGet("GetAllVerzekeringen")]
+        public async Task<ActionResult<IEnumerable<Verzekering>>> GetAllVerzekeringen()
+        {
+            var verzekeringen = await _verhuurVerzoekRepo.GetAllVerzekeringen();
+            if (verzekeringen == null)
+            {
+                return NotFound();
+            }
+            return Ok(verzekeringen);
+        }
+
+        /// <summary>
+        /// returned alle accessoires die gebruikers kunnen kiezen bij verhuurverzoek aanmaken. gebruik bij aanmaken van elementen in frontend
+        /// </summary>
+        /// <returns>alle accessoires uit de db</returns>
+        [HttpGet("GetAllAccessoires")]
+        public async Task<ActionResult<IEnumerable<Accessoires>>> GetAllAccessoires()
+        {
+            var accessoires = await _verhuurVerzoekRepo.GetAllAccessoires();
+            if (accessoires == null)
+            {
+                return NotFound();
+            }
+            return Ok(accessoires);
+        }
+        /// <summary>
+        /// gebruiker kan dit gebruiker om een verhuurverzoekrequest aan te maken
+        /// </summary>
+        /// <param name="verhuurVerzoekDto">alle data bij aanmaken verhuurverzoek, voertuig, data, verwachttekm, etc.</param>
+        /// <returns>niets</returns>
         [Authorize]
         [HttpPost("VerhuurVerzoekRequest")] //maakt een verhuurverzoek request, gebruik in het huren van voertuigen
-        public async Task<IActionResult> Create([FromBody] VerhuurVerzoekRequestDto verhuurVerzoekDto)
+        public async Task<IActionResult> CreateVerzoek([FromBody] VerhuurVerzoekRequestDto verhuurVerzoekDto)
         {
             if (!ModelState.IsValid)
             {
@@ -109,94 +143,80 @@ namespace api.Controllers
 
                 var timeDifference = verhuurVerzoekDto.EindDatum - verhuurVerzoekDto.StartDatum;
 
-                if (timeDifference.TotalDays < 2)
-                {
-                    return BadRequest(new { message = $"StartDatum en EindDatum moeten minimaal 24 uur uit elkaar liggen. Huidige verschil: {timeDifference.TotalHours} uren." });
-                }
-
-                var verhuurVerzoekModel = verhuurVerzoekDto.ToVerhuurVerzoekFromDto(userId);
-                await _verhuurVerzoekRepo.CreateAsync(verhuurVerzoekModel);
-
-                return CreatedAtAction(nameof(GetById), new { id = verhuurVerzoekModel.VerhuurVerzoekId }, verhuurVerzoekModel.ToVerhuurVerzoekDto());
+            if (timeDifference.TotalDays < 2)
+            {
+                return BadRequest($"StartDatum en EindDatum moeten minimaal 24 uur uit elkaar liggen. {timeDifference}");
+            }
+            var GekozenAccesoires = await _verhuurVerzoekRepo.FromIdToInstanceAccessoires(verhuurVerzoekDto.AccessoiresIds);
+            var verzekering = await _verhuurVerzoekRepo.FromIdToInstanceVerzekering(verhuurVerzoekDto.VerzekeringId);
+            var verhuurVerzoekModel = verhuurVerzoekDto.ToVerhuurVerzoekFromDto(userId, GekozenAccesoires, verzekering);
+            await _verhuurVerzoekRepo.CreateAsync(verhuurVerzoekModel);
+            return CreatedAtAction(nameof(GetById), new {id = verhuurVerzoekModel.VerhuurVerzoekId}, verhuurVerzoekModel.ToVerhuurVerzoekDto());
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Fout bij het aanmaken van verhuurverzoek.");
-                return StatusCode(500, new { message = "Er is een interne fout opgetreden", details = ex.Message });
+                return BadRequest(ex.Message);
             }
         }
 
-        [Authorize]
-        [HttpGet("GetUnavailableData/{voertuigId}")] //returned data waarop een voertuig niet verhuurd kan worden
+        /// <summary>
+        /// returned de data van een voertuig waar het niet verhuurd kan worden
+        /// </summary>
+        /// <param name="voertuigId">het voertuig waarvan je het wil weten</param>
+        /// <returns>alle data waarop het voertuig wordt verhuurd</returns>
+        [HttpGet("GetUnavailableData/{voertuigId}")]
         public async Task<IActionResult> GetUnavailableData([FromRoute] int voertuigId)
         {
-            try
-            {
-                var dates = await _voertuigService.GetUnavailableDates(voertuigId);
-                return Ok(dates);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Fout bij het ophalen van onbeschikbare datums.");
-                return StatusCode(500, new { message = "Er is een interne fout opgetreden", details = ex.Message });
-            }
+            var dates = await _voertuigService.GetUnavailableDates(voertuigId);
+            return Ok(dates);
         }
-        [Authorize]
-        [HttpGet("GetMyVerzoeken")] //returned de verhuurverzoeken van een gebruiker
-        public async Task<IActionResult> GetMyVerzoeken()
-        {
-            try
+        
+        /// <summary>
+        /// returned alle verzoeken die de gebruiker heeft gemaakt, gebaseerd op zijn jwt token
+        /// </summary>
+        /// <returns>alle verzoeken die een gebruiker heeft gemaakt</returns>
+        [HttpGet("GetMyVerzoeken")]
+        public async Task<IActionResult> GetMyVerzoeken(){
+            var AppUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(AppUserId))
             {
-                var AppUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                if (string.IsNullOrEmpty(AppUserId))
-                {
-                    return Unauthorized(new { message = "JWT Token is niet meer in gebruik" });
-                }
-
-                var UserVerzoeken = await _verhuurVerzoekRepo.GetMyVerhuurVerzoeken(AppUserId);
-                if (!UserVerzoeken.Any())
-                {
-                    return NotFound(new { message = "Er zijn geen verhuurverzoeken gevonden." });
-                }
-
-                return Ok(UserVerzoeken);
+                return Unauthorized(new {message = "JWT Token is niet meer in gebruik"});
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Fout bij het ophalen van mijn verhuurverzoeken.");
-                return StatusCode(500, new { message = "Er is een interne fout opgetreden", details = ex.Message });
+            var UserVerzoeken = await _verhuurVerzoekRepo.GetMyVerhuurVerzoeken(AppUserId);
+            if (!UserVerzoeken.Any()){
+                return NotFound( new {message = "Er zijn geen verhuurverzoeken gevonden."});
             }
-        }
-        [Authorize]
-        [HttpPut("DeclineMyVerzoek/{VerhuurVerzoekId}")] //verwijderd een verzoek van een gebruiker kan altijd gebeuren totdat het is goedgekeurt
-        public async Task<IActionResult> DeclineMyVerzoek([FromRoute] int VerhuurVerzoekId)
-        {
-            try
-            {
-                var AppUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                if (string.IsNullOrEmpty(AppUserId))
-                {
-                    return Unauthorized(new { message = "JWT Token is niet meer in gebruik" });
-                }
-
-                var Succes = await _verhuurVerzoekRepo.DeclineMyVerzoek(VerhuurVerzoekId, AppUserId);
-                if (Succes)
-                {
-                    return Ok(new { message = "Verhuurverzoek succesvol afgewezen." });
-                }
-
-                return BadRequest(new { message = "De operatie kon niet worden uitgevoerd." });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Fout bij het afwijzen van verhuurverzoek.");
-                return StatusCode(500, new { message = "Er is een interne fout opgetreden", details = ex.Message });
-            }
+            return Ok (UserVerzoeken);
         }
 
-        [Authorize]
-        [HttpPut("GetKostenOverzicht")] //stuur een kostenoverzicht naar de frontend, gebruik bij het tonen van de kosten van het reserveren
-        public async Task<IActionResult> GetKostenOverzicht([FromBody] GetKostenOverzichtDto getKostenOverzichtDto)
+        /// <summary>
+        /// gebruiker kan methode gebruiken om zijn verhuurverzoek te verwijderen, DIT is voordat het een reservering is geworden. 
+        /// </summary>
+        /// <param name="VerhuurVerzoekId">id van het verzoek, gebruiker kan vorige methode hiervoor gebruiken</param>
+        /// <returns>niets</returns>
+        [HttpPut("DeclineMyVerzoek/{VerhuurVerzoekId}")]
+        public async Task<IActionResult> DeclineMyVerzoek ([FromRoute]int VerhuurVerzoekId){
+            var AppUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(AppUserId))
+            {
+                return Unauthorized(new {message = "JWT Token is niet meer in gebruik"});
+            }
+            var Succes = await _verhuurVerzoekRepo.DeclineMyVerzoek(VerhuurVerzoekId, AppUserId);
+            if (Succes)
+            {
+                return Ok();
+            }
+            return BadRequest(new { message = "De operatie kon niet worden uitgevoerd." });
+        }
+
+        /// <summary>
+        /// Methode maakt een prijs overzicht gebaseerd op de verwachtte prijs van het verhuurverzoek, gebruik in frontend voor helderheid kosten. Deze methode verschilt van de normale prijs calculatie
+        /// aangezien we hier een verhuurverzoek gebruiken en niet een reservering
+        /// </summary>
+        /// <param name="VerhuurverzoekId">id van de reservering</param>
+        /// <returns>een overzicht in de vorm een kostenDto hierin staat het item en de calculatie van de prijs</returns>
+        [HttpPut("GetKostenOverzicht")]
+        public async Task<IActionResult> GetKostenOverzicht([FromBody]IdDto VerhuurverzoekId)
         {
             try
             {
@@ -206,13 +226,7 @@ namespace api.Controllers
                     return Unauthorized(new { message = "JWT Token is niet meer in gebruik" });
                 }
 
-                var kosten = await _kostenService.BerekenVerwachtePrijsUitVerhuurVerzoek(
-                    appUserId,
-                    getKostenOverzichtDto.VerwachtteKM,
-                    getKostenOverzichtDto.StartDatum,
-                    getKostenOverzichtDto.EindDatum,
-                    getKostenOverzichtDto.VoertuigId
-                );
+                var kosten = await _kostenService.BerekenVerwachtePrijsUitVerhuurVerzoek(VerhuurverzoekId.Id);
 
                 return Ok(kosten);
             }
@@ -223,6 +237,11 @@ namespace api.Controllers
             }
         }
         
+        /// <summary>
+        /// mock methode voor het betalen met credit card
+        /// </summary>
+        /// <param name="betaalDto">gegevens bij het betalen creditcard nummer etc. wordt niet opgeslagen</param>
+        /// <returns>niets</returns>
         [Authorize]
         [HttpPost("process-credit-card")] //Mock methode is een beginnende implementatie van het verwerken van creditcard gegevens
         public async Task<IActionResult> ProcessCreditCard([FromBody] BetaalDto betaalDto)

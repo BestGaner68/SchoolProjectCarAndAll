@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 
 namespace api.DataStructureClasses
 {
+    /// <summary>
+    /// namen van de abonnementen voor consistentie
+    /// </summary>
     public class AbonnementNamen
     {
         public const string PayAsYouGo = "PayAsYouGo";

@@ -30,8 +30,13 @@ namespace api.Controllers
             _logger = logger;
         }
 
+        /// <summary>
+        /// backofficemedewerker kunnen deze methode gebruiken om een verhuurverzoek goed te keuren en te veranderen in een reservering, de gebruiker krijgt een email
+        /// </summary>
+        /// <param name="verzoekId">Id van het verzoek</param>
+        /// <returns>niets, stuurt een email</returns>
         [Authorize(Roles = $"{Rollen.BackendWorker},{Rollen.FrontendWorker}")]
-        [HttpPost("KeurVerzoekGoed/{verzoekId}")] //methode voor goedkeuren verhuurverzoek
+        [HttpPost("KeurVerzoekGoed/{verzoekId}")]
         public async Task<IActionResult> KeurVerzoekGoed([FromRoute] int verzoekId)
         {
             try
@@ -64,9 +69,14 @@ namespace api.Controllers
             }
         }
         
+        /// <summary>
+        /// keur het verzoek af en maakt GEEN reservering, status wordt veranderd. email wordt gestuurd met de reden voor weigering 
+        /// </summary>
+        /// <param name="weigerVerhuurVerzoekDto">verhuurverzoekid en de weiger reden</param>
+        /// <returns>niets, stuurt email</returns>
         [Authorize(Roles = $"{Rollen.BackendWorker},{Rollen.FrontendWorker}")]
-        [HttpPost("KeurVerzoekAf/{verzoekId}")] //methode voor weigeren verhuurverzoek
-        public async Task<IActionResult> KeurVerzoekAf([FromRoute] int verzoekId)
+        [HttpPost("KeurVerzoekAf")] //methode voor weigeren verhuurverzoek
+        public async Task<IActionResult> KeurVerzoekAf([FromRoute] WeigerVerhuurVerzoekDto weigerVerhuurVerzoekDto )
         {
             try
             {
@@ -76,7 +86,7 @@ namespace api.Controllers
                     return Unauthorized(new { message = "Gebruiker is niet geautoriseerd." });
                 }
         
-                var result = await _reserveringService.WeigerVerhuurVerzoek(verzoekId);
+                var result = await _reserveringService.WeigerVerhuurVerzoek(weigerVerhuurVerzoekDto);
                 if (!result)
                 {
                     return NotFound(new { message = "Er is geen verhuurverzoek gevonden of een andere fout opgetreden." });
@@ -90,8 +100,12 @@ namespace api.Controllers
             }
         }
 
+        /// <summary>
+        /// Returned alle reserveringen uit de db die nog uitgegeven moeten worden, gebaseerd op status
+        /// </summary>
+        /// <returns>alle reserveringen uit de db die nog uitgegeven moeten worden</returns>
         [Authorize(Roles = $"{Rollen.BackendWorker},{Rollen.FrontendWorker}")]
-        [HttpGet("GetAllReserveringen")] //methode returned een lijst met alle reserveringen die verwerkt moeten worden
+        [HttpGet("GetAllReserveringen")] 
         public async Task<IActionResult> GetAllReserveringen()
         {
             try
@@ -110,6 +124,12 @@ namespace api.Controllers
             }
         }
 
+
+        /// <summary>
+        /// Returned de reservering gebaseerd op het id
+        /// </summary>
+        /// <param name="reserveringId">id van reservering</param>
+        /// <returns>de reservering</returns>
         [Authorize(Roles = $"{Rollen.BackendWorker},{Rollen.FrontendWorker}")]
         [HttpGet("GetReserveringById/{reserveringId}")] //methode returned de reservering informatie gebaseerd op id
         public async Task<IActionResult> GetReserveringById([FromRoute] int reserveringId)
@@ -129,9 +149,14 @@ namespace api.Controllers
                 return StatusCode(500, new { message = "Er is een interne fout opgetreden", details = ex.Message });
             }
         }
+        
 
+        /// <summary>
+        /// gebruiker kan zijn huurgeschiedenis inzien met deze methode, het check alle reserveringen die op de gebruikers naam staan
+        /// </summary>
+        /// <returns>een overzicht van de reserveringen</returns>
         [Authorize]
-        [HttpGet("ViewHuurGeschiedenis")] //methode voor het inzien van verhuurgeschiedenis voor gebruikers
+        [HttpGet("ViewHuurGeschiedenis")] 
         public async Task<IActionResult> ViewHuurGeschiedenis()
         {
             try
@@ -163,9 +188,13 @@ namespace api.Controllers
                 return StatusCode(500, new { message = "Er is een interne fout opgetreden", details = ex.Message });
             }
         }
-
+        /// <summary>
+        /// gebruikers mogen nog data aanpassen een week vantevoren met deze methode, als alle data klopt kan de gebruiker zijn voertuig of de data aanpassen
+        /// </summary>
+        /// <param name="wijzigReserveringDto">data id of allebei die veranderd moeten worden en het id van de reservering</param>
+        /// <returns>niets</returns>
         [Authorize]
-        [HttpPut("WijzigReservering")] //methode voor het aanpassen van data of voertuig van een reservering als het nog mag (1 week van tevoren)
+        [HttpPut("WijzigReservering")] 
         public async Task<IActionResult> WijzigReservering([FromBody] WijzigReserveringDto wijzigReserveringDto)
         {
             if (!ModelState.IsValid)
@@ -189,8 +218,13 @@ namespace api.Controllers
             }
         }
 
+        /// <summary>
+        /// hiermee kan de gebruiker minimaal een week van tevoren zijn reservering verwijderen
+        /// </summary>
+        /// <param name="reserveringId">id van de reservering</param>
+        /// <returns></returns>
         [Authorize]
-        [HttpDelete("VerwijderReservering/{reserveringId}")] //methode verwijderd de reservering van de gebruiker (minimaal 1 week van tevoren)
+        [HttpDelete("VerwijderReservering/{reserveringId}")] 
         public async Task<IActionResult> VerwijderReservering([FromRoute] int reserveringId)
         {
             try

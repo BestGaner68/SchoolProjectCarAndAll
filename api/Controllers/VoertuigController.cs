@@ -19,6 +19,10 @@ namespace api.Controllers
             _voertuigService = voertuigService;
         }
 
+        /// <summary>
+        /// returned elke voertuig uit de db
+        /// </summary>
+        /// <returns>returned elke voertuig uit de db</returns>
         [HttpGet("AllVoertuigen")] //returned all voertuigen
         public async Task<IActionResult> GetAllVoertuigen()
         {
@@ -37,6 +41,11 @@ namespace api.Controllers
             }
         }
 
+        /// <summary>
+        /// filter voor voertuigen gebaseerd op merk
+        /// </summary>
+        /// <param name="voertuigMerk">het op te filteren merk</param>
+        /// <returns>de voertuigen van dat merk</returns>
         [HttpGet("GetVoertuigByMerk")] //returned voertuig gebaseerd op merk, gebruik in frontend
         public async Task<IActionResult> GetVoertuigenByMerk([FromQuery] string voertuigMerk)
         {
@@ -61,6 +70,11 @@ namespace api.Controllers
         }
 
 
+        /// <summary>
+        /// voor filteren op soort
+        /// </summary>
+        /// <param name="voertuigSoort">soort van het voertuig</param>
+        /// <returns>alle voertuigen van die soort</returns>
         [HttpGet("GetVoertuigBySoort")] //returned voertuig gebaseerd op soort, gebruik in frontend
         public async Task<IActionResult> GetVoertuigenBySoort([FromQuery] string voertuigSoort)
         {
@@ -84,6 +98,12 @@ namespace api.Controllers
             }
         }
         
+        /// <summary>
+        /// returned alle voertuigen die beschikbaar zijn tussen de aangegeven data
+        /// </summary>
+        /// <param name="startDate">begindatum</param>
+        /// <param name="endDate">einddatum</param>
+        /// <returns>de voertuigen die tussen die data kunnen worden verhuurd</returns>
         [HttpGet("GetVoertuigByDate")] //returned voertuigen die in de periode beschikbaar zijn
         public async Task<IActionResult> GetVoertuigenByDate([FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate)
         {
@@ -116,6 +136,16 @@ namespace api.Controllers
             {
                 return StatusCode(500, new { message = "Er is een interne fout opgetreden.", details = ex.Message });
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns>returned alle data en info van een voertuig</returns>
+        [HttpGet("GetAllVoertuigDataEnStatus")]
+        public async Task<IActionResult> GetAllVoertuigDataEnStatus()
+        {
+            return Ok(await _voertuigService.GetAllVoertuigen());
         }
     }
 }

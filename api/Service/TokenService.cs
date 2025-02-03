@@ -11,6 +11,9 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace api.Service
 {
+    /// <summary>
+    /// klasse is verantwoordelijk voor het aanmaken van jwt tokens die we in de applicatie gebruiken, hierin staat het emailadress de username en hun id (uit de db)
+    /// </summary>
     public class TokenService : ITokenService
     {
         private readonly IConfiguration _config;

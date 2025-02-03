@@ -17,5 +17,7 @@ namespace api.Interfaces
        Task<bool> GeefStandaardAbonnement(AppUser appUser); //methode geeft een gebruiker het pay as you go abonnement, dit wordt gebruikt bij het aanmaken van een gebruiker
        Task AddAbonnement(List<Abonnement> abonnements); //methode is nodig voor het seeden van de applicatie bij eerste opstart.
        Task<IEnumerable<Abonnement>> GetAllWagenparkBeheerderAbonnementen(); //methode returned alle abonnementen die wagenparken kunnen kiezen
+       Task AddVerzekering(List<Verzekering> verzekeringe);
+       Task AddAccessoires(List<Accessoires> accessoires);
     }
 }

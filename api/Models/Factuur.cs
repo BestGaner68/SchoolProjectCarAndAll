@@ -6,6 +6,9 @@ using api.Dtos.KostenDtos;
 
 namespace api.Models
 {
+    /// <summary>
+    /// geen db klasse, gebruik bij het aanmaken van facturen. 
+    /// </summary>
     public class Factuur
     {
         public string Factuurnummer { get; set; }

@@ -8,6 +8,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace api.Models
 {
+    /// <summary>
+    /// informatie over het wagenpark, voor informatie over abonnementen zie Model.Abonnement
+    /// </summary>
     public class WagenPark
     {
         [Key]

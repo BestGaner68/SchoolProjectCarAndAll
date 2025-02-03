@@ -42,7 +42,13 @@ namespace api.Controllers
             _abonnementService = abonnementService; 
         }
 
-        [HttpPost("Login")] //method voor login
+
+        /// <summary>
+        /// Login methode voor het inloggen en geven van jwt token
+        /// </summary>
+        /// <param name="loginDto">gegevens voor het inloggen Username, password</param>
+        /// <returns>de Jwt token van de user, username en email</returns>
+        [HttpPost("Login")] 
         public async Task<IActionResult> Login(LoginDto loginDto)
         {
             if (!ModelState.IsValid)
@@ -71,7 +77,12 @@ namespace api.Controllers
             );
         }
 
-        [HttpPost("registerParticulier")] //methode voor het registreren van particulieren klanten
+        /// <summary>
+        /// Register methode voor particuliere klanten
+        /// </summary>
+        /// <param name="registerDto">register gegevens zoals naam, username, password etc.</param>
+        /// <returns>jwt token, username en email</returns>
+        [HttpPost("registerParticulier")] 
         public async Task<IActionResult> RegisterParticulier([FromBody] RegisterDto registerDto)
         {
             try
@@ -125,7 +136,12 @@ namespace api.Controllers
             }
         }
 
-        [HttpPost("registerZakelijk")] //methode voor het registreren van zakelijke klanten die zijn uitgenodigd door een wagenparkbeheerder
+        /// <summary>
+        /// Register speciefiek voor het aanmaken van een account binnen een wagenpark, de methode checked of de user is uitgenodigd oftwel in de db staat met zijn email
+        /// </summary>
+        /// <param name="registerDto">register gegevens naam, username etc.</param>
+        /// <returns>jwt token, username, email</returns>
+        [HttpPost("registerZakelijk")]
         public async Task<IActionResult> RegisterZakelijk([FromBody] RegisterDto registerDto)
         {
             try
@@ -188,6 +204,10 @@ namespace api.Controllers
             }
         }
 
+        /// <summary>
+        /// Methode returned gegevens van de gebruiker gebaseerd op de jwt token voor gebruik in de frontend
+        /// </summary>
+        /// <returns>belangrijke gegevens van de gebruiker voornamelijk zijn rol, zie methode</returns>
         [HttpGet("getUserData")] //methode voor userdata wordt gebruikt in de frontend voor routing
         [Authorize]
         public async Task<IActionResult> GetUserData()
@@ -222,7 +242,12 @@ namespace api.Controllers
             }
         }
 
-        [HttpPut("updateUserData")] //methode voor het updaten van de gegevens van een gebruiker
+        /// <summary>
+        /// methode voor het veranderen van gegevens op gebruikers profiel
+        /// </summary>
+        /// <param name="updateDto">de gegevens die zij willen veranderen username, email en phonenumber </param>
+        /// <returns>niets, maar past aan in de db als de gegevens kloppen</returns>
+        [HttpPut("updateUserData")] 
         [Authorize]
         public async Task<IActionResult> UpdateUserData([FromBody] UpdateUserDto updateDto)
         {
@@ -274,7 +299,12 @@ namespace api.Controllers
             }
         }
 
-        [HttpPut("changePassword")] //methode voor het aanpassen van een wachtwoord
+        /// <summary>
+        /// specifieke methode voor aanpassen van user wachtwoord
+        /// </summary>
+        /// <param name="changePasswordDto">verwacht current wachtwoord en het in te veranderen wachtwoord</param>
+        /// <returns>niets</returns>
+        [HttpPut("changePassword")] 
         [Authorize] 
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto changePasswordDto)
         {
@@ -309,7 +339,12 @@ namespace api.Controllers
             }
         }
 
-        [HttpPut("NieuwWagenParkVerzoek")] //verzoek om een wagenpark te creeeren op onze website
+        /// <summary>
+        /// methode voor het aanmaken van een verzoek om een wagenparkeigen te worden op onze website, als alles klopt kan de backendmedewerker het goedkeuren
+        /// </summary>
+        /// <param name="wagenParkVerzoekDto">Belangijke gegevens bij het aanmaken zoals gebruikers info voor account en gegevens voor het wagenpark zelf kvk nummer, bedrijfsnaam etc.</param>
+        /// <returns>niets, zet een request in de db</returns>
+        [HttpPut("NieuwWagenParkVerzoek")] 
         public async Task<IActionResult> NieuwWagenParkVerzoek(NieuwWagenParkVerzoekDto wagenParkVerzoekDto)
         {
             if (!ModelState.IsValid)

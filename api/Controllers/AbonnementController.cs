@@ -27,7 +27,13 @@ namespace api.Controllers
             _abonnementService = abonnementService;
             _wagenparkService = wagenparkService;
         }
-        [HttpGet("GetUserAbonnementen")] //methode returned de abonnement die gebruikers kunnen kiezen
+
+        /// <summary>
+        /// Deze methode verwacht niets en returned alle abonnementen die Users mogen selecteren uit de database voor gebruik in de frontend
+        /// </summary>
+        /// <returns>alle abonnementen voor Users</returns>
+
+        [HttpGet("GetUserAbonnementen")] 
         [Authorize]
         public async Task<IActionResult> GetAllUserAbonnementen()
         {
@@ -41,7 +47,12 @@ namespace api.Controllers
                 return StatusCode(500, new { Message = "Er is een onverwachte fout opgetreden.", Details = ex.Message });
             }
         }
-        [HttpGet("GetWagenparkBeheerderAbonnementen")] //methode returned abonnementen die wagenparkbeheerder kunnen kiezen
+        /// <summary>
+        /// Deze methode verwacht niets en returned alle abonnementen die Users mogen selecteren uit de database voor gebruik in de frontend
+        /// </summary>
+        /// <returns>Alle abonnementen voor wagenparken</returns>
+
+        [HttpGet("GetWagenparkBeheerderAbonnementen")]
         [Authorize]
         public async Task<IActionResult> GetWagenparkBeheerderAbonnementen()
         {
@@ -55,6 +66,13 @@ namespace api.Controllers
                 return StatusCode(500, new { Message = "Er is een onverwachte fout opgetreden.", Details = ex.Message });
             }
         }
+
+        /// <summary>
+        /// Verwacht een nieuweabonnent Id want dan in de queue van abonnementen van de gebruiker wordt gezet
+        /// </summary>
+        /// <param name="NieuwAbonnementId">Het Id van het abonnement in Dto form</param>
+        /// <returns>Niets</returns>
+
         [HttpPost("wijzig-abonnement-user")] //wordt gebruikt om het abonnement van een user te weizigen
         [Authorize]
         public async Task<IActionResult> WijzigAbonnementUser([FromBody] IdDto NieuwAbonnementId)
@@ -78,6 +96,12 @@ namespace api.Controllers
                 return StatusCode(500, new { Message = "Er is een onverwachte fout opgetreden.", Details = ex.Message });
             }
         }
+
+        /// <summary>
+        /// Wordt gebruikt bij het weizigen van een abonnement van een wagenpark door met te queueen
+        /// </summary>
+        /// <param name="abonnementWijzigDto">WagenparkId en abonnementId</param>
+        /// <returns>niets</returns>
         [HttpPost("wijzig-abonnement-wagenpark")] //wordt gebruikt om abonnement van een wagenparkbeheerder te weizigen
         [Authorize]
         public async Task<IActionResult> WijzigAbonnementWagenpark([FromBody] AbonnementWeizigDto abonnementWijzigDto)
@@ -96,6 +120,13 @@ namespace api.Controllers
                 return StatusCode(500, new { Message = "Er is een onverwachte fout opgetreden.", Details = ex.Message });
             }
         }
+
+
+        /// <summary>
+        /// Gebruikt om de periode dat een abonnement actief is te verlengen
+        /// </summary>
+        /// <param name="abonnementweizigDto">wagenparkId en AbonnementId</param>
+        /// <returns>Niets</returns>
         [HttpPut("ExtentCurrentAbonnement")] //wordt gebruikt om de periode van het abonnement te verlengen
         [Authorize]
         public async Task<IActionResult> ExtentCurrentAbonnement([FromBody] AbonnementWeizigDto abonnementweizigDto)
@@ -124,6 +155,11 @@ namespace api.Controllers
                 return StatusCode(500, new { Message = "Er is een onverwachte fout opgetreden.", Details = ex.Message });
             }
         }
+
+        /// <summary>
+        /// Returned het abonnement van de user gebaseerd op zijn jwt token
+        /// </summary>
+        /// <returns>actiefe abonnement</returns>
         [HttpGet("GetCurrentAbonnement")] //returned het abonnement wat de gebruiker momenteel heeft
         [Authorize]
         public async Task<IActionResult> GetCurrentAbonnement()

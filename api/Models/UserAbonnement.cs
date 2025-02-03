@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 
 namespace api.Models
 {
+    /// <summary>
+    /// gebruiker heeft een lijst van userabonnementen, hoe werkt dit? zie Models.AppUser comment. niets bijzonders verder
+    /// </summary>
     public class UserAbonnement
     {
         public int UserAbonnementId { get; set; }

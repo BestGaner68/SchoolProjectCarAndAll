@@ -34,6 +34,11 @@ namespace api.Controllers
             _reserveringService = reserveringService;
         }
 
+        /// <summary>
+        /// Register voor werknemers van het bedrijf een backendmedewerker zal een account voor hun aanmaken
+        /// </summary>
+        /// <param name="registerOfficeDto">accountgegevens username password, en welke rol front of backendmedewerker</param>
+        /// <returns>jwt token, username, password</returns>
         [Authorize(Roles = Rollen.BackendWorker)]
         [HttpPost("registerBackendAndFrontend")] //methode voor het registreren van werknemers CarAndALl
         public async Task<IActionResult> RegisterBackendAndFrontend([FromBody] RegisterBackOrFrontEndWorkerDto registerOfficeDto)
@@ -91,6 +96,12 @@ namespace api.Controllers
             }
         }
 
+        /// <summary>
+        /// methode voor het veranderen van een voertuigstatus naar geblokkereerd waarna het niet meer gebruikt kan worden in verhuurverzoeken
+        /// </summary>
+        /// <param name="voertuigId">welke voertuig je wil blokkeren</param>
+        /// <param name="Opmerking">als je er nog een opmerking bij wil zetten</param>
+        /// <returns>niets</returns>
         [Authorize(Roles = Rollen.BackendWorker)]
         [HttpPut("BlokkeerdVoertuig")] //methode voor het blokkeren van voertuigen zodat ze niet meer kunnen worden gebruikt bij verhuuringen
         public async Task<IActionResult> BlokkeerVoertuig(int voertuigId, string Opmerking)
@@ -109,7 +120,11 @@ namespace api.Controllers
                 return StatusCode(500, new { message = ex.Message });
             }
         }
-
+        /// <summary>
+        /// tegenovergestelde van de vorige methode, voertuig kan weer gekozen worden
+        /// </summary>
+        /// <param name="voertuigId">welke voertuig</param>
+        /// <returns>niets</returns>
         [Authorize(Roles = Rollen.BackendWorker)]
         [HttpPut("DeblokkeerVoertuig")] // deblokkeerd een voertuig kan weer worden gebruikt
         public async Task<IActionResult> DeblokkeerVoertuig(int voertuigId)
@@ -129,6 +144,10 @@ namespace api.Controllers
             }
         }
 
+        /// <summary>
+        /// methode vraag alle schademelding op uit de db voor het tonen in de frontend
+        /// </summary>
+        /// <returns>alle schademeldingen die nog niet behandeld zijn</returns>
         [Authorize(Roles = Rollen.BackendWorker)]
         [HttpGet("GetAllSchadeMeldingen")] //methode voor opvragen schademeldingen om ze te kunnen verwerken
         public async Task<IActionResult> GetAllSchadeMeldingen()
@@ -157,6 +176,12 @@ namespace api.Controllers
             }
         }
 
+        /// <summary>
+        /// methode voor het behandelen van een schademelding, een backendmedewerker moet daadwerkelijk iets doen aan de schade, daarna kan deze methode worden gebruikt om de schade te verwerken
+        /// kan ook nog een opmerking worden achtergelaten
+        /// </summary>
+        /// <param name="schadeMeldingBehandelDto">schadeformulier id en de opmerking</param>
+        /// <returns>niets</returns>
         [Authorize(Roles = Rollen.BackendWorker)]
         [HttpPut("BehandelSchadeMelding")] //methode voor behandelen van een schademelding, hierbij moet de medewerken daadwerkelijk iets regelen voor het voertuig
         public async Task<IActionResult> BehandelSchadeMelding([FromBody] SchadeMeldingBehandelDto schadeMeldingBehandelDto)
@@ -180,6 +205,11 @@ namespace api.Controllers
             }
         }
 
+        /// <summary>
+        /// Methode wordt gebruikt zodat backofficemedewerkers ook schade kunnen melden
+        /// </summary>
+        /// <param name="meldSchadeDto">voertuigid, wat de schade is en eventueel een foto</param>
+        /// <returns>niets</returns>
         [Authorize(Roles = Rollen.BackendWorker)]
         [HttpPut("MeldSchade")] //methode voor het melden van schade voor backendworkers
         public async Task<IActionResult> MeldSchade([FromBody] MeldSchadeDto meldSchadeDto)
@@ -198,7 +228,11 @@ namespace api.Controllers
                 return StatusCode(500, new { message = ex.Message });
             }
         }
-
+        /// <summary>
+        /// gebruik bij aanmaken voertuig
+        /// </summary>
+        /// <param name="nieuwVoertuigDto">info van een voertuig zoals naam, kenteken, merk etc.</param>
+        /// <returns>niets</returns>
         [Authorize(Roles = Rollen.BackendWorker)]
         [HttpPost("AddVoertuig")] //methode voor toevoegen voertuigen
         public async Task<IActionResult> AddVoertuig([FromBody] NieuwVoertuigDto nieuwVoertuigDto)
@@ -222,6 +256,11 @@ namespace api.Controllers
             }
         }
 
+        /// <summary>
+        /// methode voor verwijderen voertuig
+        /// </summary>
+        /// <param name="voertuigId">dto form is makkelijker maar het is alleen voertuigId</param>
+        /// <returns>niets</returns>
         [Authorize(Roles = Rollen.BackendWorker)]
         [HttpDelete("VerwijderVoertuig")] //methode voor verwijderen voertuigen
         public async Task<IActionResult> VerwijderVoertuig([FromBody] IdDto voertuigId)
@@ -241,6 +280,11 @@ namespace api.Controllers
             }
         }
 
+        /// <summary>
+        /// Methode voor het weizigen van de voertuigdata
+        /// </summary>
+        /// <param name="weizigVoertuigDto">voertuiginfo die moet worden geweizigd, bij geen info wordt er niets geweizigd</param>
+        /// <returns>niets</returns>
         [Authorize(Roles = Rollen.BackendWorker)]
         [HttpPut("WijzigVoertuig")] //methode voor wijzigen van data van een voertuig
         public async Task<IActionResult> WijzigVoertuig([FromBody] WeizigVoertuigDto weizigVoertuigDto)
@@ -259,9 +303,12 @@ namespace api.Controllers
                 return StatusCode(500, new { message = ex.Message });
             }
         }
-
+        /// <summary>
+        /// methode voor het opvragen van de nieuwe wagenparkbeheerder verzoeken, gebruik in frontend
+        /// </summary>
+        /// <returns>alle wagenparkverzoek die niet behandeld zijn</returns>
         [Authorize(Roles = Rollen.BackendWorker)]
-        [HttpGet("GetAllNieuwWagenParkVerzoeken")] //methode vraagt alle verzoeken voor nieuwe wagenparkbeheerder op voor verwerking
+        [HttpGet("GetAllNieuwWagenParkVerzoeken")] 
         public async Task<IActionResult> GetAllNieuwWagenParkVerzoeken()
         {
             try
@@ -280,6 +327,11 @@ namespace api.Controllers
             }
         }
 
+        /// <summary>
+        /// hiermee kan de werknemer het verzoek accepteren, er wordt dan een wagenpark aangemaakt en een account voor de beheerder, er wordt ook een email verstuurd
+        /// </summary>
+        /// <param name="idDto">id van het verzoek</param>
+        /// <returns>niets</returns>
         [Authorize(Roles = Rollen.BackendWorker)]
         [HttpPut("AcceptVerzoek")] //accepteerd het verzoek en maak een nieuw wagenpark aan
         public async Task<IActionResult> AcceptVerzoek([FromBody] IdDto idDto)
@@ -295,23 +347,24 @@ namespace api.Controllers
             }
         }
 
-        [Authorize(Roles = Rollen.BackendWorker)]
-        [HttpPut("DeclineVerzoek")] //weiger het verzoek en stuur een email met de reden
-        public async Task<IActionResult> DeclineVerzoek([FromBody] WeigerNieuwWagenParkVerzoekDto Dto)
+        /// <summary>
+        /// weigerd het verzoek en stuur een email met informatie over de weigering
+        /// </summary>
+        /// <param name="Dto">id van het verzoek</param>
+        /// <returns>niets</returns>
+        [HttpPut("WeigerVerzoek")]
+        public async Task<IActionResult> WeigerVerzoek([FromBody]WeigerNieuwWagenParkVerzoekDto Dto)
         {
             try
             {
                 var result = await _wagenparkService.WeigerNieuwWagenParkVerzoek(Dto);
                 if (!result)
                 {
-                    return BadRequest("Er is iets misgegaan bij het afwijzen van het verzoek.");
+                    return BadRequest("Er is een fout opgetreden bij het weigeren van het verzoek.");
                 }
-                return Ok("Verzoek succesvol afgewezen.");
+                return NoContent(); 
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = ex.Message });
-            }
+            catch (Exception ex) { return BadRequest(ex.Message);}
         }
 
     }   

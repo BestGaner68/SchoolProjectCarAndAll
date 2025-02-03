@@ -7,6 +7,10 @@ using api.DataStructureClasses;
 
 namespace api.Models
 {
+    /// <summary>
+    /// Deze tabel is voor het toevoegen van gebruikers aan het wagenpark, een uitgenodigde gebruiker komt hier te staan en kan daarna een account aanmaken,
+    /// de status verduidelijkt wat de momentele status van de gebruiker is = uitgenodigd, toegevoegt of verwijderd
+    /// </summary>
     public class WagenParkUserList
     {
         [Key]

@@ -13,9 +13,15 @@ namespace api.Repositories
     {
         private readonly ApplicationDbContext _context;
         private readonly IVoertuigService _voertuigService;
-        public ReserveringRepo (ApplicationDbContext context, IVoertuigService voertuigService){
+        private readonly IWagenparkService _wagenparkService;
+        private readonly IWagenParkUserListService _wagenparkUserListService;
+        private readonly IEmailService _emailService;
+        public ReserveringRepo (ApplicationDbContext context, IVoertuigService voertuigService, IWagenparkService wagenparkService, IWagenParkUserListService wagenParkUserListService, IEmailService email){
             _context = context;
             _voertuigService = voertuigService;
+            _wagenparkService = wagenparkService;
+            _wagenparkUserListService = wagenParkUserListService;
+            _emailService = email;
         }
         
         public async Task<bool> AcceptVerhuurVerzoek(int verhuurVerzoekId)
@@ -25,7 +31,7 @@ namespace api.Repositories
             {
                 return false;
             }
-            CurrentVerhuurVerzoek.Status = "Geaccepteerd";
+            CurrentVerhuurVerzoek.Status = VerhuurVerzoekStatussen.Geaccepteerd;
             var CurrentReservering = VerhuurVerzoekMapper.ToReserveringFromVerhuurVerzoek(CurrentVerhuurVerzoek);
             var User = await _context.Users.FindAsync(CurrentReservering.AppUserId);
             CurrentReservering.Fullname = $"{User.Voornaam} {User.Achternaam}";
@@ -39,18 +45,38 @@ namespace api.Repositories
             }
             await _context.Reservering.AddAsync(CurrentReservering);
             await _context.SaveChangesAsync();
+            var Voertuig = await _context.Voertuig.FindAsync(CurrentVerhuurVerzoek.VoertuigId);
+            var emailMetadata = new EmailMetaData
+            {
+                ToAddress = User.Email,
+                Subject = "Uw verhuurverzoek is Geaccepteerd",
+                Body = EmailTemplates.RentalRequestAccepted(CurrentReservering, Voertuig)
+            };
+
+            // Send the email
+            await _emailService.SendEmail(emailMetadata);
             return true;
         }       
-        public async Task<bool> WeigerVerhuurVerzoek(int verhuurVerzoekId)
+        public async Task<bool> WeigerVerhuurVerzoek(WeigerVerhuurVerzoekDto weigerVerhuurVerzoekDto)
         {
             try{
-                var CurrentVerhuurVerzoek = await _context.VerhuurVerzoek.FindAsync(verhuurVerzoekId);
+                var CurrentVerhuurVerzoek = await _context.VerhuurVerzoek.FindAsync(weigerVerhuurVerzoekDto.VerhuurverzoekId);
                 if (CurrentVerhuurVerzoek == null) 
                 {
                     return false;
                 }
-                CurrentVerhuurVerzoek.Status = ReserveringStatussen.Geweigerd;
+                CurrentVerhuurVerzoek.Status = VerhuurVerzoekStatussen.Geweigerd;
                 await _context.SaveChangesAsync();
+                var user = await _context.Users.FindAsync(CurrentVerhuurVerzoek.AppUserId);
+                var emailMetadata = new EmailMetaData
+                {
+                    ToAddress = user.Email,
+                    Subject = "Uw verhuurverzoek is geweigerd",
+                    Body = EmailTemplates.RentalRequestRejected(user, weigerVerhuurVerzoekDto.RedenVoorWeigering)
+                };
+
+                // Send the email
+                await _emailService.SendEmail(emailMetadata);
                 return true;
             }
             catch(Exception ex)
@@ -117,11 +143,7 @@ namespace api.Repositories
 
         public async Task<Reservering> GetById(int ReserveringId)
         {
-            var reservering = await _context.Reservering.FindAsync(ReserveringId);
-            if (reservering == null)
-            {
-                return null;
-            }
+            var reservering = await _context.Reservering.FindAsync(ReserveringId) ?? throw new ArgumentException($"Geen Reservering gevonden met Id {ReserveringId}");
             return reservering;
         }
 
@@ -237,6 +259,28 @@ namespace api.Repositories
         public async Task<Reservering?> GetReserveringById(int reserveringId)
         {
             return await _context.Reservering.FindAsync(reserveringId) ?? null;
+        }
+
+        public async Task<Reservering> GetByIdOverzicht(int ReserveringId)
+        {
+            return await _context.Reservering.Include(x => x.Verzekering)
+                .Include(x => x.Accessoires)
+                .FirstOrDefaultAsync(x => x.ReserveringId == ReserveringId)
+                ?? throw new ArgumentException("Geen OverzichtData Gevonden")
+                ;
+        }
+
+        public async Task<decimal> GetKilometerPrijs(int voertuigId)
+        {
+            var voertuigData = await _context.VoertuigData
+                .Where(vd => vd.VoertuigId == voertuigId)
+                .Select(vd => vd.KilometerPrijs)
+                .FirstOrDefaultAsync();
+
+        if (voertuigData == 0)
+            throw new InvalidOperationException("Kilometerprijs niet gevonden voor dit voertuig");
+
+        return voertuigData;
         }
     }
 }

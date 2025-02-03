@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace api.Models
 {
+    /// <summary>
+    /// alle data voor aanmaken verhuurverzoek, niets bijzonders
+    /// </summary>
     public class VerhuurVerzoek
     {
         [Key]
@@ -20,5 +23,8 @@ namespace api.Models
         public int VerwachtteKM { get; set; }
         public DateTime Datum { get; set; } = DateTime.Now;
         public string Status {get; set;} =string.Empty;
+        public int VerzekeringId { get; set; }
+        public Verzekering Verzekering { get; set; }
+        public List<Accessoires>? Accessoires{ get; set; } =[];
     }
 }

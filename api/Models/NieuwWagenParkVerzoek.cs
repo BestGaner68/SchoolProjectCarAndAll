@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace api.Models
 {
+    /// <summary>
+    /// niets interessant hier, alleen data die nodig is bij het aanmaken van een wagenpark
+    /// </summary>
     public class NieuwWagenParkVerzoek
     {
         [Key]

@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 
 namespace api.DataStructureClasses
 {
+    /// <summary>
+    /// namen van de statussen van wagenparkusers voor consistentie
+    /// </summary>
     public class WagenParkUserListStatussen
     {
         public const string Uitgenodigt = "Uitgenodigt";

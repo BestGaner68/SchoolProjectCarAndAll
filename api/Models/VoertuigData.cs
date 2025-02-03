@@ -9,6 +9,9 @@ using api.DataStructureClasses;
 
 namespace api.Models
 {
+    /// <summary>
+    /// extra informatie over een voertuig, direct gelinked aan elk voertuig
+    /// </summary>
     public class VoertuigData
     {
         [Key]

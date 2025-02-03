@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 C:\Users\jamil\source\repos\car\api\bin\Debug\net8.0\appsettings.Development.json
 C:\Users\jamil\source\repos\car\api\bin\Debug\net8.0\appsettings.json
 C:\Users\jamil\source\repos\car\api\bin\Debug\net8.0\api.exe
@@ -9,6 +7,8 @@ C:\Users\jamil\source\repos\car\api\bin\Debug\net8.0\api.dll
 C:\Users\jamil\source\repos\car\api\bin\Debug\net8.0\api.pdb
 C:\Users\jamil\source\repos\car\api\bin\Debug\net8.0\Azure.Core.dll
 C:\Users\jamil\source\repos\car\api\bin\Debug\net8.0\Azure.Identity.dll
+C:\Users\jamil\source\repos\car\api\bin\Debug\net8.0\FluentEmail.Core.dll
+C:\Users\jamil\source\repos\car\api\bin\Debug\net8.0\FluentEmail.Smtp.dll
 C:\Users\jamil\source\repos\car\api\bin\Debug\net8.0\Humanizer.dll
 C:\Users\jamil\source\repos\car\api\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 C:\Users\jamil\source\repos\car\api\bin\Debug\net8.0\Microsoft.AspNetCore.Cryptography.Internal.dll
@@ -148,7 +148,6 @@ C:\Users\jamil\source\repos\car\api\obj\Debug\net8.0\refint\api.dll
 C:\Users\jamil\source\repos\car\api\obj\Debug\net8.0\api.pdb
 C:\Users\jamil\source\repos\car\api\obj\Debug\net8.0\api.genruntimeconfig.cache
 C:\Users\jamil\source\repos\car\api\obj\Debug\net8.0\ref\api.dll
->>>>>>> 630b148b6dd633a88e960aa7ecf2344b83fac1b5
 C:\Users\ayhan\OneDrive\Documents\My Web Sites\New folder\SchoolProjectCarAndAll\api\bin\Debug\net8.0\appsettings.Development.json
 C:\Users\ayhan\OneDrive\Documents\My Web Sites\New folder\SchoolProjectCarAndAll\api\bin\Debug\net8.0\appsettings.json
 C:\Users\ayhan\OneDrive\Documents\My Web Sites\New folder\SchoolProjectCarAndAll\api\bin\Debug\net8.0\api.exe
