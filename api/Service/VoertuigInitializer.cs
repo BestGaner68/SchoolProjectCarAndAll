@@ -235,6 +235,27 @@ namespace api.Service
                 new() { Naam = AbonnementNamen.WagenparkPremium, Prijs = 300m, IsStandaard = false, IsWagenparkAbonnement = true },
             };
             await abonnementService.AddAbonnement(Abonnementen);
+
+            var Verzekeringen = new List<Verzekering>
+            {
+                new() { VerzekeringNaam = "Geen Verzekering", VerzekeringPrijs = 0m },
+                new() { VerzekeringNaam = "Semi-Verzekering", VerzekeringPrijs = 25m },
+                new() { VerzekeringNaam = "Volledige Verzekering", VerzekeringPrijs = 50m }
+            };
+            await abonnementService.AddVerzekering(Verzekeringen);
+
+            var Accessoires = new List<Accessoires>
+            {
+                new() { Naam = "GPS Navigatie", Prijs = 5m },
+                new() { Naam = "Kinderstoel", Prijs = 7.50m },
+                new() { Naam = "Dakdrager", Prijs = 10m },
+                new() { Naam = "Winterbanden", Prijs = 15m }
+            };
+            await abonnementService.AddAccessoires(Accessoires);
+
+
+            
+
         }        
     }
 }

@@ -11,9 +11,10 @@ namespace api.Interfaces
     public interface IReserveringService
     {
         Task<bool> AcceptVerhuurVerzoek(int verhuurVerzoekId); // Methode accepteerd een verhuurverzoek en zet deze om in een reservering
-        Task<bool> WeigerVerhuurVerzoek(int verhuurVerzoekId); //Methode weigert een verhuurverzoek
+        Task<bool> WeigerVerhuurVerzoek(WeigerVerhuurVerzoekDto weigerVerhuurVerzoekDto); //Methode weigert een verhuurverzoek
         Task<List<Reservering>> GetAll(); // Methode voor ophalen van alle reserveringen
         Task<Reservering> GetById(int ReserveringId); //Methode haalt reservering op uit de Db, gebaseerd op het id
+        Task<Reservering> GetByIdOverzicht(int ReserveringId);
         Task<bool> GeefUit (int ReserveringId); // Methode voor het uitgeven van voertuigen, houdt de status bij in de Db
         Task <bool> NeemIn (int ReserveringId); // Methode voor het innemen van voertuigen, houdt de status bij in de Db
         Task<bool> MeldSchadeVanuitReservering (int ReserveringId, string Schade, IFormFile? SchadeFoto); //Methode wordt gebruik om schade te melden als deze aanwezig is, slaat ook een bijgeleverde foto op als deze aanwezig is
@@ -23,5 +24,6 @@ namespace api.Interfaces
         Task<bool> WijzigReservering(WijzigReserveringDto wijzigReserveringDto);
         Task<bool> VerwijderReservering(int reserveringId);
         Task <Reservering?>GetReserveringById(int reserveringId);
+        Task <decimal> GetKilometerPrijs(int voertuigId);
     }
 }

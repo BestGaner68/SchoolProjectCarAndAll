@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using api.Models;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 namespace api.DataStructureClasses
 {
@@ -83,5 +85,31 @@ namespace api.DataStructureClasses
             "Met vriendelijke groet, " + 
             "Het team van CarAndAll";
         }
+
+        public static string RentalRequestAccepted(Reservering reservering, Voertuig voertuig)
+        {
+            return $@"
+                Beste {reservering.Fullname},<br><br>
+                Uw verhuurverzoek voor het voertuig van merk: {voertuig.Merk} en type: {voertuig.Type} is geaccepteerd.<br>
+                Startdatum: {reservering.StartDatum:dd MMM yyyy}.<br>
+                Einddatum: {reservering.EindDatum:dd MMM yyyy}.<br><br>
+                Er zal nog een email volgend met bijbehorende ophaallocatie en datum ter herinnering.<br><br>
+                Met vriendelijke groet,<br>
+                Team CarAndAll
+            ";
+        }
+
+        public static string RentalRequestRejected(AppUser user, string Reden)
+        {
+            return $@"
+                Beste {user.Voornaam} {user.Achternaam},<br><br>
+                Het spijt ons u te moeten informeren dat uw verhuurverzoek is geweigerd.<br><br>
+                Reden: {Reden}<br><br>
+                Als u vragen heeft, neem dan contact met ons op.<br><br>
+                Met vriendelijke groet,<br>
+                Team CarAndAll
+            ";
+        }
+
     }
 }

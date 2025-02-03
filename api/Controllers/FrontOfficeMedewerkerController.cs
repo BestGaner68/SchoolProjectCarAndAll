@@ -81,7 +81,7 @@ namespace api.Controllers
                     return BadRequest("Reservering niet gevonden.");
                 }
         
-                var prijsOverzicht = await _kostenService.BerekenDaadWerkelijkPrijs(innameDto.ReserveringId, innameDto.GeredenKilometers, innameDto.IsSchade, reservering.AppUserId);
+                var prijsOverzicht = await _kostenService.BerekenTotalePrijs(innameDto.ReserveringId, innameDto.IsSchade, innameDto.GeredenKilometers);
                 if (prijsOverzicht == null)
                 {
                     return BadRequest("Er is iets mis gegaan bij het berekenen van de prijs.");

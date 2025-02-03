@@ -57,6 +57,28 @@ namespace api.Controllers
             return Ok(verhuurVerzoekByID);
         }
 
+        [HttpGet("GetAllVerzekeringen")]
+        public async Task<ActionResult<IEnumerable<Verzekering>>> GetAllVerzekeringen()
+        {
+            var verzekeringen = await _verhuurVerzoekRepo.GetAllVerzekeringen();
+            if (verzekeringen == null)
+            {
+                return NotFound();
+            }
+            return Ok(verzekeringen);
+        }
+
+        [HttpGet("GetAllAccessoires")]
+        public async Task<ActionResult<IEnumerable<Accessoires>>> GetAllAccessoires()
+        {
+            var accessoires = await _verhuurVerzoekRepo.GetAllAccessoires();
+            if (accessoires == null)
+            {
+                return NotFound();
+            }
+            return Ok(accessoires);
+        }
+
         [Authorize]
         [HttpPost("VerhuurVerzoekRequest")]
         public async Task<IActionResult> Create([FromBody] VerhuurVerzoekRequestDto verhuurVerzoekDto)
@@ -84,8 +106,9 @@ namespace api.Controllers
             {
                 return BadRequest($"StartDatum en EindDatum moeten minimaal 24 uur uit elkaar liggen. {timeDifference}");
             }
-
-            var verhuurVerzoekModel = verhuurVerzoekDto.ToVerhuurVerzoekFromDto(userId);
+            var GekozenAccesoires = await _verhuurVerzoekRepo.FromIdToInstanceAccessoires(verhuurVerzoekDto.AccessoiresIds);
+            var verzekering = await _verhuurVerzoekRepo.FromIdToInstanceVerzekering(verhuurVerzoekDto.VerzekeringId);
+            var verhuurVerzoekModel = verhuurVerzoekDto.ToVerhuurVerzoekFromDto(userId, GekozenAccesoires, verzekering);
             await _verhuurVerzoekRepo.CreateAsync(verhuurVerzoekModel);
             return CreatedAtAction(nameof(GetById), new {id = verhuurVerzoekModel.VerhuurVerzoekId}, verhuurVerzoekModel.ToVerhuurVerzoekDto());
         }
@@ -128,7 +151,7 @@ namespace api.Controllers
         }
 
         [HttpPut("GetKostenOverzicht")]
-        public async Task<IActionResult> GetKostenOverzicht([FromBody]GetKostenOverzichtDto getKostenOverzichtDto)
+        public async Task<IActionResult> GetKostenOverzicht([FromBody]IdDto ReserveringsId)
         {
             try
             {
@@ -136,13 +159,7 @@ namespace api.Controllers
                 if (string.IsNullOrEmpty(appUserId))
                     return Unauthorized();
 
-                var kosten = await _kostenService.BerekenVerwachtePrijsUitVerhuurVerzoek(
-                    appUserId,
-                    getKostenOverzichtDto.VerwachtteKM,
-                    getKostenOverzichtDto.StartDatum,
-                    getKostenOverzichtDto.EindDatum,
-                    getKostenOverzichtDto.VoertuigId
-                );
+                var kosten = await _kostenService.BerekenVerwachtePrijsUitVerhuurVerzoek(ReserveringsId.Id);
 
                 return Ok(kosten);
             }

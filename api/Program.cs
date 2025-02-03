@@ -7,6 +7,7 @@ using api.Interfaces;
 using api.Models;
 using api.Repositories;
 using api.Service;
+using api.Service.KostenBerekeningen;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -115,9 +116,14 @@ builder.Services.AddScoped<IDoubleDataCheckerRepo, DoubleDataCheckerRepo>();
 builder.Services.AddScoped<IReserveringService, ReserveringRepo>();
 builder.Services.AddScoped<IAbonnementService, AbonnementServiceRepo>();
 builder.Services.AddScoped<IEmailService, EmailRepo>();
-builder.Services.AddScoped<IKostenService, KostenRepo>();
+builder.Services.AddScoped<IKostenService, KostenService>();
 builder.Services.AddScoped<IFactuurService, FactuurRepo>();
 builder.Services.AddScoped<IBetaalService, BetaalRepo>();
+builder.Services.AddScoped<PrijsCalculatorServiceParticulier>();
+builder.Services.AddScoped<PrijsCalculatorZakelijkService>();
+builder.Services.AddScoped<SchadePrijsService>();
+builder.Services.AddScoped<AccessoiresPrijsService>();
+
 
 var app = builder.Build();
 

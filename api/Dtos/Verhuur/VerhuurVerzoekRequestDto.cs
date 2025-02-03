@@ -30,5 +30,9 @@ namespace api.Dtos.Account
         [Required(ErrorMessage = "VerwachtteKM is verplicht.")]
         [Range(0, int.MaxValue, ErrorMessage = "VerwachtteKM moet een positief getal zijn.")]
         public int VerwachtteKM { get; set; }
+        public List<int?> AccessoiresIds { get; set; }
+        [Required(ErrorMessage = "Verzekering is verplicht.")]
+        [Range(1, int.MaxValue, ErrorMessage = "Ongeldige verzekering geselecteerd.")]
+        public int VerzekeringId { get; set; }
     }
 }

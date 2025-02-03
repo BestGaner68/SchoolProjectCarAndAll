@@ -17,5 +17,9 @@ namespace api.Interfaces
         Task<List<VerhuurVerzoek>> GetMyVerhuurVerzoeken(string AppUserId); //Methode om de verhuurverzoeken van een gebruiker uit de Db te vragen
         Task <bool>DeclineMyVerzoek(int verhuurVerzoekId, string AppUserId); //Methode om de status van het verhuurverzoek aan te passen in de database, checked of de UserIds Overeenkomen
         Task<List<Reservering>> ViewHuurGeschiedenis (string AppUserId); //Methode om huurgeschiedenis van een gebruiker uit de Db
+        Task <List<Verzekering>> GetAllVerzekeringen ();
+        Task <List<Accessoires>> GetAllAccessoires ();
+        Task <List<Accessoires>> FromIdToInstanceAccessoires(List<int?> AccessoiresList);
+        Task <Verzekering> FromIdToInstanceVerzekering (int verzekeringId);
     }
 }
