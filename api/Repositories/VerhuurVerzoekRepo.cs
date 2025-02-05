@@ -31,8 +31,8 @@ namespace api.Repositories
         public async Task<VerhuurVerzoek?> GetByIdAsync(int id)
         {
             return await _context.VerhuurVerzoek
-                .Include(v => v.Verzekering) // Ensure Verzekering is included
-                .Include(v => v.Accessoires) // Ensure Accessoires are included (if needed)
+                .Include(v => v.Verzekering) 
+                .Include(v => v.Accessoires) 
                 .FirstOrDefaultAsync(v => v.VerhuurVerzoekId == id);
         }
 

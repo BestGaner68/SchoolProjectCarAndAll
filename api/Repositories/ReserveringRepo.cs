@@ -145,14 +145,19 @@ namespace api.Repositories
 
         public async Task<List<Reservering>> GetAll()
         {
-           var result = await _context.Reservering.ToListAsync();
-           return result;
+           var result = await _context.Reservering
+                .Where(v => v.Status != ReserveringStatussen.Afgerond || v.Status == ReserveringStatussen.Geweigerd)
+                .ToListAsync() ?? throw new ArgumentException($"Geen Reserveringen gevonden");
+            return result;
         }
 
         public async Task<Reservering> GetById(int ReserveringId)
         {
-            var reservering = await _context.Reservering.FindAsync(ReserveringId) ?? throw new ArgumentException($"Geen Reservering gevonden met Id {ReserveringId}");
-            return reservering;
+            var result = await _context.Reservering
+                .Include(v => v.Accessoires)
+                .Include(v => v.Verzekering)
+                .FirstOrDefaultAsync() ?? throw new ArgumentException ("Geen Reservering gevonden");
+            return result;
         }
 
         public async Task<bool> GeefUit(int ReserveringId)
@@ -224,9 +229,12 @@ namespace api.Repositories
 
         
 
-        public async Task<List<Reservering>> GetMyReserveringen(string AppUserId){
+        public async Task<List<Reservering>> GetMyReserveringen(string AppUserId)
+        {
             return await _context.Reservering
                 .Where(r => r.AppUserId == AppUserId)
+                .Include(r => r.Accessoires)
+                .Include(r => r.Verzekering)
                 .ToListAsync();    
         }
 
