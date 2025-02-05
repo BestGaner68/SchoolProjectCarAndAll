@@ -8,6 +8,11 @@ namespace api.Interfaces
 {
     public interface IBetaalService
     {
-        public Task<string> BehandelCreditCardGegevens(BetaalDto betaalDto); //methode is een mock versie en heeft geen echte implementatie, zou gebruikt worden bij het verwerken van betaalgegevens
+        /// <summary>
+        /// mock methode voor behandelen betaalgegevens
+        /// </summary>
+        /// <param name="betaalDto">betaal informatie, creditcardnummer etc.</param>
+        /// <returns>mock string, dat het is gelukt</returns>
+        public Task<string> BehandelCreditCardGegevens(BetaalDto betaalDto);
     }
 }

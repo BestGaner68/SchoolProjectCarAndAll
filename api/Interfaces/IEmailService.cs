@@ -9,6 +9,11 @@ namespace api.Repositories
 {
     public interface IEmailService
     {
-        Task SendEmail(EmailMetaData emailMetaData); //simple methode gebruikt om emails te versturen
+        /// <summary>
+        /// methode voor het versturen van emails, de applicatie gebruik fluentemailservices voor deze functionaliteit
+        /// </summary>
+        /// <param name="emailMetaData">informatie die nodig is bij het versturen van de email, reciever, subject, body</param>
+        /// <returns>niets</returns>
+        Task SendEmail(EmailMetaData emailMetaData);
     }
 }

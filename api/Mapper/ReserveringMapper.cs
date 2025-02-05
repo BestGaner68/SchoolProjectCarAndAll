@@ -22,6 +22,8 @@ namespace api.Mapper
                 VoertuigMerk = voertuigDto.Merk,
                 VoertuigSoort = voertuigDto.Soort,
                 VoertuigType = voertuigDto.type,
+                Verzekering = reservering.Verzekering.VerzekeringNaam,
+                Accessoires = reservering.Accessoires,
             };
         }
     }

@@ -116,7 +116,7 @@ namespace api.Controllers
                     }
                 }
 
-                var reservering = await _reserveringService.GetReserveringById(innameDto.ReserveringId);
+                var reservering = await _reserveringService.GetById(innameDto.ReserveringId);
                 if (reservering == null)
                 {
                     return NotFound(new { message = "Reservering niet gevonden." });

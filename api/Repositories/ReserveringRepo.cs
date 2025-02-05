@@ -137,9 +137,9 @@ namespace api.Repositories
 
         public async Task<List<Reservering>> GetAll()
         {
-           var result = await _context.Reservering.ToListAsync();
+           var result = await _context.Reservering.Where(v => v.Status != ReserveringStatussen.Afgerond || v.Status == ReserveringStatussen.Geweigerd).ToListAsync();
            return result;
-        }
+        }//<--------
 
         public async Task<Reservering> GetById(int ReserveringId)
         {
@@ -222,6 +222,8 @@ namespace api.Repositories
         public async Task<List<Reservering>> GetMyReserveringen(string AppUserId){
             return await _context.Reservering
                 .Where(r => r.AppUserId == AppUserId)
+                .Include(r => r.Accessoires)
+                .Include(r =>r.Verzekering)
                 .ToListAsync();    
         }
 

@@ -1,1 +1,1 @@
-Al het commentaar is te vinden in de interface methodes, dit is voor het gemakt van lezen en duidelijkheid
+Voor informatie betreft de methodes in de repositories zie de interface klassen, dit is voor gemakt van lezen en duidelijkheid.
