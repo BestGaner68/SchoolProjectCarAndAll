@@ -44,8 +44,11 @@ namespace api.Repositories
         {
             return await _context.VerhuurVerzoek
                 .Where(v => v.Status == "Pending")
+                .Include(v => v.Accessoires)    
+                .Include(v => v.Verzekering)   
                 .ToListAsync();
         }
+
 
         public async Task<VolledigeDataDto> GetVolledigeDataDto(VerhuurVerzoek verhuurVerzoek)
         {

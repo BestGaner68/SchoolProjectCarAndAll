@@ -12,8 +12,8 @@ using api.Data;
 namespace api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250203143243_verzkeringfix")]
-    partial class verzkeringfix
+    [Migration("20250205151243_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,36 @@ namespace api.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("AccessoiresReservering", b =>
+                {
+                    b.Property<int>("AccessoiresId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ReserveringId")
+                        .HasColumnType("int");
+
+                    b.HasKey("AccessoiresId", "ReserveringId");
+
+                    b.HasIndex("ReserveringId");
+
+                    b.ToTable("AccessoiresReservering");
+                });
+
+            modelBuilder.Entity("AccessoiresVerhuurVerzoek", b =>
+                {
+                    b.Property<int>("AccessoiresId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("VerhuurVerzoekId")
+                        .HasColumnType("int");
+
+                    b.HasKey("AccessoiresId", "VerhuurVerzoekId");
+
+                    b.HasIndex("VerhuurVerzoekId");
+
+                    b.ToTable("AccessoiresVerhuurVerzoek");
+                });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
@@ -201,17 +231,7 @@ namespace api.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int?>("ReserveringId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("VerhuurVerzoekId")
-                        .HasColumnType("int");
-
                     b.HasKey("AccessoiresId");
-
-                    b.HasIndex("ReserveringId");
-
-                    b.HasIndex("VerhuurVerzoekId");
 
                     b.ToTable("Accessoires");
                 });
@@ -668,6 +688,36 @@ namespace api.Migrations
                     b.ToTable("WagenparkAbonnementen");
                 });
 
+            modelBuilder.Entity("AccessoiresReservering", b =>
+                {
+                    b.HasOne("api.Models.Accessoires", null)
+                        .WithMany()
+                        .HasForeignKey("AccessoiresId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("api.Models.Reservering", null)
+                        .WithMany()
+                        .HasForeignKey("ReserveringId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("AccessoiresVerhuurVerzoek", b =>
+                {
+                    b.HasOne("api.Models.Accessoires", null)
+                        .WithMany()
+                        .HasForeignKey("AccessoiresId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("api.Models.VerhuurVerzoek", null)
+                        .WithMany()
+                        .HasForeignKey("VerhuurVerzoekId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -717,17 +767,6 @@ namespace api.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("api.Models.Accessoires", b =>
-                {
-                    b.HasOne("api.Models.Reservering", null)
-                        .WithMany("Accessoires")
-                        .HasForeignKey("ReserveringId");
-
-                    b.HasOne("api.Models.VerhuurVerzoek", null)
-                        .WithMany("Accessoires")
-                        .HasForeignKey("VerhuurVerzoekId");
                 });
 
             modelBuilder.Entity("api.Models.Reservering", b =>
@@ -831,16 +870,6 @@ namespace api.Migrations
             modelBuilder.Entity("api.Models.AppUser", b =>
                 {
                     b.Navigation("UserAbonnementen");
-                });
-
-            modelBuilder.Entity("api.Models.Reservering", b =>
-                {
-                    b.Navigation("Accessoires");
-                });
-
-            modelBuilder.Entity("api.Models.VerhuurVerzoek", b =>
-                {
-                    b.Navigation("Accessoires");
                 });
 
             modelBuilder.Entity("api.Models.Voertuig", b =>

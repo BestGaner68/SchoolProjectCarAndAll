@@ -28,6 +28,20 @@ namespace api.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Accessoires",
+                columns: table => new
+                {
+                    AccessoiresId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Naam = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Prijs = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Accessoires", x => x.AccessoiresId);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AspNetRoles",
                 columns: table => new
                 {
@@ -105,7 +119,7 @@ namespace api.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Verzekering",
+                name: "Verzekeringen",
                 columns: table => new
                 {
                     VerzekeringId = table.Column<int>(type: "int", nullable: false)
@@ -115,7 +129,7 @@ namespace api.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Verzekering", x => x.VerzekeringId);
+                    table.PrimaryKey("PK_Verzekeringen", x => x.VerzekeringId);
                 });
 
             migrationBuilder.CreateTable(
@@ -313,9 +327,9 @@ namespace api.Migrations
                 {
                     table.PrimaryKey("PK_Reservering", x => x.ReserveringId);
                     table.ForeignKey(
-                        name: "FK_Reservering_Verzekering_VerzekeringId",
+                        name: "FK_Reservering_Verzekeringen_VerzekeringId",
                         column: x => x.VerzekeringId,
-                        principalTable: "Verzekering",
+                        principalTable: "Verzekeringen",
                         principalColumn: "VerzekeringId",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -341,9 +355,9 @@ namespace api.Migrations
                 {
                     table.PrimaryKey("PK_VerhuurVerzoek", x => x.VerhuurVerzoekId);
                     table.ForeignKey(
-                        name: "FK_VerhuurVerzoek_Verzekering_VerzekeringId",
+                        name: "FK_VerhuurVerzoek_Verzekeringen_VerzekeringId",
                         column: x => x.VerzekeringId,
-                        principalTable: "Verzekering",
+                        principalTable: "Verzekeringen",
                         principalColumn: "VerzekeringId",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -423,39 +437,61 @@ namespace api.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Accessoires",
+                name: "AccessoiresReservering",
                 columns: table => new
                 {
-                    AccessoiresId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Naam = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Prijs = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                    ReserveringId = table.Column<int>(type: "int", nullable: true),
-                    VerhuurVerzoekId = table.Column<int>(type: "int", nullable: true)
+                    AccessoiresId = table.Column<int>(type: "int", nullable: false),
+                    ReserveringId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Accessoires", x => x.AccessoiresId);
+                    table.PrimaryKey("PK_AccessoiresReservering", x => new { x.AccessoiresId, x.ReserveringId });
                     table.ForeignKey(
-                        name: "FK_Accessoires_Reservering_ReserveringId",
+                        name: "FK_AccessoiresReservering_Accessoires_AccessoiresId",
+                        column: x => x.AccessoiresId,
+                        principalTable: "Accessoires",
+                        principalColumn: "AccessoiresId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_AccessoiresReservering_Reservering_ReserveringId",
                         column: x => x.ReserveringId,
                         principalTable: "Reservering",
-                        principalColumn: "ReserveringId");
+                        principalColumn: "ReserveringId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AccessoiresVerhuurVerzoek",
+                columns: table => new
+                {
+                    AccessoiresId = table.Column<int>(type: "int", nullable: false),
+                    VerhuurVerzoekId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AccessoiresVerhuurVerzoek", x => new { x.AccessoiresId, x.VerhuurVerzoekId });
                     table.ForeignKey(
-                        name: "FK_Accessoires_VerhuurVerzoek_VerhuurVerzoekId",
+                        name: "FK_AccessoiresVerhuurVerzoek_Accessoires_AccessoiresId",
+                        column: x => x.AccessoiresId,
+                        principalTable: "Accessoires",
+                        principalColumn: "AccessoiresId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_AccessoiresVerhuurVerzoek_VerhuurVerzoek_VerhuurVerzoekId",
                         column: x => x.VerhuurVerzoekId,
                         principalTable: "VerhuurVerzoek",
-                        principalColumn: "VerhuurVerzoekId");
+                        principalColumn: "VerhuurVerzoekId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Accessoires_ReserveringId",
-                table: "Accessoires",
+                name: "IX_AccessoiresReservering_ReserveringId",
+                table: "AccessoiresReservering",
                 column: "ReserveringId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Accessoires_VerhuurVerzoekId",
-                table: "Accessoires",
+                name: "IX_AccessoiresVerhuurVerzoek_VerhuurVerzoekId",
+                table: "AccessoiresVerhuurVerzoek",
                 column: "VerhuurVerzoekId");
 
             migrationBuilder.CreateIndex(
@@ -548,7 +584,10 @@ namespace api.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Accessoires");
+                name: "AccessoiresReservering");
+
+            migrationBuilder.DropTable(
+                name: "AccessoiresVerhuurVerzoek");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
@@ -587,6 +626,9 @@ namespace api.Migrations
                 name: "Reservering");
 
             migrationBuilder.DropTable(
+                name: "Accessoires");
+
+            migrationBuilder.DropTable(
                 name: "VerhuurVerzoek");
 
             migrationBuilder.DropTable(
@@ -602,7 +644,7 @@ namespace api.Migrations
                 name: "Wagenpark");
 
             migrationBuilder.DropTable(
-                name: "Verzekering");
+                name: "Verzekeringen");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");

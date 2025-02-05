@@ -26,15 +26,22 @@ namespace api.Repositories
         
         public async Task<bool> AcceptVerhuurVerzoek(int verhuurVerzoekId)
         {       
-            var CurrentVerhuurVerzoek = await _context.VerhuurVerzoek.FindAsync(verhuurVerzoekId);
+            Console.WriteLine("Fetching VerhuurVerzoek...");
+            var CurrentVerhuurVerzoek = await _context.VerhuurVerzoek
+                .Where(v => v.VerhuurVerzoekId == verhuurVerzoekId)
+                .Include(v => v.Accessoires) 
+                .Include(v => v.Verzekering)  
+                .FirstOrDefaultAsync();
+
             if (CurrentVerhuurVerzoek == null)
             {
                 return false;
             }
             CurrentVerhuurVerzoek.Status = VerhuurVerzoekStatussen.Geaccepteerd;
-            var CurrentReservering = VerhuurVerzoekMapper.ToReserveringFromVerhuurVerzoek(CurrentVerhuurVerzoek);
-            var User = await _context.Users.FindAsync(CurrentReservering.AppUserId);
-            CurrentReservering.Fullname = $"{User.Voornaam} {User.Achternaam}";
+            var CurrentReservering = VerhuurVerzoekMapper.ToReserveringFromVerhuurVerzoek(CurrentVerhuurVerzoek) ?? throw new Exception("Mapping resulted in a null reservering.");
+            Console.WriteLine($"Mapped Reservering: {CurrentReservering.Fullname}, StartDatum: {CurrentReservering.StartDatum}");
+            var CurrentUser = await _context.Users.FindAsync(CurrentReservering.AppUserId) ?? throw new Exception("Geen user gevonden uit userId");
+            CurrentReservering.Fullname = $"{CurrentUser.Voornaam} {CurrentUser.Achternaam}";
             if (CurrentReservering.StartDatum > DateTime.UtcNow.AddDays(7))
             {
                 CurrentReservering.Status = ReserveringStatussen.MagWordenGewijzigd;
@@ -46,15 +53,17 @@ namespace api.Repositories
             await _context.Reservering.AddAsync(CurrentReservering);
             await _context.SaveChangesAsync();
             var Voertuig = await _context.Voertuig.FindAsync(CurrentVerhuurVerzoek.VoertuigId);
+            Console.WriteLine("hier nog alles ok");
             var emailMetadata = new EmailMetaData
             {
-                ToAddress = User.Email,
+                ToAddress = CurrentUser.Email,
                 Subject = "Uw verhuurverzoek is Geaccepteerd",
                 Body = EmailTemplates.RentalRequestAccepted(CurrentReservering, Voertuig)
             };
+            Console.WriteLine("email versturen...");
 
-            // Send the email
             await _emailService.SendEmail(emailMetadata);
+            Console.WriteLine("email verstuurd");
             return true;
         }       
         public async Task<bool> WeigerVerhuurVerzoek(WeigerVerhuurVerzoekDto weigerVerhuurVerzoekDto)

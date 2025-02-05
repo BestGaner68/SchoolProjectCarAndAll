@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -21,6 +22,7 @@ namespace api.Models
         public DateTime Datum { get; set; } = DateTime.Now;
         public string Status {get; set;} =string.Empty;
         public int VerzekeringId { get; set; }
+        [ForeignKey("VerzekeringId")]
         public Verzekering Verzekering { get; set; }
         public List<Accessoires>? Accessoires{ get; set; } =[];
     }

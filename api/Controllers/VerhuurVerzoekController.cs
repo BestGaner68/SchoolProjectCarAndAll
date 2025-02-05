@@ -151,7 +151,7 @@ namespace api.Controllers
         }
 
         [HttpPut("GetKostenOverzicht")]
-        public async Task<IActionResult> GetKostenOverzicht([FromBody]IdDto ReserveringsId)
+        public async Task<IActionResult> GetKostenOverzicht([FromBody]IdDto VerhuurverzoekId)
         {
             try
             {
@@ -159,7 +159,7 @@ namespace api.Controllers
                 if (string.IsNullOrEmpty(appUserId))
                     return Unauthorized();
 
-                var kosten = await _kostenService.BerekenVerwachtePrijsUitVerhuurVerzoek(ReserveringsId.Id);
+                var kosten = await _kostenService.BerekenVerwachtePrijsUitVerhuurVerzoek(VerhuurverzoekId.Id);
 
                 return Ok(kosten);
             }
