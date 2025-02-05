@@ -37,14 +37,7 @@ namespace api.Controllers
             {
                 return NotFound(new { message = "Geen openstaande verhuurverzoeken gevonden." });
             }
-            var mappedData = new List<VolledigeDataDto>();
-            foreach (var verzoek in pendingVerzoeken)
-            {
-                var volledigeData = await _verhuurVerzoekRepo.GetVolledigeDataDto(verzoek);
-                mappedData.Add(volledigeData);
-            }
-
-            return Ok(mappedData);
+            return Ok(pendingVerzoeken);
         }
 
         [HttpGet("GetByID/{id}")]

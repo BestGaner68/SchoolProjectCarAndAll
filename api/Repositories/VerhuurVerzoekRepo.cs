@@ -40,23 +40,30 @@ namespace api.Repositories
             return verhuurVerzoekModel;
         }
 
-        public async Task<List<VerhuurVerzoek>> GetPendingAsync()
+        public async Task<List<VolledigeDataDto>> GetPendingAsync()
         {
-            return await _context.VerhuurVerzoek
+            var verhuurVerzoeken = await _context.VerhuurVerzoek
                 .Where(v => v.Status == "Pending")
                 .Include(v => v.Accessoires)    
-                .Include(v => v.Verzekering)   
+                .Include(v => v.Verzekering)
                 .ToListAsync();
-        }
 
+            var result = new List<VolledigeDataDto>();
 
-        public async Task<VolledigeDataDto> GetVolledigeDataDto(VerhuurVerzoek verhuurVerzoek)
-        {
-            AppUser user = await _context.Users.FindAsync(verhuurVerzoek.AppUserId);
-            string fullName = $"{user.Voornaam} {user.Achternaam}";
-            VoertuigDto voertuigDto = await _voertuigService.GetSimpleVoertuigDataById(verhuurVerzoek.VoertuigId);
-            VolledigeDataDto volledigeDataDto = VerhuurVerzoekMapper.ToVolledigeDataDto(verhuurVerzoek, fullName, voertuigDto);
-            return volledigeDataDto;
+            foreach (var verhuurVerzoek in verhuurVerzoeken)
+            {
+                AppUser user = await _context.Users.FindAsync(verhuurVerzoek.AppUserId)
+                    ?? throw new Exception("Geen gebruiker gevonden");
+                string fullName = $"{user.Voornaam} {user.Achternaam}";
+                VoertuigDto voertuigDto = await _voertuigService.GetSimpleVoertuigDataById(verhuurVerzoek.VoertuigId);
+                var volledigeDataDto = VerhuurVerzoekMapper.ToVolledigeDataDto(verhuurVerzoek, fullName, voertuigDto);
+                volledigeDataDto.Accessoires = verhuurVerzoek.Accessoires.Select(a => a.Naam).ToList(); 
+                volledigeDataDto.Verzekering = verhuurVerzoek.Verzekering?.VerzekeringNaam; 
+
+                result.Add(volledigeDataDto);
+            }
+
+            return result;
         }
 
         public async Task<bool> DeclineMyVerzoek(int verhuurVerzoekId, string AppUserId)
