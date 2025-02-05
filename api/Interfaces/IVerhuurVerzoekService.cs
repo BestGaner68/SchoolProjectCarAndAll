@@ -20,5 +20,7 @@ namespace api.Interfaces
         Task <List<Accessoires>> GetAllAccessoires ();
         Task <List<Accessoires>> FromIdToInstanceAccessoires(List<int?> AccessoiresList);
         Task <Verzekering> FromIdToInstanceVerzekering (int verzekeringId);
+        Task<VerhuurVerzoek> GetByIdOverzichtVerhuurverzoek(int VerhuurverzoekId);
+    
     }
 }

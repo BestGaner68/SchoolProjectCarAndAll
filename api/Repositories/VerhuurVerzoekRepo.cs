@@ -30,7 +30,10 @@ namespace api.Repositories
 
         public async Task<VerhuurVerzoek?> GetByIdAsync(int id)
         {
-            return await _context.VerhuurVerzoek.FindAsync(id);
+            return await _context.VerhuurVerzoek
+                .Include(v => v.Verzekering) // Ensure Verzekering is included
+                .Include(v => v.Accessoires) // Ensure Accessoires are included (if needed)
+                .FirstOrDefaultAsync(v => v.VerhuurVerzoekId == id);
         }
 
          public async Task<VerhuurVerzoek> CreateAsync(VerhuurVerzoek verhuurVerzoekModel)
@@ -129,5 +132,14 @@ namespace api.Repositories
         {
             return await _context.Verzekeringen.FindAsync(verzekeringId) ?? throw new ArgumentException($"Er is geen Verzekering gevonden met verzekeringsId: {verzekeringId}");
         }
+
+        public async Task<VerhuurVerzoek> GetByIdOverzichtVerhuurverzoek(int VerhuurverzoekId)
+        {
+            return await _context.VerhuurVerzoek.Include(x => x.Verzekering)
+                .Include(x => x.Accessoires)
+                .FirstOrDefaultAsync(x => x.VerhuurVerzoekId == VerhuurverzoekId)
+                ?? throw new ArgumentException("Geen OverzichtData Gevonden");
+        }
+
     }
 }

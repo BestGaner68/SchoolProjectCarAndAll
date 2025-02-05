@@ -46,15 +46,27 @@ namespace api.Mapper
                 Datum = DateTime.Now,
                 Status = VerhuurVerzoekStatussen.Pending,
                 Accessoires = gekozenAccessoires,
-                Verzekering = verzekering,
             };
         }
 
-        public static Reservering ToReserveringFromVerhuurVerzoek(
-        VerhuurVerzoek verhuurVerzoek)
+        public static Reservering ToReserveringFromVerhuurVerzoek(VerhuurVerzoek verhuurVerzoek)
         {
+            Console.WriteLine($"VerhuurVerzoek ID: {verhuurVerzoek.VerhuurVerzoekId}, VerzekeringId: {verhuurVerzoek.VerzekeringId}");
+
+if (verhuurVerzoek.Verzekering != null)
+{
+    // Print all properties of Verzekering if it's not null
+    Console.WriteLine("Verzekering Details:");
+    Console.WriteLine($"VerzekeringId: {verhuurVerzoek.Verzekering.VerzekeringId}");
+    Console.WriteLine($"VerzekeringNaam: {verhuurVerzoek.Verzekering.VerzekeringNaam}");
+    Console.WriteLine($"VerzekeringPrijs: {verhuurVerzoek.Verzekering.VerzekeringPrijs}");
+}
+else
+{
+    Console.WriteLine("Verzekering is null, cannot map.");
+}
             return new Reservering
-            {    
+            {
                 AppUserId = verhuurVerzoek.AppUserId,
                 VoertuigId = verhuurVerzoek.VoertuigId,
                 StartDatum = verhuurVerzoek.StartDatum,
@@ -63,7 +75,7 @@ namespace api.Mapper
                 VerwachtteKM = verhuurVerzoek.VerwachtteKM,
                 AardReis = verhuurVerzoek.AardReis,
                 Accessoires = verhuurVerzoek.Accessoires,
-                Verzekering = verhuurVerzoek.Verzekering,
+                Verzekering = verhuurVerzoek.Verzekering, 
             };
         }
 

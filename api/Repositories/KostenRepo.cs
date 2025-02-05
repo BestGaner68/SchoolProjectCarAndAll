@@ -63,8 +63,9 @@ namespace api.Repositories
             var Verhuurverzoek = await _verhuurVerzoekService.GetByIdAsync(VerhuurverzoekId) ?? throw new Exception("Geen reservering gevonden");
             var CurrentReservering = VerhuurVerzoekMapper.ToReserveringFromVerhuurVerzoek(Verhuurverzoek);
             var abonnement = await _abonnementService.GetUserAbonnement(CurrentReservering.AppUserId);
-            var accessoiresKosten = await _accessoirePrijsService.Bereken(CurrentReservering.ReserveringId);
-            var schadeKosten = _schadePrijsService.Bereken(isSchade, CurrentReservering.Verzekering);
+            var accessoiresKosten = await _accessoirePrijsService.BerekenUitVerhuurVerzoek(CurrentReservering);
+            Console.WriteLine($"Verhuurverzoek verzekering = {Verhuurverzoek.Verzekering.VerzekeringId}");
+            var schadeKosten = _schadePrijsService.Bereken(isSchade, Verhuurverzoek.Verzekering);
             var kilometerPrijs = await _reserveringRepo.GetKilometerPrijs(CurrentReservering.VoertuigId);
             
 
@@ -79,5 +80,7 @@ namespace api.Repositories
             return basisPrijs;
                 
         }
+        
+
     }
 }

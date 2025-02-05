@@ -238,9 +238,9 @@ namespace api.Service
 
             var Verzekeringen = new List<Verzekering>
             {
-                new() { VerzekeringNaam = "Geen Verzekering", VerzekeringPrijs = 0m },
-                new() { VerzekeringNaam = "Semi-Verzekering", VerzekeringPrijs = 25m },
-                new() { VerzekeringNaam = "Volledige Verzekering", VerzekeringPrijs = 50m }
+                new() { VerzekeringNaam = VerzekeringNamen.GeenVerzekering, VerzekeringPrijs = 0m },
+                new() { VerzekeringNaam = VerzekeringNamen.HalfVerzekering, VerzekeringPrijs = 25m },
+                new() { VerzekeringNaam = VerzekeringNamen.VolVezekering, VerzekeringPrijs = 50m }
             };
             await abonnementService.AddVerzekering(Verzekeringen);
 

@@ -148,9 +148,9 @@ namespace api.Controllers
         {
             try
             {
-                var appUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                if (string.IsNullOrEmpty(appUserId))
-                    return Unauthorized();
+                // var appUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                // if (string.IsNullOrEmpty(appUserId))
+                //     return Unauthorized();
 
                 var kosten = await _kostenService.BerekenVerwachtePrijsUitVerhuurVerzoek(VerhuurverzoekId.Id);
 
