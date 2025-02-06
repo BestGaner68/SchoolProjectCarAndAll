@@ -48,6 +48,7 @@ namespace api.Repositories
                 Subject = "Uw Factuur voor Reservering",
                 Body = emailBody
             };
+        Console.WriteLine($"{emailBody}");
             await _emailService.SendEmail(emailMetadata);
             return true;
         }

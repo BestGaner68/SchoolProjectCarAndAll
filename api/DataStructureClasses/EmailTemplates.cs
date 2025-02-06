@@ -88,28 +88,36 @@ namespace api.DataStructureClasses
 
         public static string RentalRequestAccepted(Reservering reservering, Voertuig voertuig)
         {
-            return $@"
-                Beste {reservering.Fullname},<br><br>
-                Uw verhuurverzoek voor het voertuig van merk: {voertuig.Merk} en type: {voertuig.Type} is geaccepteerd.<br>
-                Startdatum: {reservering.StartDatum:dd MMM yyyy}.<br>
-                Einddatum: {reservering.EindDatum:dd MMM yyyy}.<br><br>
-                Er zal nog een email volgend met bijbehorende ophaallocatie en datum ter herinnering.<br><br>
-                Met vriendelijke groet,<br>
-                Team CarAndAll
-            ";
+            return 
+            $@"
+            Beste {reservering.Fullname},
+
+            Uw verhuurverzoek voor het voertuig van merk {voertuig.Merk} en type {voertuig.Type} is geaccepteerd.
+
+            Startdatum: {reservering.StartDatum:dd MMM yyyy}  
+            Einddatum: {reservering.EindDatum:dd MMM yyyy}  
+
+            Er zal nog een e-mail volgen met de bijbehorende ophaallocatie en datum ter herinnering.
+
+            Met vriendelijke groet,  
+            Team CarAndAll";
         }
 
-        public static string RentalRequestRejected(AppUser user, string Reden)
+        public static string RentalRequestRejected(AppUser user, string reden)
         {
             return $@"
-                Beste {user.Voornaam} {user.Achternaam},<br><br>
-                Het spijt ons u te moeten informeren dat uw verhuurverzoek is geweigerd.<br><br>
-                Reden: {Reden}<br><br>
-                Als u vragen heeft, neem dan contact met ons op.<br><br>
-                Met vriendelijke groet,<br>
-                Team CarAndAll
-            ";
+            Beste {user.Voornaam} {user.Achternaam},
+    
+            Het spijt ons u te moeten informeren dat uw verhuurverzoek is geweigerd.
+    
+            Reden: {reden}
+    
+            Als u vragen heeft, neem dan contact met ons op.
+    
+            Met vriendelijke groet,  
+            Team CarAndAll";
         }
+
 
     }
 }

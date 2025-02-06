@@ -147,6 +147,8 @@ namespace api.Repositories
         {
            var result = await _context.Reservering
                 .Where(v => v.Status != ReserveringStatussen.Afgerond || v.Status == ReserveringStatussen.Geweigerd)
+                .Include(v => v.Accessoires)
+                .Include(v => v.Verzekering)
                 .ToListAsync() ?? throw new ArgumentException($"Geen Reserveringen gevonden");
             return result;
         }
