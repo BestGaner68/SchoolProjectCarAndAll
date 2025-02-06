@@ -254,7 +254,7 @@ namespace api.Repositories
             await _context.SaveChangesAsync(); 
         }
 
-        public async Task<bool> AreAnyVoertuigStatus()
+        public async Task<bool> AreAnyVoertuigData()
         {
             var anyVoertuigStatus = await _context.VoertuigData.ToListAsync();
             if (anyVoertuigStatus.Count != 0)

@@ -22,7 +22,7 @@ namespace api.Service
         public static async Task InitializeDataBase(IVoertuigService voertuigService, IAbonnementService abonnementService)
         {
             var bestaandeVoertuigen = await voertuigService.GetAllVoertuigen();
-            var bestaandeVoertuigData = await voertuigService.AreAnyVoertuigStatus();
+            var bestaandeVoertuigData = await voertuigService.AreAnyVoertuigData();
             if (bestaandeVoertuigen.Count != 0 || bestaandeVoertuigData)
             {
                 return;
